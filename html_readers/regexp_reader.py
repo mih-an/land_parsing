@@ -1,4 +1,5 @@
 import re
+from bs4 import BeautifulSoup
 
 
 class HtmlReader:
@@ -30,3 +31,14 @@ class HtmlReader:
         raw_text = html_text[text_start_idx: text_end_idx]
         clean_text = raw_text.strip(" \r\n\t")
         return clean_text
+
+    @staticmethod
+    def get_links(html_text):
+        soup = BeautifulSoup(html_text, "html.parser")
+        links_tag = soup.find_all("a")
+
+        link_lst = []
+        for link in links_tag:
+            link_lst.append("http://olympus.realpython.org" + link["href"])
+
+        return link_lst

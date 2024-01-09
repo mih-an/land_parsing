@@ -1,37 +1,6 @@
-from loaders.simple_reader import SimpleUrlReader
-import re
-
-# url = "http://olympus.realpython.org/profiles/aphrodite"
-# simple_reader = SimpleReader()
-# html = simple_reader.read_url(url)
-# title = simple_reader.get_simple_title(html)
-#
-# print(title)
-#
-# url = "http://olympus.realpython.org/profiles/poseidon"
-# html = simple_reader.read_url(url)
-# title = simple_reader.get_simple_title(html)
-#
-# print(title)
-
-# print(re.findall("ab*c", "abcd"))
-# print(re.findall("ab*c", "acc"))
-# print(re.findall("ab*c", "abcac"))
-# print(re.findall("ab*c", "abdc"))
-# print(re.findall("ab*c", "ABC"))
-# print(re.findall("ab*c", "Abc", re.IGNORECASE))
-# print(re.findall("a.c", "abc"))
-# print(re.findall("a.c", "abbc"))
-# print(re.findall("a.c", "ac"))
-# print(re.findall("a.c", "acc"))
-# print(re.findall("a.*c", "abc"))
-# print(re.findall("a.*c", "abbc"))
-# print(re.findall("a.*c", "ac"))
-# print(re.findall("a.*c", "acc"))
-# match_results = re.search("ab*c", "ABC", re.IGNORECASE)
-# print(match_results.group())
-# string = "Everything is <replaced> if it's in <tags>."
-# string = re.sub("<.*?>", "ELEPHANTS", string)
-# print(string)
-
-
+import mechanicalsoup
+browser = mechanicalsoup.Browser()
+# url = "http://olympus.realpython.org/login"
+url = "https://www.cian.ru/cat.php?deal_type=sale&engine_version=2&object_type%5B0%5D=3&offer_type=suburban&p=2&region=4593"
+page = browser.get(url)
+print(page.soup)
