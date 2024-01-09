@@ -1,9 +1,8 @@
 from urllib.request import urlopen
 
-url = "http://olympus.realpython.org/profiles/aphrodite"
-page = urlopen(url)
+from loaders.simple_reader import SimpleReader
 
-html_bytes = page.read()
-html = html_bytes.decode("utf-8")
+url = "http://olympus.realpython.org/profiles/aphrodite"
+html = SimpleReader().read_url(url)
 
 print(html)
