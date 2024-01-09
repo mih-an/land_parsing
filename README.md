@@ -1,2 +1,4 @@
 # land_parsing
-scraping land ads
+Scraping land ads
+
+Educational project for web scraping
