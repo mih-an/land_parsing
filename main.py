@@ -1,17 +1,11 @@
-import mechanicalsoup
+from loaders.land_parser import LandParser
 
-# 1
-browser = mechanicalsoup.Browser()
-url = "https://www.avito.ru/moskva_i_mo/zemelnye_uchastki/prodam/izhs-ASgBAQICAUSWA9oQAUCmCBTmVQ?p=2"
-login_page = browser.get(url)
-login_html = login_page.soup
-print(login_html)
+url = ("https://cian.ru/cat.php?engine_version=2&p=1&region=1&offer_type=flat&deal_type=rent&room2=1"
+       "&room3=1&with_neighbors=0&type=4")
 
-# # 2
-# form = login_html.select("form")[0]
-# form.select("input")[0]["value"] = "zeus"
-# form.select("input")[1]["value"] = "ThunderDude"
-#
-# # 3
-# profiles_page = browser.submit(form, login_page.url)
-# print(profiles_page.soup.title)
+lp = LandParser()
+res = lp.load_page(url)
+
+print(res.status_code)
+with open("output.html", 'a') as f:
+    f.write(res.text)
