@@ -1,11 +1,28 @@
-from loaders.land_parser import LandParser
+import queue
+import threading
 
-url = ("https://cian.ru/cat.php?engine_version=2&p=1&region=1&offer_type=flat&deal_type=rent&room2=1"
-       "&room3=1&with_neighbors=0&type=4")
+import requests
 
-lp = LandParser()
-res = lp.load_page(url)
+q = queue.Queue()
+valid_proxies = []
 
-print(res.status_code)
-with open("output.html", 'a') as f:
-    f.write(res.text)
+with open("http_proxy/proxy_list.txt", "r") as f:
+    proxies = f.read().split("\n")
+    for p in proxies:
+        q.put(p)
+
+
+def check_proxies():
+    global q
+    while not q.empty():
+        proxy = q.get()
+        try:
+            res = requests.get("http://ipinfo.io/json", proxies={"http": proxy, "https": proxy})
+        except:
+            continue
+        if res.status_code == 200:
+            print(proxy)
+
+
+for _ in range(30):
+    threading.Thread(target=check_proxies).start()
