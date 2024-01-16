@@ -18,3 +18,6 @@ class LandParser:
         result.raise_for_status()
 
         return result
+
+    def set_proxy(self, proxy):
+        self.session.proxies = {"http": proxy, "https": proxy}
