@@ -3,6 +3,7 @@ import socket
 
 import cloudscraper
 import requests
+from bs4 import BeautifulSoup
 
 from loaders.land_parser import LandParser
 
@@ -47,29 +48,41 @@ from loaders.land_parser import LandParser
 #
 # url_list = [url1, url2]
 
-url_list = [
-    "https://books.toscrape.com/catalogue/category/books/business_35/index.html",
-    "https://books.toscrape.com/catalogue/category/books/poetry_23/index.html",
-    "https://books.toscrape.com/catalogue/category/books/fantasy_19/index.html"
-]
+# url_list = [
+#     "https://books.toscrape.com/catalogue/category/books/business_35/index.html",
+#     "https://books.toscrape.com/catalogue/category/books/poetry_23/index.html",
+#     "https://books.toscrape.com/catalogue/category/books/fantasy_19/index.html"
+# ]
 
-with open("http_proxy/valid_proxy_list.txt", "r") as proxy_file:
-    proxies = proxy_file.read().split("\n")
+# url_list = [
+#     "https://ipinfo.io/json"
+# ]
+#
+# with open("http_proxy/valid_proxy_list.txt", "r") as proxy_file:
+#     proxies = proxy_file.read().split("\n")
+#
+# index = 0
+# lp = LandParser()
+# while index < len(url_list):
+#     proxy = random.choice(proxies)
+#     url = url_list[index]
+#
+#     try:
+#         print("Loading " + url + " with proxy " + proxy)
+#         lp.set_proxy(proxy)
+#         res = lp.load_page(url)
+#         print(res.text)
+#         index += 1
+#         continue
+#     except:
+#         print("Failed")
 
-index = 0
-lp = LandParser()
-while index < len(url_list):
-    proxy = random.choice(proxies)
-    url = url_list[index]
-
-    try:
-        print("Loading " + url + " with proxy " + proxy)
-        lp.set_proxy(proxy)
-        res = lp.load_page(url)
-        print(res.status_code)
-        index += 1
-        continue
-    except:
-        print("Failed")
-
-
+#
+# proxies = {
+#     'https': f'{login}:{password}@{ip}'
+# }
+#
+# print(proxies)
+# url = "https://ipinfo.io/json"
+# response = requests.get(url=url, proxies=proxies)
+# print(response.text)
