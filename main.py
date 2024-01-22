@@ -6,7 +6,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 spreadsheet_id = "10egVpV2wRPsEtVvWVmqncP0cSwFu2tvdickJkBdGbBI"
 
-credentials_file = "loaders/google_creds.json"
+credentials_file = "tests/test_data/google_creds.json"
 credentials = ServiceAccountCredentials.from_json_keyfile_name(
     credentials_file, {'https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'}
 )

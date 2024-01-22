@@ -12,7 +12,7 @@ class SectorListLoader:
 
     def load_sectors(self, spreadsheet_id: str):
         self.spreadsheet_id = spreadsheet_id
-        credentials_file = 'google_creds.json'
+        credentials_file = '../tests/test_data/google_creds.json'
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(
             credentials_file, {'https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'}
