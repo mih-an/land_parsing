@@ -1,37 +1,18 @@
-from pprint import pprint
 
-import httplib2
-from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
+from bs4 import BeautifulSoup
 
-spreadsheet_id = "10egVpV2wRPsEtVvWVmqncP0cSwFu2tvdickJkBdGbBI"
 
-credentials_file = "tests/test_data/google_creds.json"
-credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    credentials_file, {'https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'}
-)
-http_auth = credentials.authorize(httplib2.Http())
-service = build('sheets', 'v4', http=http_auth)
+def is_pagination_element(tag):
+    return tag.name == 'nav' and tag['data-name'] == 'Pagination'
 
-res = service.spreadsheets().get(
-    spreadsheetId=spreadsheet_id,
-    fields='sheets(data/rowData/values/userEnteredValue,properties(index,sheetId,title))'
-).execute()
 
-sheet_index = 0
-last_row = len(res['sheets'][0]['data'][0]['rowData'])
-google_sheet_range = f"A1:B{last_row}"
+with open('tests/cian_pages/cian_sector_21_p1.html', 'r') as test_html_file:
+    test_html = test_html_file.read()
 
-values = service.spreadsheets().values().get(
-    spreadsheetId=spreadsheet_id,
-    range=google_sheet_range,
-    majorDimension='ROWS'
-).execute()
+soup = BeautifulSoup(test_html, "lxml")
+nav_list = soup.find_all(is_pagination_element)
 
-pprint(values)
+print(nav_list[0].ul.contents)
 
-print(values.get("values")[0][0])
-print(values.get("values")[0][1])
-print(values.get("values")[1][0])
-print(values.get("values")[1][1])
+
 
