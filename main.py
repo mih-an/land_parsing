@@ -12,7 +12,8 @@ with open('tests/cian_pages/cian_sector_21_p1.html', 'r') as test_html_file:
 soup = BeautifulSoup(test_html, "lxml")
 nav_list = soup.find_all(is_pagination_element)
 
-print(nav_list[0].ul.contents)
+for child in nav_list[0].ul.children:
+    print(child)
 
 
 
