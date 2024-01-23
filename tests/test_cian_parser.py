@@ -22,6 +22,11 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual(0, pages_count)
 
     def test_pages_links(self):
+        # Getting sector link
+        # Getting pages count
+        # Creating all necessary links from base link and pages count
+
+        # Checkin all links
         self.assertEqual(True, False)
 
     def test_no_pagination_pages_links(self):
