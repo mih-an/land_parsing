@@ -16,3 +16,6 @@ class CianParser:
             return len(pages_list)
         else:
             return 0
+
+    def get_page_link(self, sector_base_link: str, page_number: int):
+        return ""
