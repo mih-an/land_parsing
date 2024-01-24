@@ -3,6 +3,9 @@ from bs4 import BeautifulSoup
 
 class CianParser:
 
+    def __init__(self):
+        self.substr = "offer_type=suburban"
+
     @staticmethod
     def is_pagination_element(tag):
         return tag.name == 'nav' and tag['data-name'] == 'Pagination'
@@ -18,4 +21,16 @@ class CianParser:
             return 0
 
     def get_page_link(self, sector_base_link: str, page_number: int):
-        return ""
+        # Looking for substring "offer_type=suburban"
+        substr_pos = sector_base_link.find(self.substr) + len(self.substr)
+        print("-"*100)
+        print(substr_pos)
+        print("-" * 100)
+        print(sector_base_link[:substr_pos])
+        print("-" * 100)
+        print(sector_base_link[substr_pos:])
+        # Inserting page number
+        page_link = sector_base_link[:substr_pos] + f"&p={page_number}" + sector_base_link[substr_pos:]
+        print(page_link)
+
+        return page_link
