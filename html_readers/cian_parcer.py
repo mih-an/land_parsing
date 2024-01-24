@@ -22,15 +22,8 @@ class CianParser:
 
     def get_page_link(self, sector_base_link: str, page_number: int):
         # Looking for substring "offer_type=suburban"
-        substr_pos = sector_base_link.find(self.substr) + len(self.substr)
-        print("-"*100)
-        print(substr_pos)
-        print("-" * 100)
-        print(sector_base_link[:substr_pos])
-        print("-" * 100)
-        print(sector_base_link[substr_pos:])
+        page_substr_pos = sector_base_link.find(self.substr) + len(self.substr)
         # Inserting page number
-        page_link = sector_base_link[:substr_pos] + f"&p={page_number}" + sector_base_link[substr_pos:]
-        print(page_link)
+        page_link = sector_base_link[:page_substr_pos] + f"&p={page_number}" + sector_base_link[page_substr_pos:]
 
         return page_link
