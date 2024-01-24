@@ -1,19 +1,10 @@
+from loaders.sector_list_loader import SectorListLoader
 
-from bs4 import BeautifulSoup
+test_sectors_url = "https://docs.google.com/spreadsheets/d/1ph9a4sfNmwIEZKbWGwLX5iDYnOx6B5qdHYtuyIFR7H4"
+sheets_id = test_sectors_url[39:]
+credentials_file = 'tests/test_data/google_creds.json'
 
-
-def is_pagination_element(tag):
-    return tag.name == 'nav' and tag['data-name'] == 'Pagination'
-
-
-with open('tests/cian_pages/cian_sector_21_p1.html', 'r') as test_html_file:
-    test_html = test_html_file.read()
-
-soup = BeautifulSoup(test_html, "lxml")
-nav_list = soup.find_all(is_pagination_element)
-
-for child in nav_list[0].ul.children:
-    print(child)
-
-
+sl = SectorListLoader()
+sectors = sl.load_sectors(sheets_id, credentials_file)
+#
 

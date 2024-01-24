@@ -8,11 +8,12 @@ from oauth2client.service_account import ServiceAccountCredentials
 class SectorListLoader:
 
     def __init__(self):
+        self.credentials_file = None
         self.spreadsheet_id = None
 
-    def load_sectors(self, spreadsheet_id: str):
+    def load_sectors(self, spreadsheet_id: str, credentials_file: str):
         self.spreadsheet_id = spreadsheet_id
-        credentials_file = '../tests/test_data/google_creds.json'
+        self.credentials_file = credentials_file
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(
             credentials_file, {'https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive'}

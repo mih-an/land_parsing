@@ -7,9 +7,10 @@ class TestLoadingSectorListCase(unittest.TestCase):
     def test_load_sector_list_from_google_sheet(self):
         test_sectors_url = "https://docs.google.com/spreadsheets/d/10egVpV2wRPsEtVvWVmqncP0cSwFu2tvdickJkBdGbBI"
         sheets_id = test_sectors_url[39:]
+        credentials_file = '../tests/test_data/google_creds.json'
 
         sl = SectorListLoader()
-        sectors = sl.load_sectors(sheets_id)
+        sectors = sl.load_sectors(sheets_id, credentials_file)
 
         self.assertEqual(4, len(sectors.keys()), "Wrong sectors count")
         self.assertEqual(True, '1' in sectors.keys(), "Sector #1 is not in the list")
