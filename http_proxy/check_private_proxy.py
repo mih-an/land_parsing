@@ -1,4 +1,5 @@
-import requests
+
+from loaders.land_parser import LandParser
 
 ip = '31.28.11.181:41552'
 login = 'Megafon1527_2'
@@ -10,5 +11,11 @@ proxies = {
 
 print(proxies)
 url = "https://ipinfo.io/json"
-response = requests.get(url=url, proxies=proxies)
-print(response.text)
+land_parser = LandParser()
+land_parser.set_proxies(proxies)
+
+try:
+    resp = land_parser.load_page(url)
+    print(resp.text)
+except:
+    print("Failed")

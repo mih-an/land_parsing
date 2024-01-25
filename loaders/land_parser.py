@@ -19,5 +19,5 @@ class LandParser:
 
         return result
 
-    def set_proxy(self, proxy):
-        self.session.proxies = {"http": proxy, "https": proxy}
+    def set_proxies(self, proxies):
+        self.session.proxies = proxies
