@@ -1,6 +1,6 @@
 import unittest
 
-from loaders.link_helper import LinkHelper
+from loaders.link_helper import LinkHelper, Coordinate
 
 test_link1 = ('https://www.cian.ru/cat.php?bbox=56.0997233901%2C36.7516463512%2C56.1797535595%2C37.0729964488'
               '&deal_type=sale&engine_version=2&in_polygon%5B1%5D=36.9126647_56.130252%2C36.9181579_56.1266055%2C36'
@@ -52,16 +52,16 @@ class TestUniqueLinks(unittest.TestCase):
 
     def test_reading_coordinates(self):
         link_helper = LinkHelper()
-        link_list = link_helper.get_coordinates(test_link2)
-        self.assertEqual(82, len(link_list), 'Coordinates count isn\'t correct')
-        self.assertEqual('37.075899', link_list[0].longitude, 'Coordinate 1 longitude isn\'t correct')
-        self.assertEqual('55.7852039', link_list[0].latitude, 'Coordinate 1 latitude isn\'t correct')
-        self.assertEqual('37.0717792', link_list[1].longitude, 'Coordinate 2 longitude isn\'t correct')
-        self.assertEqual('55.7853006', link_list[1].latitude, 'Coordinate 2 latitude isn\'t correct')
-        self.assertEqual('37.0757274', link_list[80].longitude, 'Coordinate 81 longitude isn\'t correct')
-        self.assertEqual('55.7847203', link_list[80].latitude, 'Coordinate 81 latitude isn\'t correct')
-        self.assertEqual('37.075899', link_list[81].longitude, 'Coordinate 82 longitude isn\'t correct')
-        self.assertEqual('55.7852039', link_list[81].latitude, 'Coordinate 82 latitude isn\'t correct')
+        coord_list = link_helper.get_coordinates(test_link2)
+        self.assertEqual(82, len(coord_list), 'Coordinates count isn\'t correct')
+        self.assertEqual('37.075899', coord_list[0].longitude, 'Coordinate 1 longitude isn\'t correct')
+        self.assertEqual('55.7852039', coord_list[0].latitude, 'Coordinate 1 latitude isn\'t correct')
+        self.assertEqual('37.0717792', coord_list[1].longitude, 'Coordinate 2 longitude isn\'t correct')
+        self.assertEqual('55.7853006', coord_list[1].latitude, 'Coordinate 2 latitude isn\'t correct')
+        self.assertEqual('37.0757274', coord_list[80].longitude, 'Coordinate 81 longitude isn\'t correct')
+        self.assertEqual('55.7847203', coord_list[80].latitude, 'Coordinate 81 latitude isn\'t correct')
+        self.assertEqual('37.075899', coord_list[81].longitude, 'Coordinate 82 longitude isn\'t correct')
+        self.assertEqual('55.7852039', coord_list[81].latitude, 'Coordinate 82 latitude isn\'t correct')
 
     def test_reading_raw_bbox(self):
         link_helper = LinkHelper()
@@ -73,16 +73,16 @@ class TestUniqueLinks(unittest.TestCase):
 
     def test_reading_bbox(self):
         link_helper = LinkHelper()
-        bbox_list = link_helper.get_bbox(test_link1)
+        bbox_coord_list = link_helper.get_bbox(test_link1)
 
-        self.assertEqual(2, len(bbox_list), 'Bbox 1 list length isn\'t correct')
-        self.assertEqual('36.7516463512', bbox_list[0].longitude, 'Bbox coordinate 1 longitude isn\'t correct')
-        self.assertEqual('56.0997233901', bbox_list[0].latitude, 'Bbox coordinate 1 latitude isn\'t correct')
-        self.assertEqual('37.0729964488', bbox_list[1].longitude, 'Bbox coordinate 2 longitude isn\'t correct')
-        self.assertEqual('56.1797535595', bbox_list[1].latitude, 'Bbox coordinate 2 latitude isn\'t correct')
+        self.assertEqual(2, len(bbox_coord_list), 'Bbox 1 list length isn\'t correct')
+        self.assertEqual('36.7516463512', bbox_coord_list[0].longitude, 'Bbox coordinate 1 longitude isn\'t correct')
+        self.assertEqual('56.0997233901', bbox_coord_list[0].latitude, 'Bbox coordinate 1 latitude isn\'t correct')
+        self.assertEqual('37.0729964488', bbox_coord_list[1].longitude, 'Bbox coordinate 2 longitude isn\'t correct')
+        self.assertEqual('56.1797535595', bbox_coord_list[1].latitude, 'Bbox coordinate 2 latitude isn\'t correct')
 
-        bbox_list = link_helper.get_bbox(test_link2)
-        self.assertEqual(0, len(bbox_list), 'Bbox 2 list length isn\'t correct')
+        bbox_coord_list = link_helper.get_bbox(test_link2)
+        self.assertEqual(0, len(bbox_coord_list), 'Bbox 2 list length isn\'t correct')
 
     def test_reading_center(self):
         link_helper = LinkHelper()
@@ -101,28 +101,46 @@ class TestUniqueLinks(unittest.TestCase):
         maxsite = link_helper.get_maxsite(test_link2)
         self.assertEqual('252', maxsite, 'Maxsite 2 isn\'t correct')
 
-    def test_changing_coordinates_length_6(self):
-        pass
+    def test_changing_coordinates(self):
+        lh = LinkHelper()
+        coordinate = Coordinate(longitude='36.9126647', latitude='56.130252')
+        new_coordinate = lh.get_new_coordinate(coordinate)
+        self.assertIsNotNone(new_coordinate)
+        self.assertEqual(len(coordinate.longitude), len(new_coordinate.longitude), 'Longitude 1 length is not the same')
+        self.assertEqual(len(coordinate.latitude), len(new_coordinate.latitude), 'Latitude 1 length is not the same')
+        self.assertNotEqual(coordinate.longitude, new_coordinate.longitude, 'Longitude should not be the same')
+        self.assertNotEqual(coordinate.latitude, new_coordinate.latitude, 'Latitude should not be the same')
 
-    def test_changing_coordinates_length_7(self):
-        pass
-
-    def test_changing_coordinates_different_lengths(self):
-        pass
+        coordinate = Coordinate(longitude='36.995401242747896', latitude='55.806737048576515')
+        new_coordinate = lh.get_new_coordinate(coordinate)
+        self.assertIsNotNone(new_coordinate)
+        self.assertEqual(len(coordinate.longitude), len(new_coordinate.longitude), 'Longitude 2 length is not the same')
+        self.assertEqual(len(coordinate.latitude), len(new_coordinate.latitude), 'Latitude 2 length is not the same')
+        self.assertNotEqual(coordinate.longitude, new_coordinate.longitude, 'Longitude should not be the same')
+        self.assertNotEqual(coordinate.latitude, new_coordinate.latitude, 'Latitude should not be the same')
 
     def test_first_4_coordinate_digits_still_the_same(self):
-        pass
+        lh = LinkHelper()
+        coordinate = Coordinate(longitude='36.9126647', latitude='56.130252')
+        new_coordinate = lh.get_new_coordinate(coordinate)
+        self.assertEqual(coordinate.latitude[:7], new_coordinate.latitude[:7])
+        self.assertEqual(coordinate.longitude[:7], new_coordinate.longitude[:7])
+
+        coordinate = Coordinate(longitude='36.995401242747896', latitude='55.806737048576515')
+        new_coordinate = lh.get_new_coordinate(coordinate)
+        self.assertEqual(coordinate.latitude[:7], new_coordinate.latitude[:7])
+        self.assertEqual(coordinate.longitude[:7], new_coordinate.longitude[:7])
 
     def test_count_and_order_of_coordinates(self):
         pass
 
-    def test_maxsite(self):
+    def test_maxsite_modification(self):
         pass
 
-    def test_bbox(self):
+    def test_bbox_modification(self):
         pass
 
-    def test_center(self):
+    def test_center_modification(self):
         pass
 
 

@@ -1,3 +1,6 @@
+import random
+
+
 class Coordinate:
 
     def __init__(self, longitude, latitude):
@@ -14,6 +17,9 @@ class LinkHelper:
     center_start_str = 'center='
     maxsite_start_str = 'maxsite='
     url_param_separator = '&'
+    coord_modification_start_pos = 7
+    coord_modification_end_pos = 10
+    len_gen_number = 3
 
     def get_raw_coordinates(self, url: str):
         coord_pos_start = url.find(self.coord_start_str)
@@ -80,3 +86,37 @@ class LinkHelper:
     def get_maxsite(self, url: str):
         maxsite_str = self.get_raw_substr_from_link(url, self.maxsite_start_str)
         return maxsite_str
+
+    def gen_one_new_coord(self, base_coord: str):
+        # Too short coordinate to modify
+        if len(base_coord) < self.coord_modification_start_pos:
+            return base_coord
+
+        new_coord_part = str(random.randint(100, 999))
+        new_coord = base_coord[:self.coord_modification_start_pos] + new_coord_part
+
+        # Shortage to base_coordinate length
+        if len(new_coord) > len(base_coord):
+            new_coord = new_coord[:len(base_coord)]
+        # Restore a tail of long base coordinate
+        if len(base_coord) > len(new_coord):
+            new_coord = new_coord + base_coord[self.coord_modification_start_pos + self.len_gen_number:]
+
+        return new_coord
+
+    def get_new_coordinate(self, base_coordinate: Coordinate):
+        """
+        Generates new coordinate with different digits but the same meaning
+        Because all coordinates have different length function will change only [4:7] digits after '.' separator
+        If length is not enough it generate additional digits but cut it to the previous length
+        If length is more than needed it generate only 3 unique digits and add tail without modification
+        If length is less than coord_modification_start_pos there is no modification
+        :param base_coordinate: base coordinate
+        :return: New coordinate with new digits after 4 digits after dot
+        """
+
+        new_longitude = self.gen_one_new_coord(base_coordinate.longitude)
+        new_latitude = self.gen_one_new_coord(base_coordinate.latitude)
+        new_coordinate = Coordinate(longitude=new_longitude, latitude=new_latitude)
+
+        return new_coordinate
