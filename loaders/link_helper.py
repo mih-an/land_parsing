@@ -20,8 +20,10 @@ class LinkHelper:
     coord_modification_start_pos = 7
     coord_modification_end_pos = 10
     len_gen_number = 3
+    max_site_start = 230
+    max_site_end = 270
 
-    def get_raw_coordinates(self, url: str):
+    def read_raw_coordinates(self, url: str):
         coord_pos_start = url.find(self.coord_start_str)
         if coord_pos_start == -1:
             return []
@@ -34,8 +36,8 @@ class LinkHelper:
 
         return coord_list
 
-    def get_coordinates(self, url: str):
-        coord_raw_list = self.get_raw_coordinates(url)
+    def read_coordinates(self, url: str):
+        coord_raw_list = self.read_raw_coordinates(url)
         coord_list = []
         for coord_raw in coord_raw_list:
 
@@ -45,13 +47,13 @@ class LinkHelper:
 
         return coord_list
 
-    def get_raw_bbox(self, url: str):
-        return self.get_raw_substr_from_link(url, self.bbox_start_str)
+    def read_raw_bbox(self, url: str):
+        return self.read_raw_substr_from_link(url, self.bbox_start_str)
 
-    def get_raw_center(self, url: str):
-        return self.get_raw_substr_from_link(url, self.center_start_str)
+    def read_raw_center(self, url: str):
+        return self.read_raw_substr_from_link(url, self.center_start_str)
 
-    def get_raw_substr_from_link(self, url: str, substr: str):
+    def read_raw_substr_from_link(self, url: str, substr: str):
         substr_start_pos = url.find(substr)
         if substr_start_pos == -1:
             return ''
@@ -60,8 +62,8 @@ class LinkHelper:
         substr_end_pos = substr.find(self.url_param_separator)
         return substr[:substr_end_pos]
 
-    def get_bbox(self, url: str):
-        raw_bbox = self.get_raw_bbox(url)
+    def read_bbox(self, url: str):
+        raw_bbox = self.read_raw_bbox(url)
         if raw_bbox == '':
             return []
 
@@ -72,8 +74,8 @@ class LinkHelper:
 
         return [coord1, coord2]
 
-    def get_center(self, url: str):
-        raw_center = self.get_raw_center(url)
+    def read_center(self, url: str):
+        raw_center = self.read_raw_center(url)
         if raw_center == '':
             return None
 
@@ -83,8 +85,8 @@ class LinkHelper:
 
         return coordinate
 
-    def get_maxsite(self, url: str):
-        maxsite_str = self.get_raw_substr_from_link(url, self.maxsite_start_str)
+    def read_maxsite(self, url: str):
+        maxsite_str = self.read_raw_substr_from_link(url, self.maxsite_start_str)
         return maxsite_str
 
     def gen_one_new_coord(self, base_coord: str):
@@ -104,7 +106,7 @@ class LinkHelper:
 
         return new_coord
 
-    def get_new_coordinate(self, base_coordinate: Coordinate):
+    def gen_new_coordinate(self, base_coordinate: Coordinate):
         """
         Generates new coordinate with different digits but the same meaning
         Because all coordinates have different length function will change only [4:7] digits after '.' separator
@@ -120,3 +122,57 @@ class LinkHelper:
         new_coordinate = Coordinate(longitude=new_longitude, latitude=new_latitude)
 
         return new_coordinate
+
+    def gen_new_coordinates(self, url: str):
+        coord_list = self.read_coordinates(url)
+        new_coord_list = []
+        for i in range(len(coord_list)):
+            coord = coord_list[i]
+            if i < len(coord_list) - 1:
+                new_coord = self.gen_new_coordinate(coord)
+            else:
+                # First and last coordinates should be the same
+                new_coord = Coordinate(new_coord_list[0].longitude, new_coord_list[0].latitude)
+            new_coord_list.append(new_coord)
+
+        return new_coord_list
+
+    def gen_new_maxsite_int(self):
+        return random.randint(self.max_site_start, self.max_site_end)
+
+    def gen_new_link(self, url: str):
+        """
+        Replace all coordinates with the new ones - generated
+        All coordinates move insignificantly but enough to be unique
+        :param url: base url to modify
+        :return: modified url
+        """
+        new_coordinates = self.gen_new_coordinates(url)
+        new_url_coord_str = self.coordinates_to_url_str(new_coordinates)
+
+        # Finding substring with coordinates
+        # TODO Extract method - the same code is in read_raw_coordinates
+        coord_pos_start = url.find(self.coord_start_str)
+        coord_pos_start = coord_pos_start + len(self.coord_start_str) + len(self.coord_start_addition_str)
+        coord_substr = url[coord_pos_start:]
+        coord_pos_end = coord_substr.find(self.url_param_separator)
+        coord_substr = coord_substr[:coord_pos_end]
+
+        start_pos = url.find(coord_substr)
+        end_pos = start_pos + len(coord_substr)
+
+        new_url = url[:start_pos] + new_url_coord_str + url[end_pos:]
+
+        return new_url
+
+    def coordinates_to_url_str(self, coord_list: [Coordinate]):
+        result_str = ''
+        for i in range(len(coord_list)):
+            coord = coord_list[i]
+            coord_str = f'{coord.longitude}{self.split_longitude_latitude}{coord.latitude}'
+            if i < len(coord_list) - 1:
+                result_str += coord_str + self.coord_separator
+            else:
+                result_str += coord_str
+
+        return result_str
