@@ -197,25 +197,23 @@ class LinkHelper:
         return new_url
 
     def coordinates_to_url_str(self, coord_list: [Coordinate]):
-        result_str = ''
-        for i in range(len(coord_list)):
-            coord = coord_list[i]
-            coord_str = f'{coord.longitude}{self.lon_lat_separator}{coord.latitude}'
-            if i < len(coord_list) - 1:
-                result_str += coord_str + self.coord_separator
-            else:
-                result_str += coord_str
 
-        return result_str
+        return self.data_to_url_str(coord_list, self.lon_lat_separator, self.coord_separator)
 
-    # TODO almost the same
     def bbox_to_url_str(self, coord_list: [Coordinate]):
+        return self.data_to_url_str(coord_list, self.coord_separator, self.coord_separator, True)
+
+    @staticmethod
+    def data_to_url_str(coord_list, sep1, sep2, is_bbox=False):
         result_str = ''
         for i in range(len(coord_list)):
             coord = coord_list[i]
-            coord_str = f'{coord.latitude}{self.coord_separator}{coord.longitude}'
+            coord_str = f'{coord.longitude}{sep1}{coord.latitude}'
+            if is_bbox:
+                coord_str = f'{coord.latitude}{sep1}{coord.longitude}'
+
             if i < len(coord_list) - 1:
-                result_str += coord_str + self.coord_separator
+                result_str += coord_str + sep2
             else:
                 result_str += coord_str
 
