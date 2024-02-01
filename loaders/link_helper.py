@@ -149,13 +149,6 @@ class LinkHelper:
     def gen_new_maxsite_int(self):
         return random.randint(self.max_site_start, self.max_site_end)
 
-    @staticmethod
-    def replace_substr(url, substr, new_substr):
-        start_pos = url.find(substr)
-        end_pos = start_pos + len(substr)
-        new_url = url[:start_pos] + new_substr + url[end_pos:]
-        return new_url
-
     def gen_new_link_with_new_coordinates(self, url: str):
         coord_substr = self.find_coord_substr(url)
         if coord_substr == '':
@@ -164,7 +157,7 @@ class LinkHelper:
         new_coordinates = self.gen_new_coordinates(url)
         new_url_coord_str = self.coordinates_to_url_str(new_coordinates)
 
-        return self.replace_substr(url, coord_substr, new_url_coord_str)
+        return url.replace(coord_substr, new_url_coord_str)
 
     def gen_new_link_with_new_bbox(self, url):
         bbox_substr = self.find_bbox_substr(url)
@@ -182,7 +175,7 @@ class LinkHelper:
         coord2 = self.gen_new_coordinate(coord2)
         new_url_bbox_str = self.bbox_to_url_str([coord1, coord2])
 
-        return self.replace_substr(url, bbox_substr, new_url_bbox_str)
+        return url.replace(bbox_substr, new_url_bbox_str)
 
     def gen_new_link(self, url: str):
         """
@@ -197,7 +190,6 @@ class LinkHelper:
         return new_url
 
     def coordinates_to_url_str(self, coord_list: [Coordinate]):
-
         return self.data_to_url_str(coord_list, self.lon_lat_separator, self.coord_separator)
 
     def bbox_to_url_str(self, coord_list: [Coordinate]):
