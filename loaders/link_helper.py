@@ -205,7 +205,7 @@ class LinkHelper:
 
         return url.replace(bbox_substr, new_url_bbox_str)
 
-    def gen_new_link(self, url: str):
+    def gen_new_url(self, url: str):
         """
         Replace all coordinates with the new ones - generated
         All coordinates move insignificantly but enough to be unique
