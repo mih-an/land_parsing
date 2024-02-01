@@ -9,8 +9,8 @@ class Coordinate:
 
 
 class LinkHelper:
-    coord_start_str = 'in_polygon'
-    coord_start_addition_str = '%5B1%5D='
+    coord_start_str = 'in_polygon%5B1%5D='
+    coord_start_addition_str = ''
     coord_separator = '%2C'
     lon_lat_separator = '_'
     bbox_start_str = 'bbox='
@@ -23,28 +23,22 @@ class LinkHelper:
     max_site_start = 230
     max_site_end = 270
 
-    def find_coord_substr(self, url: str):
-        coord_pos_start = url.find(self.coord_start_str)
-        if coord_pos_start == -1:
+    def find_substr(self, url, substr_start):
+        substr_pos_start = url.find(substr_start)
+        if substr_pos_start == -1:
             return ''
 
-        coord_pos_start = coord_pos_start + len(self.coord_start_str) + len(self.coord_start_addition_str)
-        coord_substr = url[coord_pos_start:]
-        coord_pos_end = coord_substr.find(self.url_param_separator)
-        coord_substr = coord_substr[:coord_pos_end]
-        return coord_substr
-
-    # TODO almost the same method
-    def find_bbox_substr(self, url: str):
-        bbox_pos_start = url.find(self.bbox_start_str)
-        if bbox_pos_start == -1:
-            return ''
-
-        bbox_pos_start = bbox_pos_start + len(self.bbox_start_str)
-        result_substr = url[bbox_pos_start:]
-        coord_pos_end = result_substr.find(self.url_param_separator)
-        result_substr = result_substr[:coord_pos_end]
+        substr_pos_start = substr_pos_start + len(substr_start)
+        result_substr = url[substr_pos_start:]
+        substr_pos_end = result_substr.find(self.url_param_separator)
+        result_substr = result_substr[:substr_pos_end]
         return result_substr
+
+    def find_coord_substr(self, url: str):
+        return self.find_substr(url, self.coord_start_str)
+
+    def find_bbox_substr(self, url: str):
+        return self.find_substr(url, self.bbox_start_str)
 
     def read_raw_coordinates(self, url: str):
         coord_substr = self.find_coord_substr(url)
@@ -155,6 +149,13 @@ class LinkHelper:
     def gen_new_maxsite_int(self):
         return random.randint(self.max_site_start, self.max_site_end)
 
+    @staticmethod
+    def replace_substr(url, substr, new_substr):
+        start_pos = url.find(substr)
+        end_pos = start_pos + len(substr)
+        new_url = url[:start_pos] + new_substr + url[end_pos:]
+        return new_url
+
     def gen_new_link_with_new_coordinates(self, url: str):
         coord_substr = self.find_coord_substr(url)
         if coord_substr == '':
@@ -163,12 +164,9 @@ class LinkHelper:
         new_coordinates = self.gen_new_coordinates(url)
         new_url_coord_str = self.coordinates_to_url_str(new_coordinates)
 
-        start_pos = url.find(coord_substr)
-        end_pos = start_pos + len(coord_substr)
+        return self.replace_substr(url, coord_substr, new_url_coord_str)
 
-        new_url = url[:start_pos] + new_url_coord_str + url[end_pos:]
-        return new_url
-
+    # TODO same
     def gen_new_link_with_new_bbox(self, url):
         bbox_substr = self.find_bbox_substr(url)
         if bbox_substr == '':
@@ -190,7 +188,6 @@ class LinkHelper:
 
         new_url = url[:start_pos] + new_url_bbox_str + url[end_pos:]
         return new_url
-
 
     def gen_new_link(self, url: str):
         """
@@ -228,5 +225,3 @@ class LinkHelper:
                 result_str += coord_str
 
         return result_str
-
-
