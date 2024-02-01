@@ -22,6 +22,7 @@ class LinkHelper:
     len_gen_number = 3
     max_site_start = 230
     max_site_end = 270
+    max_site_default = 250
 
     def find_substr(self, url, substr_start):
         substr_pos_start = url.find(substr_start)
@@ -147,7 +148,11 @@ class LinkHelper:
         return new_coord_list
 
     def gen_new_maxsite_int(self):
-        return random.randint(self.max_site_start, self.max_site_end)
+        new_maxsite = random.randint(self.max_site_start, self.max_site_end)
+        # For testing purpose
+        if new_maxsite == self.max_site_default:
+            new_maxsite += 1
+        return new_maxsite
 
     def gen_new_link_with_new_coordinates(self, url: str):
         coord_substr = self.find_coord_substr(url)
@@ -172,6 +177,15 @@ class LinkHelper:
         new_url = self.center_to_url_str(coord)
 
         return url.replace(center_substr, new_url)
+
+    def gen_new_link_with_new_maxsite(self, url):
+        maxsite_substr = self.find_substr(url, self.maxsite_start_str)
+        if maxsite_substr == '':
+            return url
+
+        new_maxsite_int = self.gen_new_maxsite_int()
+
+        return url.replace(maxsite_substr, f'{new_maxsite_int}')
 
     def gen_new_link_with_new_bbox(self, url):
         bbox_substr = self.find_bbox_substr(url)
@@ -201,6 +215,7 @@ class LinkHelper:
         new_url = self.gen_new_link_with_new_coordinates(url)
         new_url = self.gen_new_link_with_new_bbox(new_url)
         new_url = self.gen_new_link_with_new_center(new_url)
+        new_url = self.gen_new_link_with_new_maxsite(new_url)
 
         return new_url
 
@@ -228,6 +243,3 @@ class LinkHelper:
 
     def center_to_url_str(self, center):
         return self.data_to_url_str([center], self.coord_separator, self.coord_separator, True)
-
-
-

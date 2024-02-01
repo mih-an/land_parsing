@@ -227,6 +227,16 @@ class TestUniqueLinks(unittest.TestCase):
         self.assertEqual(18, len(center.longitude), 'Bbox coordinate 1 longitude length')
         self.assertEqual(18, len(center.latitude), 'Bbox coordinate 1 latitude length')
 
+    def test_maxsite_modification(self):
+        lh = LinkHelper()
+        new_link = lh.gen_new_link(test_link1)
+
+        maxsite = lh.read_maxsite(new_link)
+        self.assertNotEqual('250', maxsite, 'Maxsite should be new')
+        maxsite_int = int(maxsite)
+        self.assertGreater(271, maxsite_int, "Max site should be between 230 and 270")
+        self.assertLess(229, maxsite_int, "Max site should be between 230 and 270")
+
     def test_coordinates_to_link(self):
         link_helper = LinkHelper()
         coord_list = [Coordinate(longitude='36.9126647', latitude='56.130252'),
