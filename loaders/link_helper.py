@@ -12,7 +12,7 @@ class LinkHelper:
     coord_start_str = 'in_polygon'
     coord_start_addition_str = '%5B1%5D='
     coord_separator = '%2C'
-    split_longitude_latitude = '_'
+    lon_lat_separator = '_'
     bbox_start_str = 'bbox='
     center_start_str = 'center='
     maxsite_start_str = 'maxsite='
@@ -23,25 +23,40 @@ class LinkHelper:
     max_site_start = 230
     max_site_end = 270
 
-    def read_raw_coordinates(self, url: str):
+    def find_coord_substr(self, url: str):
         coord_pos_start = url.find(self.coord_start_str)
         if coord_pos_start == -1:
-            return []
+            return ''
 
         coord_pos_start = coord_pos_start + len(self.coord_start_str) + len(self.coord_start_addition_str)
         coord_substr = url[coord_pos_start:]
         coord_pos_end = coord_substr.find(self.url_param_separator)
         coord_substr = coord_substr[:coord_pos_end]
-        coord_list = coord_substr.split(self.coord_separator)
+        return coord_substr
 
-        return coord_list
+    # TODO almost the same method
+    def find_bbox_substr(self, url: str):
+        bbox_pos_start = url.find(self.bbox_start_str)
+        if bbox_pos_start == -1:
+            return ''
+
+        bbox_pos_start = bbox_pos_start + len(self.bbox_start_str)
+        result_substr = url[bbox_pos_start:]
+        coord_pos_end = result_substr.find(self.url_param_separator)
+        result_substr = result_substr[:coord_pos_end]
+        return result_substr
+
+    def read_raw_coordinates(self, url: str):
+        coord_substr = self.find_coord_substr(url)
+        if coord_substr == '':
+            return []
+        return coord_substr.split(self.coord_separator)
 
     def read_coordinates(self, url: str):
         coord_raw_list = self.read_raw_coordinates(url)
         coord_list = []
         for coord_raw in coord_raw_list:
-
-            tmp_list = coord_raw.split(self.split_longitude_latitude)
+            tmp_list = coord_raw.split(self.lon_lat_separator)
             coord = Coordinate(longitude=tmp_list[0], latitude=tmp_list[1])
             coord_list.append(coord)
 
@@ -140,6 +155,43 @@ class LinkHelper:
     def gen_new_maxsite_int(self):
         return random.randint(self.max_site_start, self.max_site_end)
 
+    def gen_new_link_with_new_coordinates(self, url: str):
+        coord_substr = self.find_coord_substr(url)
+        if coord_substr == '':
+            return url
+
+        new_coordinates = self.gen_new_coordinates(url)
+        new_url_coord_str = self.coordinates_to_url_str(new_coordinates)
+
+        start_pos = url.find(coord_substr)
+        end_pos = start_pos + len(coord_substr)
+
+        new_url = url[:start_pos] + new_url_coord_str + url[end_pos:]
+        return new_url
+
+    def gen_new_link_with_new_bbox(self, url):
+        bbox_substr = self.find_bbox_substr(url)
+        if bbox_substr == '':
+            return url
+
+        bbox = self.read_bbox(url)
+        if len(bbox) == 0:
+            return url
+
+        coord1 = Coordinate(longitude=bbox[0].longitude, latitude=bbox[0].latitude)
+        coord2 = Coordinate(longitude=bbox[1].longitude, latitude=bbox[1].latitude)
+
+        coord1 = self.gen_new_coordinate(coord1)
+        coord2 = self.gen_new_coordinate(coord2)
+        new_url_bbox_str = self.bbox_to_url_str([coord1, coord2])
+
+        start_pos = url.find(bbox_substr)
+        end_pos = start_pos + len(bbox_substr)
+
+        new_url = url[:start_pos] + new_url_bbox_str + url[end_pos:]
+        return new_url
+
+
     def gen_new_link(self, url: str):
         """
         Replace all coordinates with the new ones - generated
@@ -147,21 +199,8 @@ class LinkHelper:
         :param url: base url to modify
         :return: modified url
         """
-        new_coordinates = self.gen_new_coordinates(url)
-        new_url_coord_str = self.coordinates_to_url_str(new_coordinates)
-
-        # Finding substring with coordinates
-        # TODO Extract method - the same code is in read_raw_coordinates
-        coord_pos_start = url.find(self.coord_start_str)
-        coord_pos_start = coord_pos_start + len(self.coord_start_str) + len(self.coord_start_addition_str)
-        coord_substr = url[coord_pos_start:]
-        coord_pos_end = coord_substr.find(self.url_param_separator)
-        coord_substr = coord_substr[:coord_pos_end]
-
-        start_pos = url.find(coord_substr)
-        end_pos = start_pos + len(coord_substr)
-
-        new_url = url[:start_pos] + new_url_coord_str + url[end_pos:]
+        new_url = self.gen_new_link_with_new_coordinates(url)
+        new_url = self.gen_new_link_with_new_bbox(new_url)
 
         return new_url
 
@@ -169,10 +208,25 @@ class LinkHelper:
         result_str = ''
         for i in range(len(coord_list)):
             coord = coord_list[i]
-            coord_str = f'{coord.longitude}{self.split_longitude_latitude}{coord.latitude}'
+            coord_str = f'{coord.longitude}{self.lon_lat_separator}{coord.latitude}'
             if i < len(coord_list) - 1:
                 result_str += coord_str + self.coord_separator
             else:
                 result_str += coord_str
 
         return result_str
+
+    # TODO almost the same
+    def bbox_to_url_str(self, coord_list: [Coordinate]):
+        result_str = ''
+        for i in range(len(coord_list)):
+            coord = coord_list[i]
+            coord_str = f'{coord.latitude}{self.coord_separator}{coord.longitude}'
+            if i < len(coord_list) - 1:
+                result_str += coord_str + self.coord_separator
+            else:
+                result_str += coord_str
+
+        return result_str
+
+
