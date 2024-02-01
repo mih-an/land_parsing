@@ -166,7 +166,6 @@ class LinkHelper:
 
         return self.replace_substr(url, coord_substr, new_url_coord_str)
 
-    # TODO same
     def gen_new_link_with_new_bbox(self, url):
         bbox_substr = self.find_bbox_substr(url)
         if bbox_substr == '':
@@ -183,11 +182,7 @@ class LinkHelper:
         coord2 = self.gen_new_coordinate(coord2)
         new_url_bbox_str = self.bbox_to_url_str([coord1, coord2])
 
-        start_pos = url.find(bbox_substr)
-        end_pos = start_pos + len(bbox_substr)
-
-        new_url = url[:start_pos] + new_url_bbox_str + url[end_pos:]
-        return new_url
+        return self.replace_substr(url, bbox_substr, new_url_bbox_str)
 
     def gen_new_link(self, url: str):
         """
