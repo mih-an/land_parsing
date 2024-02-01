@@ -198,6 +198,35 @@ class TestUniqueLinks(unittest.TestCase):
         bbox_coord_list = lh.read_bbox(new_link)
         self.assertEqual(0, len(bbox_coord_list), 'Bbox 2 list length isn\'t correct')
 
+    def test_center_to_link(self):
+        lh = LinkHelper()
+        center = Coordinate(longitude='36.995401242747896', latitude='55.806737048576515')
+        url_part = lh.center_to_url_str(center)
+        self.assertEqual('55.806737048576515%2C36.995401242747896', url_part, 'Center link is not correct')
+
+    def test_center_modification(self):
+        lh = LinkHelper()
+        new_link = lh.gen_new_link(test_link1)
+
+        center = lh.read_center(new_link)
+        self.assertIsNone(center, 'Center should be None in first link')
+
+        new_link = lh.gen_new_link(test_link2)
+        center = lh.read_center(new_link)
+        self.assertIsNotNone(center, 'Center should NOT be None in first link')
+        # 55.806737048576515%2C36.995401242747896
+        self.assertEqual('36.9954', center.longitude[:7], 'Center coordinate longitude isn\'t correct')
+        self.assertEqual('55.8067', center.latitude[:7], 'Center coordinate latitude isn\'t correct')
+
+        self.assertEqual('42747896', center.longitude[10:18], 'Center coordinate longitude isn\'t correct')
+        self.assertEqual('48576515', center.latitude[10:18], 'Center coordinate latitude isn\'t correct')
+
+        self.assertNotEqual('012', center.longitude[7:10], 'Center coordinate longitude isn\'t correct')
+        self.assertNotEqual('370', center.latitude[7:10], 'Center coordinate latitude isn\'t correct')
+
+        self.assertEqual(18, len(center.longitude), 'Bbox coordinate 1 longitude length')
+        self.assertEqual(18, len(center.latitude), 'Bbox coordinate 1 latitude length')
+
     def test_coordinates_to_link(self):
         link_helper = LinkHelper()
         coord_list = [Coordinate(longitude='36.9126647', latitude='56.130252'),

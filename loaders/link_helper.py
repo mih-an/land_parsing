@@ -159,6 +159,20 @@ class LinkHelper:
 
         return url.replace(coord_substr, new_url_coord_str)
 
+    def gen_new_link_with_new_center(self, url):
+        center_substr = self.find_substr(url, self.center_start_str)
+        if center_substr == '':
+            return url
+
+        center = self.read_center(url)
+        if center is None:
+            return url
+
+        coord = self.gen_new_coordinate(center)
+        new_url = self.center_to_url_str(coord)
+
+        return url.replace(center_substr, new_url)
+
     def gen_new_link_with_new_bbox(self, url):
         bbox_substr = self.find_bbox_substr(url)
         if bbox_substr == '':
@@ -186,6 +200,7 @@ class LinkHelper:
         """
         new_url = self.gen_new_link_with_new_coordinates(url)
         new_url = self.gen_new_link_with_new_bbox(new_url)
+        new_url = self.gen_new_link_with_new_center(new_url)
 
         return new_url
 
@@ -196,12 +211,12 @@ class LinkHelper:
         return self.data_to_url_str(coord_list, self.coord_separator, self.coord_separator, True)
 
     @staticmethod
-    def data_to_url_str(coord_list, sep1, sep2, is_bbox=False):
+    def data_to_url_str(coord_list, sep1, sep2, is_reverse=False):
         result_str = ''
         for i in range(len(coord_list)):
             coord = coord_list[i]
             coord_str = f'{coord.longitude}{sep1}{coord.latitude}'
-            if is_bbox:
+            if is_reverse:
                 coord_str = f'{coord.latitude}{sep1}{coord.longitude}'
 
             if i < len(coord_list) - 1:
@@ -210,3 +225,9 @@ class LinkHelper:
                 result_str += coord_str
 
         return result_str
+
+    def center_to_url_str(self, center):
+        return self.data_to_url_str([center], self.coord_separator, self.coord_separator, True)
+
+
+
