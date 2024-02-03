@@ -1,8 +1,11 @@
 import time
 import random
+import creds
+from datetime import datetime
 
 from html_readers.cian_parcer import CianParser
-from loaders.land_parser import HtmlLoader
+from loaders.html_loader import HtmlLoader
+from loaders.link_helper import LinkHelper
 from loaders.sector_list_loader import SectorListLoader
 
 test_sectors_url = "https://docs.google.com/spreadsheets/d/1ph9a4sfNmwIEZKbWGwLX5iDYnOx6B5qdHYtuyIFR7H4"
@@ -12,88 +15,73 @@ credentials_file = 'tests/test_data/google_creds.json'
 sector_loader = SectorListLoader()
 sectors = sector_loader.load_sectors(sheets_id, credentials_file)
 
-ip = '31.28.11.181:41552'
-login = 'Megafon1527_2'
-password = 'AzsILk'
 max_attempt = 3
 
 proxies = {
-    'https': f'{login}:{password}@{ip}'
+    'http': f'{creds.login}:{creds.password}@{creds.ip}'
 }
 
+cian_parser = CianParser()
 html_loader = HtmlLoader()
 html_loader.set_proxies(proxies)
-cian_parser = CianParser()
-
-sectors_copy = sectors.copy()
+link_helper = LinkHelper()
 
 # Looping all sectors randomly
+sectors_copy = sectors.copy()
 while len(sectors_copy) > 0:
-    print(f'length: {len(sectors_copy.items())}')
+    print('='*100)
+    print(f'Sectors left to download: {len(sectors_copy)}')
     sector_number = random.choice(list(sectors_copy.keys()))
     sector_link = sectors_copy[sector_number]
-    print(f'sector number: {sector_number}, sector link: {sector_link}')
+    print(f'Sector number: {sector_number}, sector link: {sector_link}')
+
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Current Time =", current_time)
 
     attempt_number = 0
     while attempt_number < max_attempt:
         try:
+            sector_link = link_helper.gen_new_url(sector_link)
+            print(f'Loading sector link... {sector_link}')
             response = html_loader.load_page(sector_link)
             html = response.text
             file_name = f'sector_{sector_number}_p1.html'
             with open(file_name, 'a') as html_file:
                 html_file.write(html)
-            print(f"Successfully loaded sector page number {sector_number} and saved to file {file_name}")
+            print(f"Sector loaded successfully and saved to the file: {file_name}")
 
-            pages_count = cian_parser.get_pages_count(html)
-            print(f"Sector number {sector_number} has {pages_count} pages")
-            for i in range(2, pages_count+1):
-                page_link = cian_parser.get_page_link(sector_link, i)
-                print("-"*30)
-                print(f"Loading page number: {i}")
-
-            sleep_seconds = random.randint(4, 6)
-            print(f'Sleeping for {sleep_seconds} seconds randomly')
+            sleep_seconds = random.randint(5, 7)
+            print(f'Sleeping for {sleep_seconds} seconds...')
             time.sleep(sleep_seconds)
 
             attempt_number = max_attempt
             del sectors_copy[sector_number]
 
+            pages_count = cian_parser.get_pages_count(html)
+            print(f"Sector number {sector_number} has {pages_count} pages")
+            for i in range(2, pages_count + 1):
+                print("-" * 30)
+                print(f"Loading page number: {i}...")
+
+                # # TODO сделать несколько попыток загрузки страницы, а то сейчас страницы начинают грузиться заново
+                # page_link = cian_parser.get_page_link(sector_link, i)
+                # response = html_loader.load_page(page_link)
+                # file_name = f'sector_{sector_number}_p{i}.html'
+                # with open(file_name, 'a') as html_file:
+                #     html_file.write(html)
+                # print(f"Sector loaded successfully and saved to the file: {file_name}")
+                #
+                # # Excluding 2 sleeping in the last cycle
+                # if i < pages_count:
+                #     sleep_seconds = random.randint(4, 6)
+                #     print(f'Sleeping for {sleep_seconds} seconds...')
+                #     time.sleep(sleep_seconds)
+
         except Exception as exc:
-            print(f'Error: {exc}')
-            print(f"Failed loading sector page number: {sector_number}. Trying again...")
             attempt_number += 1
-
-
-# Looping sectors sequentially
-# for item in sectors.items():
-#     sector_number = item[0]
-#     sector_link = item[1]
-#
-#     print(f'Sector number: {sector_number}, sector link: {sector_link}')
-#
-#     attempt_number = 0
-#     while attempt_number < max_attempt:
-#         try:
-#             response = html_loader.load_page(sector_link)
-#             html = response.text
-#             file_name = f'sector_{sector_number}_p1.html'
-#             with open(file_name, 'a') as html_file:
-#                 html_file.write(html)
-#             print(f"Successfully loaded sector page number {sector_number} and saved to file {file_name}")
-#
-#             pages_count = cian_parser.get_pages_count(html)
-#             print(f"Sector number {sector_number} has {pages_count} pages")
-#             for i in range(2, pages_count+1):
-#                 page_link = cian_parser.get_page_link(sector_link, i)
-#                 print("-"*30)
-#                 print(f"Loading page number: {i}")
-#
-#             sleep_seconds = random.randint(4, 6)
-#             print(f'Sleeping for {sleep_seconds} seconds randomly')
-#             time.sleep(sleep_seconds)
-#
-#             attempt_number = max_attempt
-#         except Exception as exc:
-#             print(f'Error: {exc}')
-#             print(f"Failed loading sector page number: {sector_number}. Trying again...")
-#             attempt_number += 1
+            print(f"Failed loading sector number: {sector_number}. Trying again... Attempt № {attempt_number}")
+            print(f'Error: {exc}')
+            sleep_seconds = 10
+            print(f'Sleeping for {sleep_seconds} seconds...')
+            time.sleep(sleep_seconds)
