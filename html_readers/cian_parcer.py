@@ -1,7 +1,10 @@
+import re
+
 from bs4 import BeautifulSoup
 
 
 class CianParser:
+    cian_ads_per_page = 28
 
     def __init__(self):
         self.substr = "offer_type=suburban"
@@ -12,13 +15,16 @@ class CianParser:
 
     def get_pages_count(self, html_text):
         soup = BeautifulSoup(html_text, "lxml")
-        pagination = soup.find_all(self.is_pagination_element)
-        if len(pagination) > 0 and not pagination[0].ul is None:
-            pagination_tag = pagination[0]
-            pages_list = pagination_tag.ul.contents
-            return len(pages_list)
-        else:
-            return 0
+        if soup.title is None or soup.title.text == '':
+            return 1
+
+        search_result = re.search(r'\d+', soup.title.text)
+        if search_result is None:
+            return 1
+
+        ads_count = int(search_result.group())
+        pages_count = ads_count // self.cian_ads_per_page
+        return pages_count + 1
 
     def get_page_link(self, sector_base_link: str, page_number: int):
         # Looking for substring "offer_type=suburban"

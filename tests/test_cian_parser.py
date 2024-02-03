@@ -4,6 +4,24 @@ from html_readers.cian_parcer import CianParser
 
 
 class TestCianParser(unittest.TestCase):
+    def test_page_count_13(self):
+        with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        pages_count = cian_parser.get_pages_count(test_html)
+
+        self.assertEqual(13, pages_count, "Wrong pages count:")
+
+    def test_page_count_21(self):
+        with open('cian_pages/cian_sector_31.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        pages_count = cian_parser.get_pages_count(test_html)
+
+        self.assertEqual(21, pages_count, "Wrong pages count:")
+
     def test_pages_count_5(self):
         with open('cian_pages/cian_sector_21_p1.html', 'r') as test_html_file:
             test_html = test_html_file.read()
@@ -28,7 +46,7 @@ class TestCianParser(unittest.TestCase):
 
         cian_parser = CianParser()
         pages_count = cian_parser.get_pages_count(test_html)
-        self.assertEqual(0, pages_count)
+        self.assertEqual(1, pages_count)
 
     def test_link_for_page_2(self):
         # Getting sector base link
