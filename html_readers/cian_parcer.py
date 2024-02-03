@@ -5,13 +5,10 @@ from bs4 import BeautifulSoup
 
 class CianParser:
     cian_ads_per_page = 28
+    ads_card_component = 'CardComponent'
 
     def __init__(self):
         self.substr = "offer_type=suburban"
-
-    @staticmethod
-    def is_pagination_element(tag):
-        return tag.name == 'nav' and tag['data-name'] == 'Pagination'
 
     def get_pages_count(self, html_text):
         soup = BeautifulSoup(html_text, "lxml")
@@ -33,3 +30,11 @@ class CianParser:
         page_link = sector_base_link[:page_substr_pos] + f"&p={page_number}" + sector_base_link[page_substr_pos:]
 
         return page_link
+
+    def get_ads(self, html):
+        soup = BeautifulSoup(html, "lxml")
+        ads_list = soup.find_all(self.is_ads_element)
+        return ads_list
+
+    def is_ads_element(self, tag):
+        return tag.name == 'article' and tag['data-name'] == self.ads_card_component

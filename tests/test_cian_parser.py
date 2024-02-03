@@ -140,6 +140,22 @@ class TestCianParser(unittest.TestCase):
 
         self.assertEqual(sector_link_page_5, test_link_page_5, "Page 5 link is incorrect")
 
+    def test_ads_count_sector17_p1(self):
+        with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+        self.assertEqual(28, len(ads_list), "Wrong ads count:")
+
+    def test_ads_count_sector1_p1(self):
+        with open('cian_pages/cian_sector1.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+        self.assertEqual(19, len(ads_list), "Wrong ads count:")
+
 
 if __name__ == '__main__':
     unittest.main()
