@@ -25,6 +25,8 @@ class CianParser:
     int_pattern = '\D'
     title_separator = ','
     link_separator = '/'
+    address_data_name = 'GeoLabel'
+    vri_dict = {'Садоводство', 'ИЖС', 'ДНП', 'ЛПХ', 'Личное подсобное хозяйство', 'Фермерское хозяйство'}
 
     def __init__(self):
         self.substr = "offer_type=suburban"
@@ -87,10 +89,7 @@ class CianParser:
 
         ads.price = self.search_int_number(price_span.text)
 
-        p = target_link.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.find_next('p')
-
-        ads.description = p.text
-        address1 = target_link.next_sibling.next_sibling.next_sibling.div.next_sibling.a
+        address1 = target_link.find_next(self.is_address_link)
         print(address1.text)
         ads.address1 = address1.text
         address2 = address1.next_sibling.next_sibling
@@ -100,10 +99,18 @@ class CianParser:
         print(address3.text)
         ads.address3 = address3.text
         ads.address = f'{ads.address1}, {ads.address2}, {ads.address3}'
+
+        # # kp_tag = price_span.parent.parent.parent.next_sibling.find_next(self.is_kp_div)
+        # kp_tag = price_span.parent.parent.parent.next_sibling
+        # kp_tag = kp_tag.fin_next(self.is_kp_div)
+        # print(kp_tag)
+
         ads.kp = ads.address3
 
-        title_parts = ads.title.split(self.title_separator)
-        ads.vri = title_parts[len(title_parts) - 1].strip()
+        p = target_link.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.find_next('p')
+        ads.description = p.text
+
+        ads.vri = self.get_vri(ads.title)
 
         link_parts = ads.link.split(self.link_separator)
         # - 2 because the last element is an empty element
@@ -121,16 +128,35 @@ class CianParser:
 
         ads_list = []
         for i in range(len(raw_ads_list)):
-            raw_ads = raw_ads_list[i]
-            ads = Ads()
-            if i == 0:
+            print('-'*50)
+            print(f'ads number = {i}')
+            if i == 0 or i == 1:
+                raw_ads = raw_ads_list[i]
                 ads = self.parce_ads(raw_ads)
+            else:
+                ads = Ads()
             ads_list.append(ads)
 
         return ads_list
 
-    def is_general_info(self, tag):
-        return tag.name == 'span' and tag['data-mark'] == 'OfferTitle'
-
     def is_ads_element(self, tag):
         return tag.name == 'article' and tag['data-name'] == self.ads_card_component
+
+    def is_address_link(self, tag):
+        if tag.name == 'a' and 'data-name' in tag.attrs.keys():
+            return tag['data-name'] == self.address_data_name
+        else:
+            return False
+
+    def is_kp_div(self, tag):
+        if tag.name == 'div' and 'data-name' in tag.attrs.keys():
+            return tag['data-name'] == 'ContentRow'
+        else:
+            return False
+
+    def get_vri(self, title):
+        title_parts = title.split(self.title_separator)
+        vri = title_parts[len(title_parts) - 1].strip()
+        if vri not in self.vri_dict:
+            vri = ''
+        return vri
