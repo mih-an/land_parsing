@@ -166,7 +166,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list = cian_parser.get_raw_ads(test_html)
         self.assertEqual(28, len(ads_list), "Wrong ads count:")
 
     def test_ads_count_sector1_p1(self):
@@ -174,7 +174,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list = cian_parser.get_raw_ads(test_html)
         self.assertEqual(19, len(ads_list), "Wrong ads count:")
 
     def test_sector17_ads1(self):

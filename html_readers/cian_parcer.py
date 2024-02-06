@@ -97,12 +97,28 @@ class CianParser:
 
         return ads
 
-    def get_ads(self, html):
+    def get_raw_ads(self, html):
         soup = BeautifulSoup(html, "lxml")
         raw_ads_list = soup.find_all(self.is_ads_element)
+        return raw_ads_list
 
-        raw_ads = raw_ads_list[0]
-        ads = self.parce_ads(raw_ads)
+    def get_ads(self, html):
+        raw_ads_list = self.get_raw_ads(html)
+
+        ads_list = []
+        for i in range(len(raw_ads_list)):
+            raw_ads = raw_ads_list[i]
+            ads = Ads()
+            if i == 0:
+                ads = self.parce_ads(raw_ads)
+            ads_list.append(ads)
+
+        # for raw_ads in raw_ads_list:
+        #     # ads = self.parce_ads(raw_ads)
+        #     ads = Ads()
+        #     ads_list.append(ads)
+        #
+        # ads_list[0] = self.parce_ads(raw_ads_list[0])
 
         # # print(f'tag 1 = {raw_ads.name}, class = {raw_ads["class"]}, data-name={raw_ads["data-name"]}')
         # target_div = raw_ads.div.a.next_sibling
@@ -124,7 +140,7 @@ class CianParser:
         # address3 = address2.next_sibling.next_sibling
         # print(address3.text)
 
-        return [ads]
+        return ads_list
 
     def is_general_info(self, tag):
         return tag.name == 'span' and tag['data-mark'] == 'OfferTitle'
