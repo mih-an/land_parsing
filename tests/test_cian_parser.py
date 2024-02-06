@@ -2,7 +2,7 @@ import unittest
 
 from html_readers.cian_parcer import CianParser
 
-test_description = """Продаётся
+test_description1 = """Продаётся
  участок 9,9 соток в КП Майские Дачи.
 * Поселок закрытый, участки граничат с лесом, имеют выход к реке.
 * Категория земель: Земли сельскохозяйственного назначения.
@@ -22,7 +22,12 @@ test_description = """Продаётся
 руб., в том числе до 1 млн. руб. по выплаченным % по ипотеке; 
 - бесплатная консультация. 
 Звоните! Оперативный показ.. Номер в базе: 8677442."""
-
+test_description2 = """Продается
+ участок в КП Прилесные дачи  6 сот. Прилесные дачи - это уникальный 
+коттеджный поселок, комфорт класса, расположенный на берегу реки 
+"Здеришка", с собственным выходом на береговую линию, в окружении 
+смешанного леса. Уникальность поселка в его стоимости. Участки от 50 000
+ рублей за сотку."""
 
 class TestCianParser(unittest.TestCase):
     def test_page_count_13(self):
@@ -194,7 +199,26 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual('Майские Дачи кп', ads1.kp, 'Kp 1 is not correct')
         self.assertEqual('Московская область, Истра городской округ, Майские Дачи кп', ads1.address,
                          'Address 1 is not correct')
-        self.assertEqual(test_description, ads1.description, 'Description 1 is not correct')
+        self.assertEqual(test_description1, ads1.description, 'Description 1 is not correct')
+
+    def test_sector17_ads2(self):
+        with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+        ads1 = ads_list[1]
+
+        self.assertEqual('Участок, 6 сот.', ads1.title, 'Title 2 is not correct')
+        self.assertEqual(6, ads1.square, 'Square 2 is not correct')
+        self.assertEqual(425000, ads1.price, 'Price 2 is not correct')
+        self.assertEqual('', ads1.vri, 'VRI 2 is not correct')
+        self.assertEqual('https://istra.cian.ru/sale/suburban/287210218/', ads1.link, 'Link 2 is not correct')
+        self.assertEqual('287210218', ads1.id, 'Id 2 is not correct')
+        self.assertEqual('КП «Прилесные дачи »', ads1.kp, 'Kp 2 is not correct')
+        self.assertEqual('Московская область, Истра городской округ, д. Малое Ушаково', ads1.address,
+                         'Address 2 is not correct')
+        self.assertEqual(test_description2, ads1.description, 'Description 2 is not correct')
 
 
 # todo объявление без "Только на циан"

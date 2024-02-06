@@ -66,24 +66,39 @@ class CianParser:
     def parce_ads(self, raw_ads):
         ads = Ads()
 
+        print(f'tag 1 = {raw_ads.name}, class = {raw_ads["class"]}, data-name={raw_ads["data-name"]}')
+
         target_div = raw_ads.div.a.next_sibling
+        print(f'tag 2 = {target_div.name}, class = {target_div["class"]}')
+
         target_link = target_div.find_next('a')
+        print(f'tag 3 = {target_link.name}, class = {target_link["class"]}, href = {target_link["href"]}')
+
         ads.link = target_link["href"]
 
         title_span = target_link.next_sibling.a.span.span
+        print(title_span.text)
+
         ads.title = title_span.text
         ads.square = self.search_float_number(ads.title)
 
         price_span = target_link.next_sibling.next_sibling.next_sibling.next_sibling.div.span.span
+        print(price_span.text)
+
         ads.price = self.search_int_number(price_span.text)
 
         p = target_link.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.find_next('p')
+        # print(p.text)
+
         ads.description = p.text
         address1 = target_link.next_sibling.next_sibling.next_sibling.div.next_sibling.a
+        print(address1.text)
         ads.address1 = address1.text
         address2 = address1.next_sibling.next_sibling
+        print(address2.text)
         ads.address2 = address2.text
         address3 = address2.next_sibling.next_sibling
+        print(address3.text)
         ads.address3 = address3.text
         ads.address = f'{ads.address1}, {ads.address2}, {ads.address3}'
         ads.kp = ads.address3
@@ -112,13 +127,6 @@ class CianParser:
             if i == 0:
                 ads = self.parce_ads(raw_ads)
             ads_list.append(ads)
-
-        # for raw_ads in raw_ads_list:
-        #     # ads = self.parce_ads(raw_ads)
-        #     ads = Ads()
-        #     ads_list.append(ads)
-        #
-        # ads_list[0] = self.parce_ads(raw_ads_list[0])
 
         # # print(f'tag 1 = {raw_ads.name}, class = {raw_ads["class"]}, data-name={raw_ads["data-name"]}')
         # target_div = raw_ads.div.a.next_sibling
