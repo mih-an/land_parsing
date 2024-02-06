@@ -88,7 +88,6 @@ class CianParser:
         ads.price = self.search_int_number(price_span.text)
 
         p = target_link.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.find_next('p')
-        # print(p.text)
 
         ads.description = p.text
         address1 = target_link.next_sibling.next_sibling.next_sibling.div.next_sibling.a
@@ -127,26 +126,6 @@ class CianParser:
             if i == 0:
                 ads = self.parce_ads(raw_ads)
             ads_list.append(ads)
-
-        # # print(f'tag 1 = {raw_ads.name}, class = {raw_ads["class"]}, data-name={raw_ads["data-name"]}')
-        # target_div = raw_ads.div.a.next_sibling
-        # print(f'tag 2 = {target_div.name}, class = {target_div["class"]}')
-        # target_link = target_div.find_next('a')
-        # print(f'tag 3 = {target_link.name}, class = {target_link["class"]}, href = {target_link["href"]}')
-        # title_span = target_link.next_sibling.a.span.span
-        # print(title_span.text)
-        # price_span = target_link.next_sibling.next_sibling.next_sibling.next_sibling.div.span.span
-        # print(price_span.text)
-        # print(self.search_int_number(price_span.text))
-        #
-        # # p = target_link.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.find_next('p')
-        # # print(p.text)
-        # address1 = target_link.next_sibling.next_sibling.next_sibling.div.next_sibling.a
-        # print(address1.text)
-        # address2 = address1.next_sibling.next_sibling
-        # print(address2.text)
-        # address3 = address2.next_sibling.next_sibling
-        # print(address3.text)
 
         return ads_list
 

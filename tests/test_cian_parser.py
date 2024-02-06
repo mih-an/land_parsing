@@ -29,6 +29,7 @@ test_description2 = """Продается
 смешанного леса. Уникальность поселка в его стоимости. Участки от 50 000
  рублей за сотку."""
 
+
 class TestCianParser(unittest.TestCase):
     def test_page_count_13(self):
         with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
