@@ -2,6 +2,27 @@ import unittest
 
 from html_readers.cian_parcer import CianParser
 
+test_description = """Продаётся
+ участок 9,9 соток в КП Майские Дачи.
+* Поселок закрытый, участки граничат с лесом, имеют выход к реке.
+* Категория земель: Земли сельскохозяйственного назначения.
+* Разрешенное использование: Для дачного строительства.
+* Участок пятиугольный, имеет удобное расположение, есть возможность 
+организации двух заездов.
+По всем вопросам звоните! 
+----------------
+* ДЛЯ ПОКУПАТЕЛЯ ОТ КОМПАНИИ ЭТАЖИ: 
+- содействие в получении положительного решения по одобрению ипотеки в 
+27 банках-партнёрах со сниженной процентной ставкой (преференцией) в 11 
+банках (консультация бесплатно); 
+- страхование объекта недвижимости со скидкой 25-30%; 
+- юридическое сопровождение сделки; 
+- безопасные расчёты; 
+- финансовая гарантия на приобретаемый объект недвижимости до 15 млн. 
+руб., в том числе до 1 млн. руб. по выплаченным % по ипотеке; 
+- бесплатная консультация. 
+Звоните! Оперативный показ.. Номер в базе: 8677442."""
+
 
 class TestCianParser(unittest.TestCase):
     def test_page_count_13(self):
@@ -156,6 +177,28 @@ class TestCianParser(unittest.TestCase):
         ads_list = cian_parser.get_ads(test_html)
         self.assertEqual(19, len(ads_list), "Wrong ads count:")
 
+    def test_sector17_ads1(self):
+        with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+        ads1 = ads_list[0]
+
+        self.assertEqual('Участок, 9.9 сот., Садоводство', ads1.title, 'Title 1 is not correct')
+        self.assertEqual(9.9, ads1.square, 'Square 1 is not correct')
+        self.assertEqual(1800000, ads1.price, 'Price 1 is not correct')
+        self.assertEqual('Садоводство', ads1.vri, 'VRI 1 is not correct')
+        self.assertEqual('https://istra.cian.ru/sale/suburban/281048577/', ads1.link, 'Link 1 is not correct')
+        self.assertEqual('281048577', ads1.id, 'Id 1 is not correct')
+        self.assertEqual('Майские Дачи кп', ads1.kp, 'Kp 1 is not correct')
+        self.assertEqual('Московская область, Истра городской округ, Майские Дачи кп', ads1.address,
+                         'Address 1 is not correct')
+        self.assertEqual(test_description, ads1.description, 'Description 1 is not correct')
+
+
+# todo объявление без "Только на циан"
+# todo агентство
 
 if __name__ == '__main__':
     unittest.main()
