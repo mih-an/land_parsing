@@ -266,11 +266,5 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual('Истринская Долина', ads.ads_owner_id, 'ads 5 owner ID is not correct')
 
 
-# todo Ссылки на адреса
-# todo ссылки на КП
-# todo электронные торги
-# todo коммуникации
-
-
 if __name__ == '__main__':
     unittest.main()
