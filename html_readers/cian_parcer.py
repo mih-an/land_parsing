@@ -91,11 +91,14 @@ class CianParser:
         ads.description = self.parce_description(target_div)
         ads.vri = self.get_vri(ads.title)
         ads.id = self.parce_id(ads)
+        ads.kp = self.parce_kp(target_div)
 
-        # # kp_tag = price_span.parent.parent.parent.next_sibling.find_next(self.is_kp_div)
-        # kp_tag = price_span.parent.parent.parent.next_sibling
-        # kp_tag = kp_tag.fin_next(self.is_kp_div)
-        # print(kp_tag)
+        # price_span = target_div.find_next(self.is_price_tag)
+        # kp_parent_div_tag = price_span.parent.parent.next_sibling
+        # kp_tag = kp_parent_div_tag.find_next(self.is_kp_tag)
+        # if kp_tag is not None and kp_tag.a is not None:
+        #     ads.kp = kp_tag.a.text
+        #     print(ads.kp)
 
         return ads
 
@@ -184,3 +187,12 @@ class CianParser:
         link_parts = ads.link.split(self.link_separator)
         # - 2 because the last element is an empty element
         return link_parts[len(link_parts) - 2]
+
+    def parce_kp(self, target_div):
+        price_span = target_div.find_next(self.is_price_tag)
+        kp_parent_div_tag = price_span.parent.parent.next_sibling
+        kp_tag = kp_parent_div_tag.find_next(self.is_kp_tag)
+        if kp_tag is not None and kp_tag.a is not None:
+            return kp_tag.a.text
+
+        return ''
