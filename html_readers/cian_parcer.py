@@ -71,56 +71,31 @@ class CianParser:
             return 0
         return int(search_res)
 
+    def parce_link(self, target_div):
+        target_link = target_div.find_next('a')
+        print(f'tag 3 = {target_link.name}, class = {target_link["class"]}, href = {target_link["href"]}')
+        return target_link["href"]
+
     def parce_ads(self, raw_ads):
         ads = Ads()
-
         print(f'tag 1 = {raw_ads.name}, class = {raw_ads["class"]}, data-name={raw_ads["data-name"]}')
 
         target_div = raw_ads.find_next(self.is_main_link_area_tag)
         print(f'tag 2 = {target_div.name}, class = {target_div["class"]}')
 
-        target_link = target_div.find_next('a')
-        print(f'tag 3 = {target_link.name}, class = {target_link["class"]}, href = {target_link["href"]}')
-
-        ads.link = target_link["href"]
-
-        title_span = target_div.find_next(self.is_offer_title_tag).span
-        print(title_span.text)
-
-        ads.title = title_span.text
+        ads.link = self.parce_link(target_div)
+        ads.title = self.parce_title(target_div)
         ads.square = self.search_float_number(ads.title)
-
-        price_span = target_div.find_next(self.is_price_tag).span
-        print(price_span.text)
-        ads.price = self.search_int_number(price_span.text)
-
-        address1 = target_link.find_next(self.is_address_tag)
-        print(address1.text)
-        ads.address1 = address1.text
-        # Two times next_sibling because it has comma between a tags
-        address2 = address1.next_sibling.next_sibling
-        print(address2.text)
-        ads.address2 = address2.text
-        address3 = address2.next_sibling.next_sibling
-        print(address3.text)
-        ads.address3 = address3.text
-        ads.address = f'{ads.address1}, {ads.address2}, {ads.address3}'
+        ads.price = self.parce_price(target_div)
+        self.parce_address(ads, target_div)
+        ads.description = self.parce_description(target_div)
+        ads.vri = self.get_vri(ads.title)
+        ads.id = self.parce_id(ads)
 
         # # kp_tag = price_span.parent.parent.parent.next_sibling.find_next(self.is_kp_div)
         # kp_tag = price_span.parent.parent.parent.next_sibling
         # kp_tag = kp_tag.fin_next(self.is_kp_div)
         # print(kp_tag)
-
-        ads.locality = ads.address3
-
-        p = target_div.find_next(self.is_description_tag).p
-        ads.description = p.text
-
-        ads.vri = self.get_vri(ads.title)
-
-        link_parts = ads.link.split(self.link_separator)
-        # - 2 because the last element is an empty element
-        ads.id = link_parts[len(link_parts) - 2]
 
         return ads
 
@@ -176,3 +151,36 @@ class CianParser:
         if vri not in self.vri_dict:
             vri = ''
         return vri
+
+    def parce_title(self, target_div):
+        title_span = target_div.find_next(self.is_offer_title_tag).span
+        print(title_span.text)
+        return title_span.text
+
+    def parce_price(self, target_div):
+        price_span = target_div.find_next(self.is_price_tag).span
+        print(price_span.text)
+        return self.search_int_number(price_span.text)
+
+    def parce_address(self, ads, target_div):
+        address1 = target_div.find_next(self.is_address_tag)
+        print(address1.text)
+        ads.address1 = address1.text
+        # Two times next_sibling because it has comma between a tags
+        address2 = address1.next_sibling.next_sibling
+        print(address2.text)
+        ads.address2 = address2.text
+        address3 = address2.next_sibling.next_sibling
+        print(address3.text)
+        ads.address3 = address3.text
+        ads.address = f'{ads.address1}, {ads.address2}, {ads.address3}'
+        ads.locality = ads.address3
+
+    def parce_description(self, target_div):
+        p = target_div.find_next(self.is_description_tag).p
+        return p.text
+
+    def parce_id(self, ads):
+        link_parts = ads.link.split(self.link_separator)
+        # - 2 because the last element is an empty element
+        return link_parts[len(link_parts) - 2]
