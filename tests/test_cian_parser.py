@@ -217,15 +217,55 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual('', ads1.vri, 'VRI 2 is not correct')
         self.assertEqual('https://istra.cian.ru/sale/suburban/287210218/', ads1.link, 'Link 2 is not correct')
         self.assertEqual('287210218', ads1.id, 'Id 2 is not correct')
-        self.assertEqual('д. Малое Ушаково', ads1.locality, 'Kp 2 is not correct')
+        self.assertEqual('д. Малое Ушаково', ads1.locality, 'locality 2 is not correct')
         self.assertEqual('КП «‎Прилесные дачи »', ads1.kp, 'Kp 2 is not correct')
         self.assertEqual('Московская область, Истра городской округ, д. Малое Ушаково', ads1.address,
                          'Address 2 is not correct')
         self.assertEqual(test_description2, ads1.description, 'Description 2 is not correct')
 
+    def test_sector17_ads3(self):
+        with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
 
-# todo объявление без "Только на циан"
-# todo агентство, застройщик, собственник
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+        ads = ads_list[2]
+
+        self.assertEqual('Участок, 12.5 сот., ДНП', ads.title, 'Title 3 is not correct')
+        self.assertEqual(12.5, ads.square, 'Square 3 is not correct')
+        self.assertEqual(4500000, ads.price, 'Price 3 is not correct')
+        self.assertEqual('ДНП', ads.vri, 'VRI 3 is not correct')
+        self.assertEqual('https://istra.cian.ru/sale/suburban/262375318/', ads.link, 'Link 3 is not correct')
+        self.assertEqual('262375318', ads.id, 'Id 3 is not correct')
+        self.assertEqual('Озерный Край-2 кп', ads.locality, 'locality 3 is not correct')
+        self.assertEqual('', ads.kp, 'Kp 2 is not correct')
+        self.assertEqual('Московская область, Истра городской округ, Озерный Край-2 кп', ads.address,
+                         'Address 3 is not correct')
+
+    def test_ads_owner(self):
+        with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+
+        ads = ads_list[0]
+        self.assertEqual('Агентство недвижимости', ads.ads_owner, 'ads 1 owner is not correct')
+        self.assertEqual('Этажи Москва', ads.ads_owner_id, 'ads 1 owner ID is not correct')
+
+        ads = ads_list[2]
+        self.assertEqual('Собственник', ads.ads_owner, 'ads 3 owner is not correct')
+        self.assertEqual('ID 70642111', ads.ads_owner_id, 'ads 3 owner ID is not correct')
+
+        ads = ads_list[3]
+        self.assertEqual('Риелтор', ads.ads_owner, 'ads 4 owner is not correct')
+        self.assertEqual('ID 23674176', ads.ads_owner_id, 'ads 4 owner ID is not correct')
+
+        ads = ads_list[4]
+        self.assertEqual('Застройщик', ads.ads_owner, 'ads 5 owner is not correct')
+        self.assertEqual('Истринская Долина', ads.ads_owner_id, 'ads 5 owner ID is not correct')
+
+
 # todo Ссылки на адреса
 # todo ссылки на КП
 # todo электронные торги

@@ -17,6 +17,9 @@ class Ads:
     address3 = ''
     address = ''
     description = ''
+    ads_owner = ''
+    ads_owner_id = ''
+
 
 
 class CianParser:
@@ -28,6 +31,8 @@ class CianParser:
     vri_dict = {'Садоводство', 'ИЖС', 'ДНП', 'ЛПХ', 'Личное подсобное хозяйство', 'Фермерское хозяйство'}
 
     def __init__(self):
+        self.agency = 'Агентство недвижимости'
+        self.brand_area_data_name = 'BrandingLevelWrapper'
         self.kp_data_name = 'ContentRow'
         self.offer_title_data_mark = 'OfferTitle'
         self.price_span_data_mark = 'MainPrice'
@@ -95,6 +100,13 @@ class CianParser:
         ads.id = self.parce_id(ads)
         ads.kp = self.parce_kp(target_div)
 
+        self.parce_owner(ads, raw_ads)
+        brand_div = raw_ads.find_next(self.is_brand_main_tag)
+        span = brand_div.div.div.next_sibling.div.div.span
+
+        print(f'Brand DIV: {brand_div}')
+        print(f'span : {span.text}')
+
         return ads
 
     def get_raw_ads(self, html):
@@ -121,6 +133,9 @@ class CianParser:
 
     def is_ads_tag(self, tag):
         return self.is_needed_tag(tag, 'article', 'data-name', self.ads_card_component)
+
+    def is_brand_main_tag(self, tag):
+        return self.is_needed_tag(tag, 'div', 'data-name', self.brand_area_data_name)
 
     def is_main_link_area_tag(self, tag):
         return self.is_needed_tag(tag, 'div', 'data-name', self.link_area_data_name)
@@ -192,3 +207,21 @@ class CianParser:
             return kp_tag.a.text
 
         return ''
+
+    def parce_owner(self, ads, raw_ads):
+        brand_div = raw_ads.find_next(self.is_brand_main_tag)
+        span = brand_div.div.div.next_sibling.div.div.span
+        ads.ads_owner = span.text
+        print(f'Owner : {span.text}')
+
+        next_sib = span.next_sibling
+        if ads.ads_owner == self.agency:
+            if next_sib.a is None:
+                owner_id = next_sib.span.text
+            else:
+                owner_id = next_sib.a.span.text
+            print(f'Owner id: {owner_id}')
+        else:
+            owner_id = next_sib.span.text
+            print(f'Owner id: {owner_id}')
+        ads.ads_owner_id = owner_id
