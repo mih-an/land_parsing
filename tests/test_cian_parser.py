@@ -197,7 +197,8 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual('Садоводство', ads1.vri, 'VRI 1 is not correct')
         self.assertEqual('https://istra.cian.ru/sale/suburban/281048577/', ads1.link, 'Link 1 is not correct')
         self.assertEqual('281048577', ads1.id, 'Id 1 is not correct')
-        self.assertEqual('Майские Дачи кп', ads1.kp, 'Kp 1 is not correct')
+        self.assertEqual('Майские Дачи кп', ads1.locality, 'Kp 1 is not correct')
+        self.assertEqual('', ads1.kp, 'Kp 1 is not correct')
         self.assertEqual('Московская область, Истра городской округ, Майские Дачи кп', ads1.address,
                          'Address 1 is not correct')
         self.assertEqual(test_description1, ads1.description, 'Description 1 is not correct')
@@ -216,7 +217,7 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual('', ads1.vri, 'VRI 2 is not correct')
         self.assertEqual('https://istra.cian.ru/sale/suburban/287210218/', ads1.link, 'Link 2 is not correct')
         self.assertEqual('287210218', ads1.id, 'Id 2 is not correct')
-        # Todo вернуть
+        self.assertEqual('д. Малое Ушаково', ads1.locality, 'Kp 2 is not correct')
         # self.assertEqual('КП «Прилесные дачи »', ads1.kp, 'Kp 2 is not correct')
         self.assertEqual('Московская область, Истра городской округ, д. Малое Ушаково', ads1.address,
                          'Address 2 is not correct')

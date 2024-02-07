@@ -11,6 +11,7 @@ class Ads:
     link = ''
     id = ''
     kp = ''
+    locality = ''
     address1 = ''
     address2 = ''
     address3 = ''
@@ -20,15 +21,20 @@ class Ads:
 
 class CianParser:
     cian_ads_per_page = 28
-    ads_card_component = 'CardComponent'
     float_pattern = '[\d]+[.,\d]+|[\d]*[.][\d]+|[\d]+'
     int_pattern = '\D'
     title_separator = ','
     link_separator = '/'
-    address_data_name = 'GeoLabel'
     vri_dict = {'Садоводство', 'ИЖС', 'ДНП', 'ЛПХ', 'Личное подсобное хозяйство', 'Фермерское хозяйство'}
 
     def __init__(self):
+        self.kp_data_name = 'ContentRow'
+        self.offer_title_data_mark = 'OfferTitle'
+        self.price_span_data_mark = 'MainPrice'
+        self.address_data_name = 'GeoLabel'
+        self.link_area_data_name = 'LinkArea'
+        self.description_data_name = 'Description'
+        self.ads_card_component = 'CardComponent'
         self.substr = "offer_type=suburban"
 
     def get_pages_count(self, html_text):
@@ -70,7 +76,7 @@ class CianParser:
 
         print(f'tag 1 = {raw_ads.name}, class = {raw_ads["class"]}, data-name={raw_ads["data-name"]}')
 
-        target_div = raw_ads.div.a.next_sibling
+        target_div = raw_ads.find_next(self.is_main_link_area_tag)
         print(f'tag 2 = {target_div.name}, class = {target_div["class"]}')
 
         target_link = target_div.find_next('a')
@@ -78,20 +84,20 @@ class CianParser:
 
         ads.link = target_link["href"]
 
-        title_span = target_link.next_sibling.a.span.span
+        title_span = target_div.find_next(self.is_offer_title_tag).span
         print(title_span.text)
 
         ads.title = title_span.text
         ads.square = self.search_float_number(ads.title)
 
-        price_span = target_link.next_sibling.next_sibling.next_sibling.next_sibling.div.span.span
+        price_span = target_div.find_next(self.is_price_tag).span
         print(price_span.text)
-
         ads.price = self.search_int_number(price_span.text)
 
-        address1 = target_link.find_next(self.is_address_link)
+        address1 = target_link.find_next(self.is_address_tag)
         print(address1.text)
         ads.address1 = address1.text
+        # Two times next_sibling because it has comma between a tags
         address2 = address1.next_sibling.next_sibling
         print(address2.text)
         ads.address2 = address2.text
@@ -105,9 +111,9 @@ class CianParser:
         # kp_tag = kp_tag.fin_next(self.is_kp_div)
         # print(kp_tag)
 
-        ads.kp = ads.address3
+        ads.locality = ads.address3
 
-        p = target_link.next_sibling.next_sibling.next_sibling.next_sibling.next_sibling.find_next('p')
+        p = target_div.find_next(self.is_description_tag).p
         ads.description = p.text
 
         ads.vri = self.get_vri(ads.title)
@@ -120,7 +126,7 @@ class CianParser:
 
     def get_raw_ads(self, html):
         soup = BeautifulSoup(html, "lxml")
-        raw_ads_list = soup.find_all(self.is_ads_element)
+        raw_ads_list = soup.find_all(self.is_ads_tag)
         return raw_ads_list
 
     def get_ads(self, html):
@@ -128,7 +134,7 @@ class CianParser:
 
         ads_list = []
         for i in range(len(raw_ads_list)):
-            print('-'*50)
+            print('-' * 50)
             print(f'ads number = {i}')
             if i == 0 or i == 1:
                 raw_ads = raw_ads_list[i]
@@ -139,20 +145,30 @@ class CianParser:
 
         return ads_list
 
-    def is_ads_element(self, tag):
-        return tag.name == 'article' and tag['data-name'] == self.ads_card_component
+    @staticmethod
+    def is_needed_tag(tag, tag_name, data_attr_key, data_attr_value):
+        return tag.name == tag_name and data_attr_key in tag.attrs.keys() and tag[data_attr_key] == data_attr_value
 
-    def is_address_link(self, tag):
-        if tag.name == 'a' and 'data-name' in tag.attrs.keys():
-            return tag['data-name'] == self.address_data_name
-        else:
-            return False
+    def is_ads_tag(self, tag):
+        return self.is_needed_tag(tag, 'article', 'data-name', self.ads_card_component)
 
-    def is_kp_div(self, tag):
-        if tag.name == 'div' and 'data-name' in tag.attrs.keys():
-            return tag['data-name'] == 'ContentRow'
-        else:
-            return False
+    def is_main_link_area_tag(self, tag):
+        return self.is_needed_tag(tag, 'div', 'data-name', self.link_area_data_name)
+
+    def is_description_tag(self, tag):
+        return self.is_needed_tag(tag, 'div', 'data-name', self.description_data_name)
+
+    def is_offer_title_tag(self, tag):
+        return self.is_needed_tag(tag, 'span', 'data-mark', self.offer_title_data_mark)
+
+    def is_price_tag(self, tag):
+        return self.is_needed_tag(tag, 'span', 'data-mark', self.price_span_data_mark)
+
+    def is_address_tag(self, tag):
+        return self.is_needed_tag(tag, 'a', 'data-name', self.address_data_name)
+
+    def is_kp_tag(self, tag):
+        return self.is_needed_tag(tag, 'div', 'data-name', self.kp_data_name)
 
     def get_vri(self, title):
         title_parts = title.split(self.title_separator)
