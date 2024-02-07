@@ -99,13 +99,7 @@ class CianParser:
         ads.vri = self.get_vri(ads.title)
         ads.id = self.parce_id(ads)
         ads.kp = self.parce_kp(target_div)
-
         self.parce_owner(ads, raw_ads)
-        brand_div = raw_ads.find_next(self.is_brand_main_tag)
-        span = brand_div.div.div.next_sibling.div.div.span
-
-        print(f'Brand DIV: {brand_div}')
-        print(f'span : {span.text}')
 
         return ads
 
@@ -215,13 +209,10 @@ class CianParser:
         print(f'Owner : {span.text}')
 
         next_sib = span.next_sibling
-        if ads.ads_owner == self.agency:
-            if next_sib.a is None:
-                owner_id = next_sib.span.text
-            else:
-                owner_id = next_sib.a.span.text
-            print(f'Owner id: {owner_id}')
+        if ads.ads_owner == self.agency and next_sib.a is not None:
+            owner_id = next_sib.a.span.text
         else:
             owner_id = next_sib.span.text
-            print(f'Owner id: {owner_id}')
+
+        print(f'Owner id: {owner_id}')
         ads.ads_owner_id = owner_id
