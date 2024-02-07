@@ -225,7 +225,12 @@ class TestCianParser(unittest.TestCase):
 
 
 # todo объявление без "Только на циан"
-# todo агентство
+# todo агентство, застройщик, собственник
+# todo Ссылки на адреса
+# todo ссылки на КП
+# todo электронные торги
+# todo коммуникации
+
 
 if __name__ == '__main__':
     unittest.main()

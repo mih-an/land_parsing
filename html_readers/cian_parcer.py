@@ -71,34 +71,29 @@ class CianParser:
             return 0
         return int(search_res)
 
-    def parce_link(self, target_div):
+    @staticmethod
+    def parce_link(target_div):
         target_link = target_div.find_next('a')
-        print(f'tag 3 = {target_link.name}, class = {target_link["class"]}, href = {target_link["href"]}')
+        print(f'Link: {target_link["href"]}')
         return target_link["href"]
 
     def parce_ads(self, raw_ads):
         ads = Ads()
-        print(f'tag 1 = {raw_ads.name}, class = {raw_ads["class"]}, data-name={raw_ads["data-name"]}')
+        print(f'Ads div = {raw_ads.name}, class = {raw_ads["class"]}, data-name={raw_ads["data-name"]}')
 
         target_div = raw_ads.find_next(self.is_main_link_area_tag)
-        print(f'tag 2 = {target_div.name}, class = {target_div["class"]}')
+        print(f'Target div = {target_div.name}, class = {target_div["class"]}')
 
         ads.link = self.parce_link(target_div)
         ads.title = self.parce_title(target_div)
         ads.square = self.search_float_number(ads.title)
+        print(f'Square: {ads.square}')
         ads.price = self.parce_price(target_div)
         self.parce_address(ads, target_div)
         ads.description = self.parce_description(target_div)
         ads.vri = self.get_vri(ads.title)
         ads.id = self.parce_id(ads)
         ads.kp = self.parce_kp(target_div)
-
-        # price_span = target_div.find_next(self.is_price_tag)
-        # kp_parent_div_tag = price_span.parent.parent.next_sibling
-        # kp_tag = kp_parent_div_tag.find_next(self.is_kp_tag)
-        # if kp_tag is not None and kp_tag.a is not None:
-        #     ads.kp = kp_tag.a.text
-        #     print(ads.kp)
 
         return ads
 
@@ -114,11 +109,8 @@ class CianParser:
         for i in range(len(raw_ads_list)):
             print('-' * 50)
             print(f'ads number = {i}')
-            if i == 0 or i == 1:
-                raw_ads = raw_ads_list[i]
-                ads = self.parce_ads(raw_ads)
-            else:
-                ads = Ads()
+            raw_ads = raw_ads_list[i]
+            ads = self.parce_ads(raw_ads)
             ads_list.append(ads)
 
         return ads_list
@@ -153,31 +145,32 @@ class CianParser:
         vri = title_parts[len(title_parts) - 1].strip()
         if vri not in self.vri_dict:
             vri = ''
+        print(f'VRI: {vri}')
         return vri
 
     def parce_title(self, target_div):
         title_span = target_div.find_next(self.is_offer_title_tag).span
-        print(title_span.text)
+        print(f'Title: {title_span.text}')
         return title_span.text
 
     def parce_price(self, target_div):
         price_span = target_div.find_next(self.is_price_tag).span
-        print(price_span.text)
-        return self.search_int_number(price_span.text)
+        price = self.search_int_number(price_span.text)
+        print(f'Price int: {price}, price str: {price_span.text}')
+        return price
 
     def parce_address(self, ads, target_div):
         address1 = target_div.find_next(self.is_address_tag)
-        print(address1.text)
         ads.address1 = address1.text
         # Two times next_sibling because it has comma between a tags
         address2 = address1.next_sibling.next_sibling
-        print(address2.text)
         ads.address2 = address2.text
         address3 = address2.next_sibling.next_sibling
-        print(address3.text)
         ads.address3 = address3.text
         ads.address = f'{ads.address1}, {ads.address2}, {ads.address3}'
         ads.locality = ads.address3
+        print(f'Address: {ads.address}')
+        print(f'Locality: {ads.locality}')
 
     def parce_description(self, target_div):
         p = target_div.find_next(self.is_description_tag).p
@@ -186,13 +179,16 @@ class CianParser:
     def parce_id(self, ads):
         link_parts = ads.link.split(self.link_separator)
         # - 2 because the last element is an empty element
-        return link_parts[len(link_parts) - 2]
+        ads_id = link_parts[len(link_parts) - 2]
+        print(f'Id: {ads_id}')
+        return ads_id
 
     def parce_kp(self, target_div):
         price_span = target_div.find_next(self.is_price_tag)
         kp_parent_div_tag = price_span.parent.parent.next_sibling
         kp_tag = kp_parent_div_tag.find_next(self.is_kp_tag)
         if kp_tag is not None and kp_tag.a is not None:
+            print(f'Cottage complex: {kp_tag.a.text}')
             return kp_tag.a.text
 
         return ''
