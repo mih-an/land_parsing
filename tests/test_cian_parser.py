@@ -28,6 +28,23 @@ test_description2 = """Продается
 "Здеришка", с собственным выходом на береговую линию, в окружении 
 смешанного леса. Уникальность поселка в его стоимости. Участки от 50 000
  рублей за сотку."""
+test_description3 = """Широкие
+ каналы со спокойно струящейся прозрачной водой, античные статуи вдоль 
+тенистых дорожек в зелёных зарослях, тысячи солнечных зайчиков на 
+зеркалах озёр  так выглядит "Миллениум Парк", элитный посёлок в 19 км от
+ МКАД, давно ставший культовым. Именно здесь продается загородный 
+участок ID 6032, уютный уголок для вашей будущей усадьбы. Кроме зелени и
+ свежести от воды, поселение окутывает флёр спокойствия и безопасности. 
+Сквозь заслон деревьев не проникает шум с автотрассы, лежащей в 1,5 км: к
+ услугам жителей вся статусная инфраструктура Новой Риги. Четыре КПП 
+позволяют удобно возвращаться домой с любой стороны, а вот для 
+посторонних территория закрыта наглухо, без пропуска в посёлок не 
+въехать. Что нужно знать о землевладении: площадь участка 14,41 сотки, 
+коммуникации в готовности, в двух шагах детская площадка с игровыми 
+аттракционами. Как купить недвижимость премиум-сегмента в рассрочку или 
+взять в ипотеку, подскажут менеджеры Villagio Realty.
+
+Номер лота: 6032"""
 
 
 class TestCianParser(unittest.TestCase):
@@ -264,6 +281,54 @@ class TestCianParser(unittest.TestCase):
         ads = ads_list[4]
         self.assertEqual('Застройщик', ads.ads_owner, 'ads 5 owner is not correct')
         self.assertEqual('Истринская Долина', ads.ads_owner_id, 'ads 5 owner ID is not correct')
+
+    def test_electronic_trading(self):
+        with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+
+        ads = ads_list[0]
+        self.assertEqual('', ads.electronic_trading, 'Electronic trading should not be')
+        self.assertFalse(ads.is_electronic_trading, 'Electronic trading should be False ')
+
+        ads = ads_list[9]
+        self.assertEqual('Электронные торги', ads.electronic_trading, 'Electronic trading should be')
+        self.assertTrue(ads.is_electronic_trading, 'Electronic trading should be True ')
+
+        ads = ads_list[10]
+        self.assertEqual('', ads.electronic_trading, 'Electronic trading should not be')
+        self.assertFalse(ads.is_electronic_trading, 'Electronic trading should be False ')
+
+        ads = ads_list[12]
+        self.assertEqual('Электронные торги', ads.electronic_trading, 'Electronic trading should be')
+        self.assertTrue(ads.is_electronic_trading, 'Electronic trading should be True ')
+
+    def test_sector_31(self):
+        with open('cian_pages/cian_sector_31.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+        ads1 = ads_list[0]
+
+        self.assertEqual('Участок, 14.41 сот.', ads1.title, 'Title 1 is not correct')
+        self.assertEqual(14.41, ads1.square, 'Square 1 is not correct')
+        self.assertEqual(66286000, ads1.price, 'Price 1 is not correct')
+        self.assertEqual('', ads1.vri, 'VRI 1 is not correct')
+        self.assertEqual('https://istra.cian.ru/sale/suburban/297552877/', ads1.link, 'Link 1 is not correct')
+        self.assertEqual('297552877', ads1.id, 'Id 1 is not correct')
+        self.assertEqual('Миллениум Парк кп', ads1.locality, 'Kp 1 is not correct')
+        self.assertEqual('КП «‎Millennium Park (Миллениум Парк)»', ads1.kp, 'Kp 1 is not correct')
+        self.assertEqual('Московская область, Истра городской округ, Миллениум Парк кп', ads1.address,
+                         'Address 1 is not correct')
+        self.assertEqual(test_description3, ads1.description, 'Description 1 is not correct')
+
+        ads = ads_list[6]
+        self.assertEqual('Участок, 13.03 сот.', ads.title, 'Title 1 is not correct')
+        self.assertEqual(13.03, ads.square, 'Square 1 is not correct')
+        self.assertEqual(58635000, ads.price, 'Price 1 is not correct')
 
 
 if __name__ == '__main__':

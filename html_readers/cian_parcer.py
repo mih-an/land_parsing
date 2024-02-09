@@ -19,6 +19,8 @@ class Ads:
     description = ''
     ads_owner = ''
     ads_owner_id = ''
+    electronic_trading = ''
+    is_electronic_trading = False
 
 
 
@@ -31,6 +33,8 @@ class CianParser:
     vri_dict = {'Садоводство', 'ИЖС', 'ДНП', 'ЛПХ', 'Личное подсобное хозяйство', 'Фермерское хозяйство'}
 
     def __init__(self):
+        self.offer_subtitle_data_mark = 'OfferSubtitle'
+        self.electronic_data_name = 'GalleryLabels'
         self.agency = 'Агентство недвижимости'
         self.brand_area_data_name = 'BrandingLevelWrapper'
         self.kp_data_name = 'ContentRow'
@@ -100,6 +104,7 @@ class CianParser:
         ads.id = self.parce_id(ads)
         ads.kp = self.parce_kp(target_div)
         self.parce_owner(ads, raw_ads)
+        self.parce_electronic_trading(ads, raw_ads)
 
         return ads
 
@@ -131,6 +136,9 @@ class CianParser:
     def is_brand_main_tag(self, tag):
         return self.is_needed_tag(tag, 'div', 'data-name', self.brand_area_data_name)
 
+    def is_electronic_tag(self, tag):
+        return self.is_needed_tag(tag, 'div', 'data-name', self.electronic_data_name)
+    
     def is_main_link_area_tag(self, tag):
         return self.is_needed_tag(tag, 'div', 'data-name', self.link_area_data_name)
 
@@ -139,6 +147,9 @@ class CianParser:
 
     def is_offer_title_tag(self, tag):
         return self.is_needed_tag(tag, 'span', 'data-mark', self.offer_title_data_mark)
+
+    def is_offer_subtitle_tag(self, tag):
+        return self.is_needed_tag(tag, 'span', 'data-mark', self.offer_subtitle_data_mark)
 
     def is_price_tag(self, tag):
         return self.is_needed_tag(tag, 'span', 'data-mark', self.price_span_data_mark)
@@ -158,9 +169,25 @@ class CianParser:
         return vri
 
     def parce_title(self, target_div):
-        title_span = target_div.find_next(self.is_offer_title_tag).span
-        print(f'Title: {title_span.text}')
-        return title_span.text
+        subtitle = self.parce_subtitle(target_div)
+        if subtitle == '':
+            title_span = target_div.find_next(self.is_offer_title_tag).span
+            title = title_span.text
+        else:
+            title = subtitle
+
+        print(f'Title: {title}')
+        return title
+
+    def parce_subtitle(self, target_div):
+        subtitle = ''
+        offer_title_tag = target_div.find_next(self.is_offer_title_tag)
+        next_sibling = offer_title_tag.next_sibling
+        if next_sibling is not None:
+            subtitle_tag = next_sibling.span
+            if self.is_offer_subtitle_tag(subtitle_tag):
+                subtitle = subtitle_tag.text
+        return subtitle
 
     def parce_price(self, target_div):
         price_span = target_div.find_next(self.is_price_tag).span
@@ -216,3 +243,14 @@ class CianParser:
 
         print(f'Owner id: {owner_id}')
         ads.ads_owner_id = owner_id
+
+    def parce_electronic_trading(self, ads, raw_ads):
+        electronic_tag = raw_ads.div.a.div.next_sibling
+        if electronic_tag is not None and self.is_electronic_tag(electronic_tag):
+            ads.electronic_trading = electronic_tag.div.text
+            ads.is_electronic_trading = True
+            print(f'Electronic trading {ads.electronic_trading}')
+
+
+
+
