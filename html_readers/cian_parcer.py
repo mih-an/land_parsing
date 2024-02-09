@@ -3,6 +3,21 @@ import re
 from bs4 import BeautifulSoup
 
 
+class ParceHelper:
+    def __init__(self):
+        self.kadastr_pattern = '\d[\d:]+:[\d:]+\d'
+
+    def parse_kadastr(self, description: str):
+        kadastr_list = []
+
+        search_res = re.search(self.kadastr_pattern, description)
+        if search_res is not None:
+            for catch in re.finditer(self.kadastr_pattern, description):
+                kadastr_list.append(catch[0])
+
+        return kadastr_list
+
+
 class Ads:
     square = 0
     title = ''
@@ -21,7 +36,7 @@ class Ads:
     ads_owner_id = ''
     electronic_trading = ''
     is_electronic_trading = False
-
+    kadastr_list: list[str] = []
 
 
 class CianParser:
@@ -105,6 +120,7 @@ class CianParser:
         ads.kp = self.parce_kp(target_div)
         self.parce_owner(ads, raw_ads)
         self.parce_electronic_trading(ads, raw_ads)
+        self.parce_kadastr_number(ads)
 
         return ads
 
@@ -138,7 +154,7 @@ class CianParser:
 
     def is_electronic_tag(self, tag):
         return self.is_needed_tag(tag, 'div', 'data-name', self.electronic_data_name)
-    
+
     def is_main_link_area_tag(self, tag):
         return self.is_needed_tag(tag, 'div', 'data-name', self.link_area_data_name)
 
@@ -171,8 +187,7 @@ class CianParser:
     def parce_title(self, target_div):
         subtitle = self.parce_subtitle(target_div)
         if subtitle == '':
-            title_span = target_div.find_next(self.is_offer_title_tag).span
-            title = title_span.text
+            title = target_div.find_next(self.is_offer_title_tag).span.text
         else:
             title = subtitle
 
@@ -183,7 +198,7 @@ class CianParser:
         subtitle = ''
         offer_title_tag = target_div.find_next(self.is_offer_title_tag)
         next_sibling = offer_title_tag.next_sibling
-        if next_sibling is not None:
+        if next_sibling is not None and next_sibling.span is not None:
             subtitle_tag = next_sibling.span
             if self.is_offer_subtitle_tag(subtitle_tag):
                 subtitle = subtitle_tag.text
@@ -251,6 +266,7 @@ class CianParser:
             ads.is_electronic_trading = True
             print(f'Electronic trading {ads.electronic_trading}')
 
-
-
-
+    @staticmethod
+    def parce_kadastr_number(ads):
+        parce_helper = ParceHelper()
+        ads.kadastr_list = parce_helper.parse_kadastr(ads.description)

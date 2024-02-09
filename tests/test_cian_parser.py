@@ -1,6 +1,6 @@
 import unittest
 
-from html_readers.cian_parcer import CianParser
+from html_readers.cian_parcer import CianParser, ParceHelper
 
 test_description1 = """Продаётся
  участок 9,9 соток в КП Майские Дачи.
@@ -45,6 +45,12 @@ test_description3 = """Широкие
 взять в ипотеку, подскажут менеджеры Villagio Realty.
 
 Номер лота: 6032"""
+description6 = """Продаётся ПРИЛЕСНОЙ земельный участок 15 соток, 
+
+Кадастровый номер 50:08:0070234:1228
+
+Участок в закрытом, охраняемом коттеджном посёлке на 160 домовладений, 44 км от МКАД, 
+1 час от Москва-Сити."""
 
 
 class TestCianParser(unittest.TestCase):
@@ -329,6 +335,51 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual('Участок, 13.03 сот.', ads.title, 'Title 1 is not correct')
         self.assertEqual(13.03, ads.square, 'Square 1 is not correct')
         self.assertEqual(58635000, ads.price, 'Price 1 is not correct')
+
+    def test_parce_kadastr_number(self):
+        parce_helper = ParceHelper()
+
+        description1 = 'профессиональной охраной.Кадастровый номер 50:09:0050704:823. Коммуникации по границе'
+        kadastr_list = parce_helper.parse_kadastr(description1)
+        self.assertEqual(1, len(kadastr_list))
+        self.assertEqual('50:09:0050704:823', kadastr_list[0])
+
+        description2 = 'Асфальт до участка. Кадастровый номер участка 50:08:0050314:836. Возможен торг'
+        kadastr_list = parce_helper.parse_kadastr(description2)
+        self.assertEqual(1, len(kadastr_list))
+        self.assertEqual('50:08:0050314:836', kadastr_list[0])
+
+        description3 = 'с документами всё идеально. Кадастровые номера: 50:08:0040153:75, 50:08:0040153:74'
+        kadastr_list = parce_helper.parse_kadastr(description3)
+        self.assertEqual(2, len(kadastr_list))
+        self.assertEqual('50:08:0040153:75', kadastr_list[0])
+        self.assertEqual('50:08:0040153:74', kadastr_list[1])
+
+        description4 = 'с кадастровым номером 50:08:0040122:1043. Подключены'
+        kadastr_list = parce_helper.parse_kadastr(description4)
+        self.assertEqual(1, len(kadastr_list))
+        self.assertEqual('50:08:0040122:1043', kadastr_list[0])
+
+        description5 = 'район. Кадастровый номер  50:08:0040250:246. Участок '
+        kadastr_list = parce_helper.parse_kadastr(description5)
+        self.assertEqual(1, len(kadastr_list))
+        self.assertEqual('50:08:0040250:246', kadastr_list[0])
+
+        kadastr_list = parce_helper.parse_kadastr(description6)
+        self.assertEqual(1, len(kadastr_list))
+        self.assertEqual('50:08:0070234:1228', kadastr_list[0])
+
+        description7 = 'из двух участков (50:08:0070234:1228; 50:08:0070234:1229) в закрытом'
+        kadastr_list = parce_helper.parse_kadastr(description7)
+        self.assertEqual(2, len(kadastr_list))
+        self.assertEqual('50:08:0070234:1228', kadastr_list[0])
+        self.assertEqual('50:08:0070234:1229', kadastr_list[1])
+
+        description8 = 'номера участков с  50:08:0040229:1139 по  50:08:0040229:1165. Зе'
+        kadastr_list = parce_helper.parse_kadastr(description8)
+        self.assertEqual(2, len(kadastr_list))
+        self.assertEqual('50:08:0040229:1139', kadastr_list[0])
+        self.assertEqual('50:08:0040229:1165', kadastr_list[1])
 
 
 if __name__ == '__main__':
