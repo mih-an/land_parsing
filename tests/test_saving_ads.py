@@ -103,7 +103,17 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(ads_from_db.id, ads_uuid)
         self.assertEqual(0, len(ads_from_db.kadastr_list))
 
+    def test_save_new_parce_iteration(self):
+        # Что если спарсили тоже самое объявление второй раз или даже несколько
+        # Что если объявления уже сняли с публикации - как это важное событие отметить
+        pass
+
+    def test_ads_is_disabled(self):
+        # Что если объявления уже сняли с публикации - как это важное событие отметить
+        pass
+
     def test_save_new_price(self):
+        # Что если изменилась цена - нужно это отдельно сохранять и грузить историю цен
         pass
 
         # self.assertEqual(True, False)
