@@ -13,7 +13,6 @@ class TestSavingAds(unittest.TestCase):
         ads1.price = 1800000
         ads1.vri = 'Садоводство'
         ads1.link = 'https://istra.cian.ru/sale/suburban/281048577/'
-        ads1.id = '281048577'
         ads1_uuid = str(uuid.uuid4())
         ads1.id = ads1_uuid
         ads1.locality = 'Майские Дачи кп'
@@ -49,19 +48,19 @@ class TestSavingAds(unittest.TestCase):
 
         ads_from_db = ads_db.get_ads_by_id(ads2_uuid)
         self.assertIsNotNone(ads_from_db)
-        self.assertEqual(ads_from_db.id, ads2.id)
-        self.assertEqual(ads_from_db.title, ads2.title)
-        self.assertEqual(ads_from_db.square, ads2.square)
-        self.assertEqual(ads_from_db.price, ads2.price)
-        self.assertEqual(ads_from_db.vri, ads2.vri)
-        self.assertEqual(ads_from_db.link, ads2.link)
-        self.assertEqual(ads_from_db.locality, ads2.locality)
-        self.assertEqual(ads_from_db.kp, ads2.kp)
-        self.assertEqual(ads_from_db.address, ads2.address)
-        self.assertEqual(ads_from_db.description, ads2.description)
-        self.assertEqual(ads_from_db.kadastr_list[0], ads2.kadastr_list[0])
-        self.assertEqual(ads_from_db.ads_owner, ads2.ads_owner)
-        self.assertEqual(ads_from_db.ads_owner_id, ads2.ads_owner_id)
+        self.assertEqual(ads_from_db.id, ads2.id, 'Id is not correct')
+        self.assertEqual(ads_from_db.title, ads2.title, 'Title is not correct')
+        self.assertEqual(ads_from_db.square, ads2.square, 'Square is not correct')
+        self.assertEqual(ads_from_db.price, ads2.price, 'price is not correct')
+        self.assertEqual(ads_from_db.vri, ads2.vri, 'vri is not correct')
+        self.assertEqual(ads_from_db.link, ads2.link, 'link is not correct')
+        self.assertEqual(ads_from_db.locality, ads2.locality, 'locality is not correct')
+        self.assertEqual(ads_from_db.kp, ads2.kp, 'kp is not correct')
+        self.assertEqual(ads_from_db.address, ads2.address, 'address is not correct')
+        self.assertEqual(ads_from_db.description, ads2.description, 'description is not correct')
+        self.assertEqual(ads_from_db.kadastr_list[0], ads2.kadastr_list[0], 'Kadastr is not correct')
+        self.assertEqual(ads_from_db.ads_owner, ads2.ads_owner, 'ads_owner is not correct')
+        self.assertEqual(ads_from_db.ads_owner_id, ads2.ads_owner_id, 'ads_owner_id is not correct')
 
         ads_from_db = ads_db.get_ads_by_id(ads1_uuid)
         self.assertIsNotNone(ads_from_db)
@@ -81,6 +80,9 @@ class TestSavingAds(unittest.TestCase):
 
         ads_from_db = ads_db.get_ads_by_id('unknown_id')
         self.assertIsNone(ads_from_db)
+
+    def test_empty_kadastr(self):
+        pass
 
     def test_save_new_price(self):
         self.assertEqual(True, False)
