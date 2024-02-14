@@ -1,6 +1,7 @@
 import re
 
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 
 class ParceHelper:
@@ -37,6 +38,7 @@ class Ads:
     electronic_trading = ''
     is_electronic_trading = False
     kadastr_list: list[str] = []
+    parce_datetime: datetime
 
 
 class CianParser:

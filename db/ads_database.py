@@ -75,8 +75,7 @@ class AdsDataBase:
         else:
             ads.kadastr_list = ads_from_db[10].split(self.kadastr_separator)
         ads.electronic_trading = ads_from_db[11]
-        if not ads.electronic_trading == '':
-            ads.is_electronic_trading = True
+        ads.is_electronic_trading = not ads.electronic_trading == ''
         ads.ads_owner = ads_from_db[12]
         ads.ads_owner_id = ads_from_db[13]
         return ads
