@@ -1,4 +1,5 @@
 import unittest
+import uuid
 
 from db.ads_database import AdsDataBase
 from html_readers.cian_parcer import Ads
@@ -13,6 +14,8 @@ class TestSavingAds(unittest.TestCase):
         ads1.vri = 'Садоводство'
         ads1.link = 'https://istra.cian.ru/sale/suburban/281048577/'
         ads1.id = '281048577'
+        ads1_uuid = str(uuid.uuid4())
+        ads1.id = ads1_uuid
         ads1.locality = 'Майские Дачи кп'
         ads1.kp = 'Майские дачи 2'
         ads1.address = 'Московская область, Истра городской округ, Майские Дачи кп'
@@ -29,7 +32,8 @@ class TestSavingAds(unittest.TestCase):
         ads2.price = 425000
         ads2.vri = ''
         ads2.link = 'https://istra.cian.ru/sale/suburban/287210218/'
-        ads2.id = '287210218'
+        ads2_uuid = str(uuid.uuid4())
+        ads2.id = ads2_uuid
         ads2.locality = 'д. Малое Ушаково'
         ads2.kp = 'КП «‎Прилесные дачи »'
         ads2.address = 'Московская область, Истра городской округ, д. Малое Ушаково'
@@ -43,7 +47,7 @@ class TestSavingAds(unittest.TestCase):
         ads_db = AdsDataBase()
         ads_db.save(ads_list)
 
-        ads_from_db = ads_db.get_ads_by_id('287210218')
+        ads_from_db = ads_db.get_ads_by_id(ads2_uuid)
         self.assertIsNotNone(ads_from_db)
         self.assertEqual(ads_from_db.id, ads2.id)
         self.assertEqual(ads_from_db.title, ads2.title)
@@ -59,7 +63,7 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(ads_from_db.ads_owner, ads2.ads_owner)
         self.assertEqual(ads_from_db.ads_owner_id, ads2.ads_owner_id)
 
-        ads_from_db = ads_db.get_ads_by_id('281048577')
+        ads_from_db = ads_db.get_ads_by_id(ads1_uuid)
         self.assertIsNotNone(ads_from_db)
         self.assertEqual(ads_from_db.id, ads1.id)
         self.assertEqual(ads_from_db.title, ads1.title)
