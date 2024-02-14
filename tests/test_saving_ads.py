@@ -82,7 +82,22 @@ class TestSavingAds(unittest.TestCase):
         self.assertIsNone(ads_from_db)
 
     def test_empty_kadastr(self):
-        pass
+        ads = Ads()
+        ads_uuid = str(uuid.uuid4())
+        ads.id = ads_uuid
+        ads.title = 'Тестовый заголовок'
+        ads.square = 19.9
+        ads.price = 1800000
+        ads.link = 'https://istra.cian.ru/sale/suburban/281048577/'
+        ads.kadastr_list = []
+
+        ads_db = AdsDataBase()
+        ads_db.save([ads])
+
+        ads_from_db = ads_db.get_ads_by_id(ads_uuid)
+        self.assertIsNotNone(ads_from_db)
+        self.assertEqual(ads_from_db.id, ads_uuid)
+        self.assertEqual(0, len(ads_from_db.kadastr_list))
 
     def test_save_new_price(self):
         self.assertEqual(True, False)
