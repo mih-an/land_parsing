@@ -8,44 +8,10 @@ from html_readers.cian_parcer import Ads
 
 class TestSavingAds(unittest.TestCase):
     def test_save_ads(self):
-        ads1 = Ads()
-        ads1.title = 'Участок, 9.9 сот., Садоводство'
-        ads1.square = 9.9
-        ads1.price = 1800000
-        ads1.vri = 'Садоводство'
-        ads1.link = 'https://istra.cian.ru/sale/suburban/281048577/'
         ads1_uuid = str(uuid.uuid4())
-        ads1.id = ads1_uuid
-        ads1.locality = 'Майские Дачи кп'
-        ads1.kp = 'Майские дачи 2'
-        ads1.address = 'Московская область, Истра городской округ, Майские Дачи кп'
-        ads1.description = 'Самое крутое объявление'
-        ads1.kadastr_list = ['50:08:0040229:1139', '50:08:0040229:1165']
-        ads1.electronic_trading = 'Электронные торги'
-        ads1.is_electronic_trading = True
-        ads1.ads_owner = 'Собственник'
-        ads1.ads_owner_id = 'ID 70642111'
-        ads1.parce_datetime = datetime.now().replace(microsecond=0)
-        ads1.sector_number = 1
-
-        ads2 = Ads()
-        ads2.title = 'Участок, 6 сот.'
-        ads2.square = 6
-        ads2.price = 425000
-        ads2.vri = ''
-        ads2.link = 'https://istra.cian.ru/sale/suburban/287210218/'
+        ads1 = self.create_test_ads1(ads1_uuid)
         ads2_uuid = str(uuid.uuid4())
-        ads2.id = ads2_uuid
-        ads2.locality = 'д. Малое Ушаково'
-        ads2.kp = 'КП «‎Прилесные дачи »'
-        ads2.address = 'Московская область, Истра городской округ, д. Малое Ушаково'
-        ads2.description = 'Самое крутое объявление 2'
-        ads2.kadastr_list = ['50:08:0040229:85']
-        ads2.ads_owner = 'Риелтор'
-        ads2.ads_owner_id = 'ID 23674176'
-        ads2.parce_datetime = datetime.now().replace(microsecond=0)
-        ads2.sector_number = 2
-
+        ads2 = self.create_test_ads2(ads2_uuid)
         ads_list = [ads1, ads2]
 
         ads_db = AdsDataBase()
@@ -90,6 +56,46 @@ class TestSavingAds(unittest.TestCase):
         ads_from_db = ads_db.get_ads_by_id('unknown_id')
         self.assertIsNone(ads_from_db)
 
+    def create_test_ads2(self, ads2_uuid):
+        ads2 = Ads()
+        ads2.title = 'Участок, 6 сот.'
+        ads2.square = 6
+        ads2.price = 425000
+        ads2.vri = ''
+        ads2.link = 'https://istra.cian.ru/sale/suburban/287210218/'
+        ads2.id = ads2_uuid
+        ads2.locality = 'д. Малое Ушаково'
+        ads2.kp = 'КП «‎Прилесные дачи »'
+        ads2.address = 'Московская область, Истра городской округ, д. Малое Ушаково'
+        ads2.description = 'Самое крутое объявление 2'
+        ads2.kadastr_list = ['50:08:0040229:85']
+        ads2.ads_owner = 'Риелтор'
+        ads2.ads_owner_id = 'ID 23674176'
+        ads2.parce_datetime = datetime.now().replace(microsecond=0)
+        ads2.sector_number = 2
+        return ads2
+
+    def create_test_ads1(self, ads1_uuid):
+        ads1 = Ads()
+        ads1.title = 'Участок, 9.9 сот., Садоводство'
+        ads1.square = 9.9
+        ads1.price = 1800000
+        ads1.vri = 'Садоводство'
+        ads1.link = 'https://istra.cian.ru/sale/suburban/281048577/'
+        ads1.id = ads1_uuid
+        ads1.locality = 'Майские Дачи кп'
+        ads1.kp = 'Майские дачи 2'
+        ads1.address = 'Московская область, Истра городской округ, Майские Дачи кп'
+        ads1.description = 'Самое крутое объявление'
+        ads1.kadastr_list = ['50:08:0040229:1139', '50:08:0040229:1165']
+        ads1.electronic_trading = 'Электронные торги'
+        ads1.is_electronic_trading = True
+        ads1.ads_owner = 'Собственник'
+        ads1.ads_owner_id = 'ID 70642111'
+        ads1.parce_datetime = datetime.now().replace(microsecond=0)
+        ads1.sector_number = 1
+        return ads1
+
     def test_empty_kadastr(self):
         ads = Ads()
         ads_uuid = str(uuid.uuid4())
@@ -110,7 +116,6 @@ class TestSavingAds(unittest.TestCase):
 
     def test_save_new_parce_iteration(self):
         # Что если спарсили тоже самое объявление второй раз или даже несколько
-        # Что если объявления уже сняли с публикации - как это важное событие отметить
         pass
 
     def test_ads_is_disabled(self):
@@ -120,8 +125,6 @@ class TestSavingAds(unittest.TestCase):
     def test_save_new_price(self):
         # Что если изменилась цена - нужно это отдельно сохранять и грузить историю цен
         pass
-
-        # self.assertEqual(True, False)
 
 
 if __name__ == '__main__':
