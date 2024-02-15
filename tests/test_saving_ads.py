@@ -18,6 +18,14 @@ class TestSavingAds(unittest.TestCase):
         ads_db.save(ads_list)
 
         ads_from_db = ads_db.get_ads_by_id(ads2_uuid)
+        self.check_ads_are_equal(ads2, ads_from_db)
+        ads_from_db = ads_db.get_ads_by_id(ads1_uuid)
+        self.check_ads_are_equal(ads1, ads_from_db)
+
+        ads_from_db = ads_db.get_ads_by_id('unknown_id')
+        self.assertIsNone(ads_from_db)
+
+    def check_ads_are_equal(self, ads2, ads_from_db):
         self.assertIsNotNone(ads_from_db)
         self.assertEqual(ads_from_db.id, ads2.id, 'Id is not correct')
         self.assertEqual(ads_from_db.title, ads2.title, 'Title is not correct')
@@ -34,27 +42,6 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(ads_from_db.ads_owner_id, ads2.ads_owner_id, 'ads_owner_id is not correct')
         self.assertEqual(ads_from_db.parce_datetime, ads2.parce_datetime, 'parce_datetime is not correct')
         self.assertEqual(ads_from_db.sector_number, ads2.sector_number, 'sector_number is not correct')
-
-        ads_from_db = ads_db.get_ads_by_id(ads1_uuid)
-        self.assertIsNotNone(ads_from_db)
-        self.assertEqual(ads_from_db.id, ads1.id)
-        self.assertEqual(ads_from_db.title, ads1.title)
-        self.assertEqual(ads_from_db.square, ads1.square)
-        self.assertEqual(ads_from_db.price, ads1.price)
-        self.assertEqual(ads_from_db.vri, ads1.vri)
-        self.assertEqual(ads_from_db.link, ads1.link)
-        self.assertEqual(ads_from_db.locality, ads1.locality)
-        self.assertEqual(ads_from_db.kp, ads1.kp)
-        self.assertEqual(ads_from_db.address, ads1.address)
-        self.assertEqual(ads_from_db.description, ads1.description)
-        self.assertEqual(ads_from_db.kadastr_list[0], ads1.kadastr_list[0])
-        self.assertEqual(ads_from_db.ads_owner, ads1.ads_owner)
-        self.assertEqual(ads_from_db.ads_owner_id, ads1.ads_owner_id)
-        self.assertEqual(ads_from_db.parce_datetime, ads1.parce_datetime, 'parce_datetime is not correct')
-        self.assertEqual(ads_from_db.sector_number, ads1.sector_number, 'sector_number is not correct')
-
-        ads_from_db = ads_db.get_ads_by_id('unknown_id')
-        self.assertIsNone(ads_from_db)
 
     @staticmethod
     def create_test_ads2(ads2_uuid):
@@ -120,7 +107,26 @@ class TestSavingAds(unittest.TestCase):
 
     def test_save_new_parce_iteration(self):
         # Что если спарсили тоже самое объявление второй раз или даже несколько
-        pass
+        ads1_uuid = str(uuid.uuid4())
+        ads1 = self.create_test_ads1(ads1_uuid)
+        ads2_uuid = str(uuid.uuid4())
+        ads2 = self.create_test_ads2(ads2_uuid)
+        ads_list = [ads1, ads2]
+        ads_db = AdsDataBase()
+        ads_db.save(ads_list)
+
+        ads3_uuid = str(uuid.uuid4())
+        new_ads3 = self.create_test_ads1(ads3_uuid)
+        ads_list = [ads1, ads2, new_ads3]
+        ads_db.save(ads_list)
+
+        ads_from_db = ads_db.get_ads_by_id(ads2_uuid)
+        self.check_ads_are_equal(ads2, ads_from_db)
+        ads_from_db = ads_db.get_ads_by_id(ads1_uuid)
+        self.check_ads_are_equal(ads1, ads_from_db)
+        ads_from_db = ads_db.get_ads_by_id(ads3_uuid)
+        self.check_ads_are_equal(new_ads3, ads_from_db)
+
 
     def test_ads_is_disabled(self):
         # Что если объявления уже сняли с публикации - как это важное событие отметить
