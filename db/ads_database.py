@@ -37,10 +37,8 @@ class AdsDataBase:
         ads_records = []
         for ads in ads_list:
             ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.locality,
-                                ads.kp, ads.address, ads.description,
-                                self.kadastr_separator.join(ads.kadastr_list),
-                                ads.electronic_trading, ads.ads_owner, ads.ads_owner_id,
-                                datetime.now()])
+                                ads.kp, ads.address, ads.description, self.kadastr_separator.join(ads.kadastr_list),
+                                ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.parce_datetime])
         return ads_records
 
     def get_ads_by_id(self, ads_id):
@@ -78,6 +76,7 @@ class AdsDataBase:
         ads.is_electronic_trading = not ads.electronic_trading == ''
         ads.ads_owner = ads_from_db[12]
         ads.ads_owner_id = ads_from_db[13]
+        ads.parce_datetime = ads_from_db[14]
         return ads
 
 

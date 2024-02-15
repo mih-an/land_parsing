@@ -38,7 +38,7 @@ class Ads:
     electronic_trading = ''
     is_electronic_trading = False
     kadastr_list: list[str] = []
-    parce_datetime: datetime
+    parce_datetime: datetime = None
 
 
 class CianParser:
