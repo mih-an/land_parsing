@@ -1,10 +1,27 @@
 from mysql.connector import connect, Error
 import creds
-from html_readers.cian_parcer import Ads
+from html_readers.cian_parcer import Ads, AdsPriceHistoryItem
 
 
 class AdsDataBase:
     def __init__(self):
+        self.select_ads_price_history_query = """
+            SELECT ads_id, price, price_datetime 
+            FROM ads_price_history
+            WHERE ads_id = %s
+        """
+        self.insert_old_ads_new_prices_to_history_query = """
+            INSERT INTO ads_price_history (ads_id, price, price_datetime)
+            SELECT tmp_ads.ads_id, tmp_ads.price,tmp_ads.ads_first_parce_datetime
+            FROM tmp_ads INNER JOIN ads ON tmp_ads.ads_id = ads.ads_id
+            WHERE tmp_ads.price <> ads.price;
+        """
+        self.insert_ads_prices_to_history_query = """
+            INSERT INTO ads_price_history (ads_id, price, price_datetime)
+            SELECT ads_id, price, ads_first_parce_datetime
+            FROM tmp_ads 
+            WHERE ads_id not in (SELECT ads_id FROM ads)
+        """
         self.select_one_ads_by_id_query = """
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number 
@@ -29,6 +46,11 @@ class AdsDataBase:
         self.delete_from_tmp_ads_query = """
             DELETE FROM tmp_ads
         """
+        self.update_ads_prices_query = """
+            UPDATE ads, tmp_ads
+            SET ads.price = tmp_ads.price
+            WHERE ads.ads_id = tmp_ads.ads_id;
+        """
         self.kadastr_separator = ','
 
     def save(self, ads_list):
@@ -48,11 +70,31 @@ class AdsDataBase:
         except Error as e:
             print(f'Error selecting only new ads list from database: {e}')
 
+        # Save new ads prices to price history table
+        # This code should be before saving new ads to main table. Otherwise, ads won't be "new" from
+        # database perspective
+        try:
+            self.insert_new_ads_prices_to_history()
+        except Error as e:
+            print(f'Error inserting ads prices to history: {e}')
+
         # Save new ads to main table
         try:
-            self.insert_ads_to_main_table(new_ads_list)
+            self.insert_new_ads_to_main_table(new_ads_list)
         except Error as e:
             print(f'Error saving ads list to main table: {e}')
+
+        # Save old ads new prices to price history table
+        try:
+            self.insert_old_ads_new_prices_to_history()
+        except Error as e:
+            print(f'Error inserting old ads new prices to history: {e}')
+
+        # Update prices for old ads in the main table
+        try:
+            self.update_old_ads_prices()
+        except Error as e:
+            print(f'Error updating ads prices: {e}')
 
         # Clear tmp table
         try:
@@ -71,14 +113,13 @@ class AdsDataBase:
                 cursor.execute(self.delete_from_tmp_ads_query)
                 connection.commit()
 
-    def insert_ads_to_main_table(self, new_ads_list):
+    def insert_new_ads_to_main_table(self, new_ads_list):
         with connect(
                 host=creds.db_host,
                 user=creds.db_user,
                 password=creds.db_password,
                 database=creds.db_name,
         ) as connection:
-            # ads_records = self.get_ads_records(ads_list)
             ads_records = self.get_ads_records(new_ads_list)
             with connection.cursor() as cursor:
                 cursor.executemany(self.insert_ads_query, ads_records)
@@ -157,4 +198,52 @@ class AdsDataBase:
         return ads
 
     def select_price_history(self, ads_uuid):
-        return []
+        price_items_list = []
+        with connect(
+                host=creds.db_host,
+                user=creds.db_user,
+                password=creds.db_password,
+                database=creds.db_name,
+        ) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(self.select_ads_price_history_query, [ads_uuid])
+                for price_item_from_db in cursor.fetchall():
+                    price_item = AdsPriceHistoryItem()
+                    price_item.ads_id = price_item_from_db[0]
+                    price_item.price = price_item_from_db[1]
+                    price_item.price_datetime = price_item_from_db[2]
+                    price_items_list.append(price_item)
+        return price_items_list
+
+    def update_old_ads_prices(self):
+        with connect(
+                host=creds.db_host,
+                user=creds.db_user,
+                password=creds.db_password,
+                database=creds.db_name,
+        ) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(self.update_ads_prices_query)
+                connection.commit()
+
+    def insert_new_ads_prices_to_history(self):
+        with connect(
+                host=creds.db_host,
+                user=creds.db_user,
+                password=creds.db_password,
+                database=creds.db_name,
+        ) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(self.insert_ads_prices_to_history_query)
+                connection.commit()
+
+    def insert_old_ads_new_prices_to_history(self):
+        with connect(
+                host=creds.db_host,
+                user=creds.db_user,
+                password=creds.db_password,
+                database=creds.db_name,
+        ) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(self.insert_old_ads_new_prices_to_history_query)
+                connection.commit()
