@@ -56,7 +56,8 @@ class TestSavingAds(unittest.TestCase):
         ads_from_db = ads_db.get_ads_by_id('unknown_id')
         self.assertIsNone(ads_from_db)
 
-    def create_test_ads2(self, ads2_uuid):
+    @staticmethod
+    def create_test_ads2(ads2_uuid):
         ads2 = Ads()
         ads2.title = 'Участок, 6 сот.'
         ads2.square = 6
@@ -75,7 +76,8 @@ class TestSavingAds(unittest.TestCase):
         ads2.sector_number = 2
         return ads2
 
-    def create_test_ads1(self, ads1_uuid):
+    @staticmethod
+    def create_test_ads1(ads1_uuid):
         ads1 = Ads()
         ads1.title = 'Участок, 9.9 сот., Садоводство'
         ads1.square = 9.9
@@ -105,6 +107,8 @@ class TestSavingAds(unittest.TestCase):
         ads.price = 1800000
         ads.link = 'https://istra.cian.ru/sale/suburban/281048577/'
         ads.kadastr_list = []
+        ads.parce_datetime = datetime.now().replace(microsecond=0)
+        ads.sector_number = 1
 
         ads_db = AdsDataBase()
         ads_db.save([ads])
