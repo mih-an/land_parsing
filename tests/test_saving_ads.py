@@ -17,12 +17,12 @@ class TestSavingAds(unittest.TestCase):
         ads_db = AdsDataBase()
         ads_db.save(ads_list)
 
-        ads_from_db = ads_db.get_ads_by_id(ads2_uuid)
+        ads_from_db = ads_db.select_ads_by_id(ads2_uuid)
         self.check_ads_are_equal(ads2, ads_from_db)
-        ads_from_db = ads_db.get_ads_by_id(ads1_uuid)
+        ads_from_db = ads_db.select_ads_by_id(ads1_uuid)
         self.check_ads_are_equal(ads1, ads_from_db)
 
-        ads_from_db = ads_db.get_ads_by_id('unknown_id')
+        ads_from_db = ads_db.select_ads_by_id('unknown_id')
         self.assertIsNone(ads_from_db)
 
     def check_ads_are_equal(self, ads2, ads_from_db):
@@ -100,13 +100,13 @@ class TestSavingAds(unittest.TestCase):
         ads_db = AdsDataBase()
         ads_db.save([ads])
 
-        ads_from_db = ads_db.get_ads_by_id(ads_uuid)
+        ads_from_db = ads_db.select_ads_by_id(ads_uuid)
         self.assertIsNotNone(ads_from_db)
         self.assertEqual(ads_from_db.id, ads_uuid)
         self.assertEqual(0, len(ads_from_db.kadastr_list))
 
     def test_save_new_parce_iteration(self):
-        # Что если спарсили тоже самое объявление второй раз или даже несколько
+        # Test when we parce the same ads second time
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.create_test_ads1(ads1_uuid)
         ads2_uuid = str(uuid.uuid4())
@@ -120,11 +120,11 @@ class TestSavingAds(unittest.TestCase):
         ads_list = [ads1, ads2, new_ads3]
         ads_db.save(ads_list)
 
-        ads_from_db = ads_db.get_ads_by_id(ads2_uuid)
+        ads_from_db = ads_db.select_ads_by_id(ads2_uuid)
         self.check_ads_are_equal(ads2, ads_from_db)
-        ads_from_db = ads_db.get_ads_by_id(ads1_uuid)
+        ads_from_db = ads_db.select_ads_by_id(ads1_uuid)
         self.check_ads_are_equal(ads1, ads_from_db)
-        ads_from_db = ads_db.get_ads_by_id(ads3_uuid)
+        ads_from_db = ads_db.select_ads_by_id(ads3_uuid)
         self.check_ads_are_equal(new_ads3, ads_from_db)
 
 

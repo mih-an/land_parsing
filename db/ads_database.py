@@ -1,12 +1,11 @@
 from mysql.connector import connect, Error
-from datetime import datetime
 import creds
 from html_readers.cian_parcer import Ads
 
 
 class AdsDataBase:
     def __init__(self):
-        self.select_ads_query = """
+        self.select_one_ads_by_id_query = """
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number 
             FROM ads WHERE ads_id = %s 
@@ -16,22 +15,98 @@ class AdsDataBase:
                 electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number)
             VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
+        self.insert_tmp_ads_query = """
+            INSERT INTO tmp_ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, 
+                kadastr, electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number)
+            VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        self.select_only_new_ads_query = """
+            SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
+                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number 
+            FROM tmp_ads
+            WHERE ads_id not in (SELECT ads_id FROM ads)
+        """
+        self.delete_from_tmp_ads_query = """
+            DELETE FROM tmp_ads
+        """
         self.kadastr_separator = ','
 
     def save(self, ads_list):
+        # We need to separate ads for 2 groups:
+        # 1. New ones
+        # 2. Already existed
+        # We do it with temporary table. Otherwise, it will be too slow in the future
         try:
-            with connect(
-                    host=creds.db_host,
-                    user=creds.db_user,
-                    password=creds.db_password,
-                    database=creds.db_name,
-            ) as connection:
-                ads_records = self.get_ads_records(ads_list)
-                with connection.cursor() as cursor:
-                    cursor.executemany(self.insert_ads_query, ads_records)
-                    connection.commit()
+            self.insert_ads_to_tmp_table(ads_list)
         except Error as e:
-            print(f'Error saving ads list to database: {e}')
+            print(f'Error saving ads list to tmp table: {e}')
+
+        # Getting only new ones from database
+        new_ads_list = []
+        try:
+            self.select_only_new_ads(new_ads_list)
+        except Error as e:
+            print(f'Error selecting only new ads list from database: {e}')
+
+        # Save new ads to main table
+        try:
+            self.insert_ads_to_main_table(new_ads_list)
+        except Error as e:
+            print(f'Error saving ads list to main table: {e}')
+
+        # Clear tmp table
+        try:
+            self.delete_from_tmp_ads()
+        except Error as e:
+            print(f'Error deleting from tmp ads table: {e}')
+
+    def delete_from_tmp_ads(self):
+        with connect(
+                host=creds.db_host,
+                user=creds.db_user,
+                password=creds.db_password,
+                database=creds.db_name,
+        ) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(self.delete_from_tmp_ads_query)
+                connection.commit()
+
+    def insert_ads_to_main_table(self, new_ads_list):
+        with connect(
+                host=creds.db_host,
+                user=creds.db_user,
+                password=creds.db_password,
+                database=creds.db_name,
+        ) as connection:
+            # ads_records = self.get_ads_records(ads_list)
+            ads_records = self.get_ads_records(new_ads_list)
+            with connection.cursor() as cursor:
+                cursor.executemany(self.insert_ads_query, ads_records)
+                connection.commit()
+
+    def select_only_new_ads(self, new_ads_list):
+        with connect(
+                host=creds.db_host,
+                user=creds.db_user,
+                password=creds.db_password,
+                database=creds.db_name,
+        ) as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(self.select_only_new_ads_query)
+                for ads_from_db in cursor.fetchall():
+                    new_ads_list.append(self.get_ads_from_db_record(ads_from_db))
+
+    def insert_ads_to_tmp_table(self, ads_list):
+        with connect(
+                host=creds.db_host,
+                user=creds.db_user,
+                password=creds.db_password,
+                database=creds.db_name,
+        ) as connection:
+            ads_records = self.get_ads_records(ads_list)
+            with connection.cursor() as cursor:
+                cursor.executemany(self.insert_tmp_ads_query, ads_records)
+                connection.commit()
 
     def get_ads_records(self, ads_list):
         ads_records = []
@@ -42,7 +117,7 @@ class AdsDataBase:
                                 ads.sector_number])
         return ads_records
 
-    def get_ads_by_id(self, ads_id):
+    def select_ads_by_id(self, ads_id):
         try:
             with connect(
                     host=creds.db_host,
@@ -51,7 +126,7 @@ class AdsDataBase:
                     database=creds.db_name,
             ) as connection:
                 with connection.cursor() as cursor:
-                    cursor.execute(self.select_ads_query, [ads_id])
+                    cursor.execute(self.select_one_ads_by_id_query, [ads_id])
                     for ads_from_db in cursor.fetchall():
                         return self.get_ads_from_db_record(ads_from_db)
         except Error as e:
@@ -80,5 +155,3 @@ class AdsDataBase:
         ads.parce_datetime = ads_record_from_db[14]
         ads.sector_number = ads_record_from_db[15]
         return ads
-
-
