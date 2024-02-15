@@ -127,13 +127,41 @@ class TestSavingAds(unittest.TestCase):
         ads_from_db = ads_db.select_ads_by_id(ads3_uuid)
         self.check_ads_are_equal(new_ads3, ads_from_db)
 
+    def test_save_new_price(self):
+        # Что если изменилась цена - нужно это отдельно сохранять и грузить историю цен
+        ads1_uuid = str(uuid.uuid4())
+        ads1 = self.create_test_ads1(ads1_uuid)
+        first_price_date_time = ads1.parce_datetime
+        ads2_uuid = str(uuid.uuid4())
+        ads2 = self.create_test_ads2(ads2_uuid)
+        ads_list = [ads1, ads2]
+        ads_db = AdsDataBase()
+        ads_db.save(ads_list)
+
+        ads1.price = 3000000
+        second_price_datetime = datetime.now().replace(microsecond=0)
+        ads1.parce_datetime = second_price_datetime
+        ads_list = [ads1, ads2]
+        ads_db.save(ads_list)
+
+        ads_from_db = ads_db.select_ads_by_id(ads1_uuid)
+        self.check_ads_are_equal(ads1, ads_from_db)
+
+        price_history = ads_db.select_price_history(ads1_uuid)
+        self.assertIsNotNone(price_history)
+        self.assertEqual(2, len(price_history))
+        self.assertEqual(1800000, price_history[0].price)
+        self.assertEqual(first_price_date_time, price_history[0].datetime)
+        self.assertEqual(1800000, price_history[0].price)
+        self.assertEqual(second_price_datetime, price_history[1].price)
+
+    def test_last_parce_time_updated(self):
+        # Нужно проверить, что для уже существующих объявлений время парсинга сохраняется
+        # Это позволит выделять те объявления, которые сняты с публикации
+        pass
 
     def test_ads_is_disabled(self):
         # Что если объявления уже сняли с публикации - как это важное событие отметить
-        pass
-
-    def test_save_new_price(self):
-        # Что если изменилась цена - нужно это отдельно сохранять и грузить историю цен
         pass
 
 

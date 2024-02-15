@@ -155,3 +155,6 @@ class AdsDataBase:
         ads.parce_datetime = ads_record_from_db[14]
         ads.sector_number = ads_record_from_db[15]
         return ads
+
+    def select_price_history(self, ads_uuid):
+        return []
