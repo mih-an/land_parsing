@@ -8,13 +8,13 @@ class AdsDataBase:
     def __init__(self):
         self.select_ads_query = """
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime 
+                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number 
             FROM ads WHERE ads_id = %s 
         """
         self.insert_ads_query = """
             INSERT INTO ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime)
-            VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number)
+            VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.kadastr_separator = ','
 
@@ -38,7 +38,8 @@ class AdsDataBase:
         for ads in ads_list:
             ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.locality,
                                 ads.kp, ads.address, ads.description, self.kadastr_separator.join(ads.kadastr_list),
-                                ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.parce_datetime])
+                                ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.parce_datetime,
+                                ads.sector_number])
         return ads_records
 
     def get_ads_by_id(self, ads_id):
@@ -56,27 +57,28 @@ class AdsDataBase:
         except Error as e:
             print(f'Error saving ads list to database: {e}')
 
-    def get_ads_from_db_record(self, ads_from_db):
+    def get_ads_from_db_record(self, ads_record_from_db):
         ads = Ads()
-        ads.id = ads_from_db[0]
-        ads.title = ads_from_db[1]
-        ads.square = ads_from_db[2]
-        ads.price = ads_from_db[3]
-        ads.vri = ads_from_db[4]
-        ads.link = ads_from_db[5]
-        ads.locality = ads_from_db[6]
-        ads.kp = ads_from_db[7]
-        ads.address = ads_from_db[8]
-        ads.description = ads_from_db[9]
-        if ads_from_db[10] == '':
+        ads.id = ads_record_from_db[0]
+        ads.title = ads_record_from_db[1]
+        ads.square = ads_record_from_db[2]
+        ads.price = ads_record_from_db[3]
+        ads.vri = ads_record_from_db[4]
+        ads.link = ads_record_from_db[5]
+        ads.locality = ads_record_from_db[6]
+        ads.kp = ads_record_from_db[7]
+        ads.address = ads_record_from_db[8]
+        ads.description = ads_record_from_db[9]
+        if ads_record_from_db[10] == '':
             ads.kadastr_list = []
         else:
-            ads.kadastr_list = ads_from_db[10].split(self.kadastr_separator)
-        ads.electronic_trading = ads_from_db[11]
+            ads.kadastr_list = ads_record_from_db[10].split(self.kadastr_separator)
+        ads.electronic_trading = ads_record_from_db[11]
         ads.is_electronic_trading = not ads.electronic_trading == ''
-        ads.ads_owner = ads_from_db[12]
-        ads.ads_owner_id = ads_from_db[13]
-        ads.parce_datetime = ads_from_db[14]
+        ads.ads_owner = ads_record_from_db[12]
+        ads.ads_owner_id = ads_record_from_db[13]
+        ads.parce_datetime = ads_record_from_db[14]
+        ads.sector_number = ads_record_from_db[15]
         return ads
 
 

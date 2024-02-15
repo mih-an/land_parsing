@@ -26,6 +26,7 @@ class TestSavingAds(unittest.TestCase):
         ads1.ads_owner = 'Собственник'
         ads1.ads_owner_id = 'ID 70642111'
         ads1.parce_datetime = datetime.now().replace(microsecond=0)
+        ads1.sector_number = 1
 
         ads2 = Ads()
         ads2.title = 'Участок, 6 сот.'
@@ -43,6 +44,7 @@ class TestSavingAds(unittest.TestCase):
         ads2.ads_owner = 'Риелтор'
         ads2.ads_owner_id = 'ID 23674176'
         ads2.parce_datetime = datetime.now().replace(microsecond=0)
+        ads2.sector_number = 2
 
         ads_list = [ads1, ads2]
 
@@ -65,7 +67,7 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(ads_from_db.ads_owner, ads2.ads_owner, 'ads_owner is not correct')
         self.assertEqual(ads_from_db.ads_owner_id, ads2.ads_owner_id, 'ads_owner_id is not correct')
         self.assertEqual(ads_from_db.parce_datetime, ads2.parce_datetime, 'parce_datetime is not correct')
-        # todo save sector number
+        self.assertEqual(ads_from_db.sector_number, ads2.sector_number, 'sector_number is not correct')
 
         ads_from_db = ads_db.get_ads_by_id(ads1_uuid)
         self.assertIsNotNone(ads_from_db)
@@ -83,6 +85,7 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(ads_from_db.ads_owner, ads1.ads_owner)
         self.assertEqual(ads_from_db.ads_owner_id, ads1.ads_owner_id)
         self.assertEqual(ads_from_db.parce_datetime, ads1.parce_datetime, 'parce_datetime is not correct')
+        self.assertEqual(ads_from_db.sector_number, ads1.sector_number, 'sector_number is not correct')
 
         ads_from_db = ads_db.get_ads_by_id('unknown_id')
         self.assertIsNone(ads_from_db)
