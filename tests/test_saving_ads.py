@@ -174,12 +174,30 @@ class TestSavingAds(unittest.TestCase):
 
     def test_last_parce_time_updated(self):
         # Нужно проверить, что для уже существующих объявлений время парсинга сохраняется
-        # Это позволит выделять те объявления, которые сняты с публикации
-        pass
+        # Это позволит выделять те объявления, которые сняты с публикации.
+        # У них время парсинга для данного сектора будет меньше, чем у остальных объявлений из этого сектора
+        # First time parce ads and save it to database
+        ads1_uuid = str(uuid.uuid4())
+        ads1 = self.create_test_ads1(ads1_uuid)
+        ads_db = AdsDataBase()
+        ads_list = [ads1]
+        ads_db.save(ads_list)
 
-    def test_ads_is_disabled(self):
-        # Что если объявления уже сняли с публикации - как это важное событие отметить
-        pass
+        # Check if last_parce_datetime equals parce_date_time for the first saving
+        ads_from_db = ads_db.select_ads_by_id(ads1_uuid)
+        self.assertEqual(ads1.parce_datetime, ads_from_db.last_parce_datetime,
+                         'Last parce time should be equal parce time for first saving')
+
+        # Second time parce the same ads
+        # Nothing has changed except parsing time
+        ads1.last_parce_datetime = datetime.now().replace(microsecond=0)
+        ads_list = [ads1]
+        ads_db.save(ads_list)
+
+        ads_from_db = ads_db.select_ads_by_id(ads1_uuid)
+        self.check_ads_are_equal(ads1, ads_from_db)
+        self.assertEqual(ads1.last_parce_datetime, ads_from_db.last_parce_datetime)
+        self.assertNotEqual(ads1.last_parce_datetime, ads_from_db.parce_datetime)
 
 
 if __name__ == '__main__':

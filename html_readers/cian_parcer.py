@@ -44,6 +44,7 @@ class Ads:
     is_electronic_trading = False
     kadastr_list: list[str] = []
     parce_datetime: datetime = None
+    last_parce_datetime: datetime = None
     sector_number: int = None
 
 

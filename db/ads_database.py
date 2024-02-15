@@ -63,21 +63,21 @@ class AdsDataBase:
         except Error as e:
             print(f'Error saving ads list to tmp table: {e}')
 
-        # Getting only new ones from database
-        new_ads_list = []
-        try:
-            self.select_only_new_ads(new_ads_list)
-        except Error as e:
-            print(f'Error selecting only new ads list from database: {e}')
-
         # Save new ads prices to price history table
-        # This code should be before saving new ads to main table. Otherwise, ads won't be "new" from
-        # database perspective
+        # This code should be executed before saving new ads to main table (insert_new_ads_to_main_table)
+        # Otherwise, ads won't be "new" from database perspective
         try:
             self.insert_new_ads_prices_to_history()
         except Error as e:
             print(f'Error inserting ads prices to history: {e}')
 
+        # Getting only new ones from database
+        # todo Do it without getting data to client
+        new_ads_list = []
+        try:
+            self.select_only_new_ads(new_ads_list)
+        except Error as e:
+            print(f'Error selecting only new ads list from database: {e}')
         # Save new ads to main table
         try:
             self.insert_new_ads_to_main_table(new_ads_list)
@@ -137,6 +137,7 @@ class AdsDataBase:
                 for ads_from_db in cursor.fetchall():
                     new_ads_list.append(self.get_ads_from_db_record(ads_from_db))
 
+    # todo duplication insert_new_ads_to_main_table
     def insert_ads_to_tmp_table(self, ads_list):
         with connect(
                 host=creds.db_host,
@@ -215,6 +216,7 @@ class AdsDataBase:
                     price_items_list.append(price_item)
         return price_items_list
 
+    # todo duplication delete_from_tmp_ads, insert_new_ads_prices_to_history, insert_old_ads_new_prices_to_history
     def update_old_ads_prices(self):
         with connect(
                 host=creds.db_host,

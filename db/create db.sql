@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS ads(
 	ads_owner_id VARCHAR(100),
 	ads_first_parce_datetime DATETIME NOT NULL,
 	sector_number INT NOT NULL
+-- 	,last_parce_datetime DATETIME NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS tmp_ads(
