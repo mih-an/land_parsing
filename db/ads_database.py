@@ -106,28 +106,23 @@ class AdsDataBase:
         except Error as e:
             print(f'Error deleting from tmp ads table: {e}')
 
-    def delete_from_tmp_ads(self):
+    def execute_insert_query(self, ads_list, insert_query):
         with connect(
                 host=creds.db_host,
                 user=creds.db_user,
                 password=creds.db_password,
                 database=creds.db_name,
         ) as connection:
+            ads_records = self.get_records_from_ads(ads_list)
             with connection.cursor() as cursor:
-                cursor.execute(self.delete_from_tmp_ads_query)
+                cursor.executemany(insert_query, ads_records)
                 connection.commit()
 
     def insert_new_ads_to_main_table(self, new_ads_list):
-        with connect(
-                host=creds.db_host,
-                user=creds.db_user,
-                password=creds.db_password,
-                database=creds.db_name,
-        ) as connection:
-            ads_records = self.get_ads_records(new_ads_list)
-            with connection.cursor() as cursor:
-                cursor.executemany(self.insert_ads_query, ads_records)
-                connection.commit()
+        self.execute_insert_query(new_ads_list, self.insert_ads_query)
+
+    def insert_ads_to_tmp_table(self, ads_list):
+        self.execute_insert_query(ads_list, self.insert_tmp_ads_query)
 
     def select_only_new_ads(self, new_ads_list):
         with connect(
@@ -141,20 +136,7 @@ class AdsDataBase:
                 for ads_from_db in cursor.fetchall():
                     new_ads_list.append(self.get_ads_from_db_record(ads_from_db))
 
-    # todo duplication insert_new_ads_to_main_table
-    def insert_ads_to_tmp_table(self, ads_list):
-        with connect(
-                host=creds.db_host,
-                user=creds.db_user,
-                password=creds.db_password,
-                database=creds.db_name,
-        ) as connection:
-            ads_records = self.get_ads_records(ads_list)
-            with connection.cursor() as cursor:
-                cursor.executemany(self.insert_tmp_ads_query, ads_records)
-                connection.commit()
-
-    def get_ads_records(self, ads_list):
+    def get_records_from_ads(self, ads_list):
         ads_records = []
         for ads in ads_list:
             ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.locality,
@@ -221,8 +203,8 @@ class AdsDataBase:
                     price_items_list.append(price_item)
         return price_items_list
 
-    # todo duplication delete_from_tmp_ads, insert_new_ads_prices_to_history, insert_old_ads_new_prices_to_history
-    def update_old_ads_prices_and_parsing_time(self):
+    @staticmethod
+    def execute_query(query):
         with connect(
                 host=creds.db_host,
                 user=creds.db_user,
@@ -230,27 +212,17 @@ class AdsDataBase:
                 database=creds.db_name,
         ) as connection:
             with connection.cursor() as cursor:
-                cursor.execute(self.update_ads_prices_and_parsing_time_query)
+                cursor.execute(query)
                 connection.commit()
+
+    def update_old_ads_prices_and_parsing_time(self):
+        self.execute_query(self.update_ads_prices_and_parsing_time_query)
 
     def insert_new_ads_prices_to_history(self):
-        with connect(
-                host=creds.db_host,
-                user=creds.db_user,
-                password=creds.db_password,
-                database=creds.db_name,
-        ) as connection:
-            with connection.cursor() as cursor:
-                cursor.execute(self.insert_ads_prices_to_history_query)
-                connection.commit()
+        self.execute_query(self.insert_ads_prices_to_history_query)
 
     def insert_old_ads_new_prices_to_history(self):
-        with connect(
-                host=creds.db_host,
-                user=creds.db_user,
-                password=creds.db_password,
-                database=creds.db_name,
-        ) as connection:
-            with connection.cursor() as cursor:
-                cursor.execute(self.insert_old_ads_new_prices_to_history_query)
-                connection.commit()
+        self.execute_query(self.insert_old_ads_new_prices_to_history_query)
+
+    def delete_from_tmp_ads(self):
+        self.execute_query(self.delete_from_tmp_ads_query)
