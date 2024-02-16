@@ -24,6 +24,7 @@ class AdsPriceHistoryItem:
     price: int = None
     price_datetime: datetime = None
 
+
 class Ads:
     square = 0
     title = ''

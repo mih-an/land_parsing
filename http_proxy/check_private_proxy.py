@@ -1,16 +1,10 @@
+import datetime
 import time
-from datetime import datetime
+import creds
 from loaders.html_loader import HtmlLoader
 
-# ip = '31.28.11.181:41552'
-# login = 'Megafon1527_2'
-# password = 'AzsILk'
-ip = '176.9.154.69:7837'
-login = 'taoqAQbvcD'
-password = '8drob10Mgi'
-
 proxies = {
-    'http': f'{login}:{password}@{ip}'
+    'http': f'{creds.login}:{creds.password}@{creds.ip}'
 }
 
 print(proxies)
