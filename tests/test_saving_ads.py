@@ -40,7 +40,7 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(ads_from_db.kadastr_list[0], ads2.kadastr_list[0], 'Kadastr is not correct')
         self.assertEqual(ads_from_db.ads_owner, ads2.ads_owner, 'ads_owner is not correct')
         self.assertEqual(ads_from_db.ads_owner_id, ads2.ads_owner_id, 'ads_owner_id is not correct')
-        self.assertEqual(ads_from_db.parce_datetime, ads2.parce_datetime, 'parce_datetime is not correct')
+        self.assertEqual(ads_from_db.first_parce_datetime, ads2.first_parce_datetime, 'parce_datetime is not correct')
         self.assertEqual(ads_from_db.sector_number, ads2.sector_number, 'sector_number is not correct')
 
     @staticmethod
@@ -59,8 +59,8 @@ class TestSavingAds(unittest.TestCase):
         ads.kadastr_list = ['50:08:0040229:85']
         ads.ads_owner = 'Риелтор'
         ads.ads_owner_id = 'ID 23674176'
-        ads.parce_datetime = datetime.now().replace(microsecond=0)
-        ads.last_parce_datetime = ads.parce_datetime
+        ads.first_parce_datetime = datetime.now().replace(microsecond=0)
+        ads.last_parce_datetime = ads.first_parce_datetime
         ads.sector_number = 2
         return ads
 
@@ -82,8 +82,8 @@ class TestSavingAds(unittest.TestCase):
         ads.is_electronic_trading = True
         ads.ads_owner = 'Собственник'
         ads.ads_owner_id = 'ID 70642111'
-        ads.parce_datetime = datetime.now().replace(microsecond=0)
-        ads.last_parce_datetime = ads.parce_datetime
+        ads.first_parce_datetime = datetime.now().replace(microsecond=0)
+        ads.last_parce_datetime = ads.first_parce_datetime
         ads.sector_number = 1
         return ads
 
@@ -96,8 +96,8 @@ class TestSavingAds(unittest.TestCase):
         ads.price = 1800000
         ads.link = 'https://istra.cian.ru/sale/suburban/281048577/'
         ads.kadastr_list = []
-        ads.parce_datetime = datetime.now().replace(microsecond=0)
-        ads.last_parce_datetime = ads.parce_datetime
+        ads.first_parce_datetime = datetime.now().replace(microsecond=0)
+        ads.last_parce_datetime = ads.first_parce_datetime
         ads.sector_number = 1
 
         ads_db = AdsDataBase()
@@ -154,7 +154,7 @@ class TestSavingAds(unittest.TestCase):
     def test_price_history(self):
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.create_test_ads1(ads1_uuid)
-        first_price_date_time = ads1.parce_datetime
+        first_price_date_time = ads1.first_parce_datetime
         ads2_uuid = str(uuid.uuid4())
         ads2 = self.create_test_ads2(ads2_uuid)
         ads_list = [ads1, ads2]
@@ -163,7 +163,7 @@ class TestSavingAds(unittest.TestCase):
 
         ads1.price = 3000000
         second_price_datetime = datetime.now().replace(microsecond=0)
-        ads1.parce_datetime = second_price_datetime
+        ads1.first_parce_datetime = second_price_datetime
         ads_list = [ads1, ads2]
         ads_db.save(ads_list)
 
@@ -188,7 +188,7 @@ class TestSavingAds(unittest.TestCase):
 
         # Check if last_parce_datetime equals parce_date_time for the first saving
         ads_from_db = ads_db.select_ads_by_id(ads1_uuid)
-        self.assertEqual(ads1.parce_datetime, ads_from_db.last_parce_datetime,
+        self.assertEqual(ads1.first_parce_datetime, ads_from_db.last_parce_datetime,
                          'Last_parce_time should be equal parce_time for the first time')
 
         # Let's pretend that we parce the same ads second time
@@ -203,8 +203,8 @@ class TestSavingAds(unittest.TestCase):
         ads_from_db = ads_db.select_ads_by_id(ads1_uuid)
         self.check_ads_are_equal(ads1, ads_from_db)
         self.assertEqual(ads1.last_parce_datetime, ads_from_db.last_parce_datetime)
-        self.assertNotEqual(ads1.last_parce_datetime, ads_from_db.parce_datetime)
-        self.assertNotEqual(ads_from_db.last_parce_datetime, ads_from_db.parce_datetime)
+        self.assertNotEqual(ads1.last_parce_datetime, ads_from_db.first_parce_datetime)
+        self.assertNotEqual(ads_from_db.last_parce_datetime, ads_from_db.first_parce_datetime)
 
 
 if __name__ == '__main__':

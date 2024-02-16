@@ -12,38 +12,37 @@ class AdsDataBase:
         """
         self.insert_old_ads_new_prices_to_history_query = """
             INSERT INTO ads_price_history (ads_id, price, price_datetime)
-            SELECT tmp_ads.ads_id, tmp_ads.price,tmp_ads.ads_first_parce_datetime
+            SELECT tmp_ads.ads_id, tmp_ads.price,tmp_ads.first_parce_datetime
             FROM tmp_ads INNER JOIN ads ON tmp_ads.ads_id = ads.ads_id
             WHERE tmp_ads.price <> ads.price;
         """
         self.insert_ads_prices_to_history_query = """
             INSERT INTO ads_price_history (ads_id, price, price_datetime)
-            SELECT ads_id, price, ads_first_parce_datetime
+            SELECT ads_id, price, first_parce_datetime
             FROM tmp_ads 
             WHERE ads_id not in (SELECT ads_id FROM ads)
         """
-        # todo refactoring: rename ads_first_parce_datetime -> first_parce_datetime
         self.select_one_ads_by_id_query = """
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number, 
+                electronic_trading, ads_owner, ads_owner_id, first_parce_datetime, sector_number, 
                 last_parce_datetime 
             FROM ads WHERE ads_id = %s 
         """
         self.insert_ads_query = """
             INSERT INTO ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number, 
+                electronic_trading, ads_owner, ads_owner_id, first_parce_datetime, sector_number, 
                 last_parce_datetime)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.insert_tmp_ads_query = """
             INSERT INTO tmp_ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, 
-                kadastr, electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number,
+                kadastr, electronic_trading, ads_owner, ads_owner_id, first_parce_datetime, sector_number,
                 last_parce_datetime)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.select_only_new_ads_query = """
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number, 
+                electronic_trading, ads_owner, ads_owner_id, first_parce_datetime, sector_number, 
                 last_parce_datetime
             FROM tmp_ads
             WHERE ads_id not in (SELECT ads_id FROM ads)
@@ -160,7 +159,7 @@ class AdsDataBase:
         for ads in ads_list:
             ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.locality,
                                 ads.kp, ads.address, ads.description, self.kadastr_separator.join(ads.kadastr_list),
-                                ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.parce_datetime,
+                                ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.first_parce_datetime,
                                 ads.sector_number, ads.last_parce_datetime])
         return ads_records
 
@@ -199,7 +198,7 @@ class AdsDataBase:
         ads.is_electronic_trading = not ads.electronic_trading == ''
         ads.ads_owner = ads_record_from_db[12]
         ads.ads_owner_id = ads_record_from_db[13]
-        ads.parce_datetime = ads_record_from_db[14]
+        ads.first_parce_datetime = ads_record_from_db[14]
         ads.sector_number = ads_record_from_db[15]
         ads.last_parce_datetime = ads_record_from_db[16]
         return ads

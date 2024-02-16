@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS ads(
 	electronic_trading VARCHAR(100),
 	ads_owner VARCHAR(100),
 	ads_owner_id VARCHAR(100),
-	ads_first_parce_datetime DATETIME NOT NULL,
+	first_parce_datetime DATETIME NOT NULL,
 	sector_number INT NOT NULL,
 	last_parce_datetime DATETIME NOT NULL
 );
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS tmp_ads(
 	electronic_trading VARCHAR(100),
 	ads_owner VARCHAR(100),
 	ads_owner_id VARCHAR(100),
-	ads_first_parce_datetime DATETIME NOT NULL,
+	first_parce_datetime DATETIME NOT NULL,
 	sector_number INT NOT NULL,
 	last_parce_datetime DATETIME NOT NULL
 );

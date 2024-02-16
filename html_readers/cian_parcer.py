@@ -44,7 +44,7 @@ class Ads:
     is_electronic_trading = False
     kadastr_list: list[str] = []
     # todo rename to first_parce_datetime
-    parce_datetime: datetime = None
+    first_parce_datetime: datetime = None
     last_parce_datetime: datetime = None
     sector_number: int = None
 
