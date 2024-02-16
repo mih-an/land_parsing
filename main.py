@@ -3,7 +3,7 @@ import random
 import creds
 from datetime import datetime
 
-from html_readers.cian_parcer import CianParser
+from html_readers.cian_parser import CianParser
 from loaders.html_loader import HtmlLoader
 from loaders.link_helper import LinkHelper
 from loaders.sector_list_loader import SectorListLoader

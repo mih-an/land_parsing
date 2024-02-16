@@ -1,6 +1,6 @@
 import unittest
 
-from html_readers.cian_parcer import CianParser, ParceHelper
+from html_readers.cian_parser import CianParser, ParceHelper
 
 test_description1 = """Продаётся
  участок 9,9 соток в КП Майские Дачи.

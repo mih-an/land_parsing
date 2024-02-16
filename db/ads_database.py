@@ -1,6 +1,6 @@
 from mysql.connector import connect, Error
 import creds
-from html_readers.cian_parcer import Ads, AdsPriceHistoryItem
+from html_readers.cian_parser import Ads, AdsPriceHistoryItem
 
 
 class AdsDataBase:
@@ -12,38 +12,38 @@ class AdsDataBase:
         """
         self.insert_old_ads_new_prices_to_history_query = """
             INSERT INTO ads_price_history (ads_id, price, price_datetime)
-            SELECT tmp_ads.ads_id, tmp_ads.price,tmp_ads.first_parce_datetime
+            SELECT tmp_ads.ads_id, tmp_ads.price,tmp_ads.first_parse_datetime
             FROM tmp_ads INNER JOIN ads ON tmp_ads.ads_id = ads.ads_id
             WHERE tmp_ads.price <> ads.price;
         """
         self.insert_ads_prices_to_history_query = """
             INSERT INTO ads_price_history (ads_id, price, price_datetime)
-            SELECT ads_id, price, first_parce_datetime
+            SELECT ads_id, price, first_parse_datetime
             FROM tmp_ads 
             WHERE ads_id not in (SELECT ads_id FROM ads)
         """
         self.select_one_ads_by_id_query = """
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, first_parce_datetime, sector_number, 
-                last_parce_datetime 
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
+                last_parse_datetime 
             FROM ads WHERE ads_id = %s 
         """
         self.insert_ads_query = """
             INSERT INTO ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, first_parce_datetime, sector_number, 
-                last_parce_datetime)
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
+                last_parse_datetime)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.insert_tmp_ads_query = """
             INSERT INTO tmp_ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, 
-                kadastr, electronic_trading, ads_owner, ads_owner_id, first_parce_datetime, sector_number,
-                last_parce_datetime)
+                kadastr, electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number,
+                last_parse_datetime)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.select_only_new_ads_query = """
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, first_parce_datetime, sector_number, 
-                last_parce_datetime
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
+                last_parse_datetime
             FROM tmp_ads
             WHERE ads_id not in (SELECT ads_id FROM ads)
         """
@@ -52,7 +52,7 @@ class AdsDataBase:
         """
         self.update_ads_prices_and_parsing_time_query = """
             UPDATE ads, tmp_ads
-            SET ads.price = tmp_ads.price, ads.last_parce_datetime = tmp_ads.last_parce_datetime
+            SET ads.price = tmp_ads.price, ads.last_parse_datetime = tmp_ads.last_parse_datetime
             WHERE ads.ads_id = tmp_ads.ads_id;
         """
         self.kadastr_separator = ','
@@ -159,8 +159,8 @@ class AdsDataBase:
         for ads in ads_list:
             ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.locality,
                                 ads.kp, ads.address, ads.description, self.kadastr_separator.join(ads.kadastr_list),
-                                ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.first_parce_datetime,
-                                ads.sector_number, ads.last_parce_datetime])
+                                ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.first_parse_datetime,
+                                ads.sector_number, ads.last_parse_datetime])
         return ads_records
 
     def select_ads_by_id(self, ads_id):
@@ -198,9 +198,9 @@ class AdsDataBase:
         ads.is_electronic_trading = not ads.electronic_trading == ''
         ads.ads_owner = ads_record_from_db[12]
         ads.ads_owner_id = ads_record_from_db[13]
-        ads.first_parce_datetime = ads_record_from_db[14]
+        ads.first_parse_datetime = ads_record_from_db[14]
         ads.sector_number = ads_record_from_db[15]
-        ads.last_parce_datetime = ads_record_from_db[16]
+        ads.last_parse_datetime = ads_record_from_db[16]
         return ads
 
     def select_price_history(self, ads_uuid):
