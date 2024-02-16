@@ -22,33 +22,38 @@ class AdsDataBase:
             FROM tmp_ads 
             WHERE ads_id not in (SELECT ads_id FROM ads)
         """
+        # todo refactoring: rename ads_first_parce_datetime -> first_parce_datetime
         self.select_one_ads_by_id_query = """
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number 
+                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number, 
+                last_parce_datetime 
             FROM ads WHERE ads_id = %s 
         """
         self.insert_ads_query = """
             INSERT INTO ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number)
-            VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number, 
+                last_parce_datetime)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.insert_tmp_ads_query = """
             INSERT INTO tmp_ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, 
-                kadastr, electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number)
-            VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                kadastr, electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number,
+                last_parce_datetime)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.select_only_new_ads_query = """
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number 
+                electronic_trading, ads_owner, ads_owner_id, ads_first_parce_datetime, sector_number, 
+                last_parce_datetime
             FROM tmp_ads
             WHERE ads_id not in (SELECT ads_id FROM ads)
         """
         self.delete_from_tmp_ads_query = """
             DELETE FROM tmp_ads
         """
-        self.update_ads_prices_query = """
+        self.update_ads_prices_and_parsing_time_query = """
             UPDATE ads, tmp_ads
-            SET ads.price = tmp_ads.price
+            SET ads.price = tmp_ads.price, ads.last_parce_datetime = tmp_ads.last_parce_datetime
             WHERE ads.ads_id = tmp_ads.ads_id;
         """
         self.kadastr_separator = ','
@@ -64,15 +69,15 @@ class AdsDataBase:
             print(f'Error saving ads list to tmp table: {e}')
 
         # Save new ads prices to price history table
-        # This code should be executed before saving new ads to main table (insert_new_ads_to_main_table)
-        # Otherwise, ads won't be "new" from database perspective
+        # This code should be executed before saving new ads to main table - self.insert_new_ads_to_main_table()
+        # Otherwise, ads won't be "new" from the database perspective
         try:
             self.insert_new_ads_prices_to_history()
         except Error as e:
             print(f'Error inserting ads prices to history: {e}')
 
         # Getting only new ones from database
-        # todo Do it without getting data to client
+        # todo refactoring: Do it in one query on the database side without getting data to client side
         new_ads_list = []
         try:
             self.select_only_new_ads(new_ads_list)
@@ -90,9 +95,9 @@ class AdsDataBase:
         except Error as e:
             print(f'Error inserting old ads new prices to history: {e}')
 
-        # Update prices for old ads in the main table
+        # Update prices for old ads in the main table and also update parsing time
         try:
-            self.update_old_ads_prices()
+            self.update_old_ads_prices_and_parsing_time()
         except Error as e:
             print(f'Error updating ads prices: {e}')
 
@@ -156,7 +161,7 @@ class AdsDataBase:
             ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.locality,
                                 ads.kp, ads.address, ads.description, self.kadastr_separator.join(ads.kadastr_list),
                                 ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.parce_datetime,
-                                ads.sector_number])
+                                ads.sector_number, ads.last_parce_datetime])
         return ads_records
 
     def select_ads_by_id(self, ads_id):
@@ -196,6 +201,7 @@ class AdsDataBase:
         ads.ads_owner_id = ads_record_from_db[13]
         ads.parce_datetime = ads_record_from_db[14]
         ads.sector_number = ads_record_from_db[15]
+        ads.last_parce_datetime = ads_record_from_db[16]
         return ads
 
     def select_price_history(self, ads_uuid):
@@ -217,7 +223,7 @@ class AdsDataBase:
         return price_items_list
 
     # todo duplication delete_from_tmp_ads, insert_new_ads_prices_to_history, insert_old_ads_new_prices_to_history
-    def update_old_ads_prices(self):
+    def update_old_ads_prices_and_parsing_time(self):
         with connect(
                 host=creds.db_host,
                 user=creds.db_user,
@@ -225,7 +231,7 @@ class AdsDataBase:
                 database=creds.db_name,
         ) as connection:
             with connection.cursor() as cursor:
-                cursor.execute(self.update_ads_prices_query)
+                cursor.execute(self.update_ads_prices_and_parsing_time_query)
                 connection.commit()
 
     def insert_new_ads_prices_to_history(self):

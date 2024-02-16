@@ -1,5 +1,10 @@
 CREATE DATABASE IF NOT EXISTS ads_db;
 
+DROP TABLE ads_price_history;
+DROP TABLE tmp_ads;
+DROP TABLE ads;
+
+
 CREATE TABLE IF NOT EXISTS ads(
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	ads_id VARCHAR(100) NOT NULL UNIQUE,
@@ -17,8 +22,8 @@ CREATE TABLE IF NOT EXISTS ads(
 	ads_owner VARCHAR(100),
 	ads_owner_id VARCHAR(100),
 	ads_first_parce_datetime DATETIME NOT NULL,
-	sector_number INT NOT NULL
--- 	,last_parce_datetime DATETIME NOT NULL
+	sector_number INT NOT NULL,
+	last_parce_datetime DATETIME NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS tmp_ads(
@@ -38,7 +43,8 @@ CREATE TABLE IF NOT EXISTS tmp_ads(
 	ads_owner VARCHAR(100),
 	ads_owner_id VARCHAR(100),
 	ads_first_parce_datetime DATETIME NOT NULL,
-	sector_number INT NOT NULL
+	sector_number INT NOT NULL,
+	last_parce_datetime DATETIME NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS ads_price_history(

@@ -44,46 +44,48 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(ads_from_db.sector_number, ads2.sector_number, 'sector_number is not correct')
 
     @staticmethod
-    def create_test_ads2(ads2_uuid):
-        ads2 = Ads()
-        ads2.title = 'Участок, 6 сот.'
-        ads2.square = 6
-        ads2.price = 425000
-        ads2.vri = ''
-        ads2.link = 'https://istra.cian.ru/sale/suburban/287210218/'
-        ads2.id = ads2_uuid
-        ads2.locality = 'д. Малое Ушаково'
-        ads2.kp = 'КП «‎Прилесные дачи »'
-        ads2.address = 'Московская область, Истра городской округ, д. Малое Ушаково'
-        ads2.description = 'Самое крутое объявление 2'
-        ads2.kadastr_list = ['50:08:0040229:85']
-        ads2.ads_owner = 'Риелтор'
-        ads2.ads_owner_id = 'ID 23674176'
-        ads2.parce_datetime = datetime.now().replace(microsecond=0)
-        ads2.sector_number = 2
-        return ads2
+    def create_test_ads2(ads_uuid):
+        ads = Ads()
+        ads.title = 'Участок, 6 сот.'
+        ads.square = 6
+        ads.price = 425000
+        ads.vri = ''
+        ads.link = 'https://istra.cian.ru/sale/suburban/287210218/'
+        ads.id = ads_uuid
+        ads.locality = 'д. Малое Ушаково'
+        ads.kp = 'КП «‎Прилесные дачи »'
+        ads.address = 'Московская область, Истра городской округ, д. Малое Ушаково'
+        ads.description = 'Самое крутое объявление 2'
+        ads.kadastr_list = ['50:08:0040229:85']
+        ads.ads_owner = 'Риелтор'
+        ads.ads_owner_id = 'ID 23674176'
+        ads.parce_datetime = datetime.now().replace(microsecond=0)
+        ads.last_parce_datetime = ads.parce_datetime
+        ads.sector_number = 2
+        return ads
 
     @staticmethod
-    def create_test_ads1(ads1_uuid):
-        ads1 = Ads()
-        ads1.title = 'Участок, 9.9 сот., Садоводство'
-        ads1.square = 9.9
-        ads1.price = 1800000
-        ads1.vri = 'Садоводство'
-        ads1.link = 'https://istra.cian.ru/sale/suburban/281048577/'
-        ads1.id = ads1_uuid
-        ads1.locality = 'Майские Дачи кп'
-        ads1.kp = 'Майские дачи 2'
-        ads1.address = 'Московская область, Истра городской округ, Майские Дачи кп'
-        ads1.description = 'Самое крутое объявление'
-        ads1.kadastr_list = ['50:08:0040229:1139', '50:08:0040229:1165']
-        ads1.electronic_trading = 'Электронные торги'
-        ads1.is_electronic_trading = True
-        ads1.ads_owner = 'Собственник'
-        ads1.ads_owner_id = 'ID 70642111'
-        ads1.parce_datetime = datetime.now().replace(microsecond=0)
-        ads1.sector_number = 1
-        return ads1
+    def create_test_ads1(ads_uuid):
+        ads = Ads()
+        ads.title = 'Участок, 9.9 сот., Садоводство'
+        ads.square = 9.9
+        ads.price = 1800000
+        ads.vri = 'Садоводство'
+        ads.link = 'https://istra.cian.ru/sale/suburban/281048577/'
+        ads.id = ads_uuid
+        ads.locality = 'Майские Дачи кп'
+        ads.kp = 'Майские дачи 2'
+        ads.address = 'Московская область, Истра городской округ, Майские Дачи кп'
+        ads.description = 'Самое крутое объявление'
+        ads.kadastr_list = ['50:08:0040229:1139', '50:08:0040229:1165']
+        ads.electronic_trading = 'Электронные торги'
+        ads.is_electronic_trading = True
+        ads.ads_owner = 'Собственник'
+        ads.ads_owner_id = 'ID 70642111'
+        ads.parce_datetime = datetime.now().replace(microsecond=0)
+        ads.last_parce_datetime = ads.parce_datetime
+        ads.sector_number = 1
+        return ads
 
     def test_empty_kadastr(self):
         ads = Ads()
@@ -95,6 +97,7 @@ class TestSavingAds(unittest.TestCase):
         ads.link = 'https://istra.cian.ru/sale/suburban/281048577/'
         ads.kadastr_list = []
         ads.parce_datetime = datetime.now().replace(microsecond=0)
+        ads.last_parce_datetime = ads.parce_datetime
         ads.sector_number = 1
 
         ads_db = AdsDataBase()
@@ -106,7 +109,7 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(0, len(ads_from_db.kadastr_list))
 
     def test_save_new_parce_iteration(self):
-        # Test when we parce the same ads second time
+        # Test when we parce the same ads second time and also parce new ads
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.create_test_ads1(ads1_uuid)
         ads2_uuid = str(uuid.uuid4())
@@ -128,7 +131,7 @@ class TestSavingAds(unittest.TestCase):
         self.check_ads_are_equal(new_ads3, ads_from_db)
 
     def test_save_new_price(self):
-        # Что если изменилась цена - нужно это сохранять
+        # Test that new price is correctly saved
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.create_test_ads1(ads1_uuid)
         ads2_uuid = str(uuid.uuid4())
@@ -139,7 +142,7 @@ class TestSavingAds(unittest.TestCase):
 
         ads1.price = 3000000
         second_price_datetime = datetime.now().replace(microsecond=0)
-        ads1.parce_datetime = second_price_datetime
+        ads1.last_parce_datetime = second_price_datetime
         ads_list = [ads1, ads2]
         ads_db.save(ads_list)
 
@@ -173,9 +176,9 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(second_price_datetime, price_history[1].price_datetime)
 
     def test_last_parce_time_updated(self):
-        # Нужно проверить, что для уже существующих объявлений время парсинга сохраняется
-        # Это позволит выделять те объявления, которые сняты с публикации.
-        # У них время парсинга для данного сектора будет меньше, чем у остальных объявлений из этого сектора
+        # To separate "disabled ads" from "still alive" we need to store last parsing time.
+        # "Disabled" ads will be ads that has last_parse_time less than other at the same sector
+
         # First time parce ads and save it to database
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.create_test_ads1(ads1_uuid)
@@ -186,18 +189,22 @@ class TestSavingAds(unittest.TestCase):
         # Check if last_parce_datetime equals parce_date_time for the first saving
         ads_from_db = ads_db.select_ads_by_id(ads1_uuid)
         self.assertEqual(ads1.parce_datetime, ads_from_db.last_parce_datetime,
-                         'Last parce time should be equal parce time for first saving')
+                         'Last_parce_time should be equal parce_time for the first time')
 
-        # Second time parce the same ads
-        # Nothing has changed except parsing time
+        # Let's pretend that we parce the same ads second time
+        # Nothing has changed except parsing time. Even price hasn't changed
+        # Need to sleep for a moment, otherwise, time could be the same, because we don't count milliseconds
+        time.sleep(1)
         ads1.last_parce_datetime = datetime.now().replace(microsecond=0)
         ads_list = [ads1]
         ads_db.save(ads_list)
 
+        # Information about last parsing time should be updated
         ads_from_db = ads_db.select_ads_by_id(ads1_uuid)
         self.check_ads_are_equal(ads1, ads_from_db)
         self.assertEqual(ads1.last_parce_datetime, ads_from_db.last_parce_datetime)
         self.assertNotEqual(ads1.last_parce_datetime, ads_from_db.parce_datetime)
+        self.assertNotEqual(ads_from_db.last_parce_datetime, ads_from_db.parce_datetime)
 
 
 if __name__ == '__main__':
