@@ -2,6 +2,8 @@ import random
 import time
 import creds
 from datetime import datetime
+
+from db.ads_database import AdsDataBase
 from html_readers.cian_parser import CianParser
 from loaders.html_loader import HtmlLoader
 from loaders.link_helper import LinkHelper
@@ -21,6 +23,7 @@ class ParsingWorker:
         self.html_loader = HtmlLoader()
         self.html_loader.set_proxies(self.proxies)
         self.link_helper = LinkHelper()
+        self.ads_db = AdsDataBase()
 
     def run(self):
         sectors = self.sector_loader.load_sectors(self.google_sheets_id, self.google_credentials_file)
@@ -29,13 +32,13 @@ class ParsingWorker:
         while len(sector_list_copy) > 0:
             sector_link, sector_number = self.choose_sector_randomly(sector_list_copy)
             sector_html = self.try_few_attempts_downloading_sector_page(sector_link, sector_number, 1)
-            self.parse_and_save(sector_html, sector_number)
+            self.parse_and_save_to_database(sector_html, sector_number)
 
             pages_count = self.get_sector_pages_count(sector_html, sector_number)
             for page_number in range(2, pages_count + 1):
                 page_link = self.get_page_link(page_number, sector_link)
                 sector_html = self.try_few_attempts_downloading_sector_page(page_link, sector_number, page_number)
-                self.parse_and_save(sector_html, sector_number)
+                self.parse_and_save_to_database(sector_html, sector_number)
 
             del sector_list_copy[sector_number]
 
@@ -75,12 +78,13 @@ class ParsingWorker:
         print(f'Loading generated unique sector link... {sector_link}')
         response = self.html_loader.load_page(sector_link)
         html = response.text
+        print(f"Sector {sector_number} page {page} loaded successfully!")
 
         # todo remove when saving to database ready
         file_name = f'sector_{sector_number}_p{page}.html'
         with open(file_name, 'a') as html_file:
             html_file.write(html)
-        print(f"Sector page loaded successfully and saved to the file: {file_name}")
+        print(f"Html saved to the file: {file_name}")
 
         sleep_seconds = random.randint(5, 7)
         print(f'Sleeping for {sleep_seconds} seconds...')
@@ -100,5 +104,17 @@ class ParsingWorker:
         print("Current Time =", current_time)
         return sector_link, sector_number
 
-    def parse_and_save(self, sector_html, sector_number):
-        pass
+    def parse_and_save_to_database(self, sector_html, sector_number):
+        # todo do it with try catch
+        ads_list = self.cian_parser.get_ads(sector_html)
+        self.set_sector_number_and_parse_time(ads_list, sector_number)
+        self.ads_db.save(ads_list)
+        print(f"Data from sector page successfully saved to database")
+
+    @staticmethod
+    def set_sector_number_and_parse_time(ads_list, sector_number):
+        for ads in ads_list:
+            ads.sector_number = sector_number
+            ads.first_parse_datetime = datetime.now().replace(microsecond=0)
+            ads.last_parse_datetime = ads.first_parse_datetime
+

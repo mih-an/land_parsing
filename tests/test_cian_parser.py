@@ -312,29 +312,31 @@ class TestCianParser(unittest.TestCase):
         self.assertTrue(ads.is_electronic_trading, 'Electronic trading should be True ')
 
     def test_sector_31(self):
-        with open('cian_pages/cian_sector_31.html', 'r') as test_html_file:
+        with open('cian_pages/cian_sector_29.html', 'r') as test_html_file:
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
         ads_list = cian_parser.get_ads(test_html)
         ads1 = ads_list[0]
 
-        self.assertEqual('Участок, 14.41 сот.', ads1.title, 'Title 1 is not correct')
-        self.assertEqual(14.41, ads1.square, 'Square 1 is not correct')
-        self.assertEqual(66286000, ads1.price, 'Price 1 is not correct')
-        self.assertEqual('', ads1.vri, 'VRI 1 is not correct')
-        self.assertEqual('https://istra.cian.ru/sale/suburban/297552877/', ads1.link, 'Link 1 is not correct')
-        self.assertEqual('297552877', ads1.id, 'Id 1 is not correct')
-        self.assertEqual('Миллениум Парк кп', ads1.locality, 'Kp 1 is not correct')
-        self.assertEqual('КП «‎Millennium Park (Миллениум Парк)»', ads1.kp, 'Kp 1 is not correct')
-        self.assertEqual('Московская область, Истра городской округ, Миллениум Парк кп', ads1.address,
+        self.assertEqual('Участок, 20 сот., ИЖС', ads1.title, 'Title 1 is not correct')
+        self.assertEqual(20, ads1.square, 'Square 1 is not correct')
+        self.assertEqual(2600000, ads1.price, 'Price 1 is not correct')
+        self.assertEqual('ИЖС', ads1.vri, 'VRI 1 is not correct')
+        self.assertEqual('https://www.cian.ru/sale/suburban/280878724/', ads1.link, 'Link 1 is not correct')
+        self.assertEqual('280878724', ads1.id, 'Id 1 is not correct')
+        self.assertEqual('д. Никулино', ads1.locality, 'locality 1 is not correct')
+        self.assertEqual('', ads1.kp, 'Kp 1 is not correct')
+        self.assertEqual('Московская область, Истра городской округ, д. Никулино', ads1.address,
                          'Address 1 is not correct')
-        self.assertEqual(test_description3, ads1.description, 'Description 1 is not correct')
 
-        ads = ads_list[6]
-        self.assertEqual('Участок, 13.03 сот.', ads.title, 'Title 1 is not correct')
-        self.assertEqual(13.03, ads.square, 'Square 1 is not correct')
-        self.assertEqual(58635000, ads.price, 'Price 1 is not correct')
+    def test_sector_29(self):
+        with open('cian_pages/cian_sector_29.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+        ads1 = ads_list[0]
 
     def test_parce_kadastr_number(self):
         parce_helper = ParceHelper()
@@ -380,6 +382,15 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual(2, len(kadastr_list))
         self.assertEqual('50:08:0040229:1139', kadastr_list[0])
         self.assertEqual('50:08:0040229:1165', kadastr_list[1])
+
+        description9 = ('торгах до 23:59 24.02.2024 заявку с документами. Дата начала и дата торгов 04.03.2024 10:00 '
+                        'по московскому времени. Звонить с 9:30 до 18:30 по м')
+        kadastr_list = parce_helper.parse_kadastr(description9)
+        self.assertEqual(0, len(kadastr_list))
+
+        description10 = 'после 23:00 не нарушают'
+        kadastr_list = parce_helper.parse_kadastr(description10)
+        self.assertEqual(0, len(kadastr_list))
 
 
 if __name__ == '__main__':

@@ -6,7 +6,8 @@ from datetime import datetime
 
 class ParceHelper:
     def __init__(self):
-        self.kadastr_pattern = '\d[\d:]+:[\d:]+\d'
+        # https://regex101.com/r/Kb2L0r/2
+        self.kadastr_pattern = '\d{2}:\d{2}:\d{6,7}:\d*'
 
     def parse_kadastr(self, description: str):
         kadastr_list = []
@@ -108,20 +109,15 @@ class CianParser:
     @staticmethod
     def parce_link(target_div):
         target_link = target_div.find_next('a')
-        print(f'Link: {target_link["href"]}')
         return target_link["href"]
 
     def parce_ads(self, raw_ads):
         ads = Ads()
-        print(f'Ads div = {raw_ads.name}, class = {raw_ads["class"]}, data-name={raw_ads["data-name"]}')
-
         target_div = raw_ads.find_next(self.is_main_link_area_tag)
-        print(f'Target div = {target_div.name}, class = {target_div["class"]}')
 
         ads.link = self.parce_link(target_div)
         ads.title = self.parce_title(target_div)
         ads.square = self.search_float_number(ads.title)
-        print(f'Square: {ads.square}')
         ads.price = self.parce_price(target_div)
         self.parce_address(ads, target_div)
         ads.description = self.parce_description(target_div)
@@ -143,10 +139,7 @@ class CianParser:
         raw_ads_list = self.get_raw_ads(html)
 
         ads_list = []
-        for i in range(len(raw_ads_list)):
-            print('-' * 50)
-            print(f'ads number = {i}')
-            raw_ads = raw_ads_list[i]
+        for raw_ads in raw_ads_list:
             ads = self.parce_ads(raw_ads)
             ads_list.append(ads)
 
@@ -191,7 +184,6 @@ class CianParser:
         vri = title_parts[len(title_parts) - 1].strip()
         if vri not in self.vri_dict:
             vri = ''
-        print(f'VRI: {vri}')
         return vri
 
     def parce_title(self, target_div):
@@ -201,7 +193,6 @@ class CianParser:
         else:
             title = subtitle
 
-        print(f'Title: {title}')
         return title
 
     def parce_subtitle(self, target_div):
@@ -217,7 +208,6 @@ class CianParser:
     def parce_price(self, target_div):
         price_span = target_div.find_next(self.is_price_tag).span
         price = self.search_int_number(price_span.text)
-        print(f'Price int: {price}, price str: {price_span.text}')
         return price
 
     def parce_address(self, ads, target_div):
@@ -230,8 +220,6 @@ class CianParser:
         ads.address3 = address3.text
         ads.address = f'{ads.address1}, {ads.address2}, {ads.address3}'
         ads.locality = ads.address3
-        print(f'Address: {ads.address}')
-        print(f'Locality: {ads.locality}')
 
     def parce_description(self, target_div):
         p = target_div.find_next(self.is_description_tag).p
@@ -241,7 +229,6 @@ class CianParser:
         link_parts = ads.link.split(self.link_separator)
         # - 2 because the last element is an empty element
         ads_id = link_parts[len(link_parts) - 2]
-        print(f'Id: {ads_id}')
         return ads_id
 
     def parce_kp(self, target_div):
@@ -249,7 +236,6 @@ class CianParser:
         kp_parent_div_tag = price_span.parent.parent.next_sibling
         kp_tag = kp_parent_div_tag.find_next(self.is_kp_tag)
         if kp_tag is not None and kp_tag.a is not None:
-            print(f'Cottage complex: {kp_tag.a.text}')
             return kp_tag.a.text
 
         return ''
@@ -258,7 +244,6 @@ class CianParser:
         brand_div = raw_ads.find_next(self.is_brand_main_tag)
         span = brand_div.div.div.next_sibling.div.div.span
         ads.ads_owner = span.text
-        print(f'Owner : {span.text}')
 
         next_sib = span.next_sibling
         if ads.ads_owner == self.agency and next_sib.a is not None:
@@ -266,7 +251,6 @@ class CianParser:
         else:
             owner_id = next_sib.span.text
 
-        print(f'Owner id: {owner_id}')
         ads.ads_owner_id = owner_id
 
     def parce_electronic_trading(self, ads, raw_ads):
@@ -274,7 +258,6 @@ class CianParser:
         if electronic_tag is not None and self.is_electronic_tag(electronic_tag):
             ads.electronic_trading = electronic_tag.div.text
             ads.is_electronic_trading = True
-            print(f'Electronic trading {ads.electronic_trading}')
 
     @staticmethod
     def parce_kadastr_number(ads):
