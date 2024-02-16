@@ -28,19 +28,15 @@ class AdsDataBase:
                 last_parse_datetime 
             FROM ads WHERE ads_id = %s 
         """
-        self.insert_ads_query = """
-            INSERT INTO ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
-                last_parse_datetime)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
         self.insert_tmp_ads_query = """
             INSERT INTO tmp_ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, 
                 kadastr, electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number,
                 last_parse_datetime)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        self.select_only_new_ads_query = """
+        self.insert_new_ads_to_main_table_query = """
+            INSERT INTO ads(ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr,
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime)
             SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
                 last_parse_datetime
@@ -75,16 +71,9 @@ class AdsDataBase:
         except Error as e:
             print(f'Error inserting ads prices to history: {e}')
 
-        # Getting only new ones from database
-        # todo refactoring: Do it in one query on the database side without getting data to client side
-        new_ads_list = []
-        try:
-            self.select_only_new_ads(new_ads_list)
-        except Error as e:
-            print(f'Error selecting only new ads list from database: {e}')
         # Save new ads to main table
         try:
-            self.insert_new_ads_to_main_table(new_ads_list)
+            self.insert_new_ads_from_tmp_to_main_table()
         except Error as e:
             print(f'Error saving ads list to main table: {e}')
 
@@ -118,23 +107,11 @@ class AdsDataBase:
                 cursor.executemany(insert_query, ads_records)
                 connection.commit()
 
-    def insert_new_ads_to_main_table(self, new_ads_list):
-        self.execute_insert_query(new_ads_list, self.insert_ads_query)
+    def insert_new_ads_from_tmp_to_main_table(self):
+        self.execute_query(self.insert_new_ads_to_main_table_query)
 
     def insert_ads_to_tmp_table(self, ads_list):
         self.execute_insert_query(ads_list, self.insert_tmp_ads_query)
-
-    def select_only_new_ads(self, new_ads_list):
-        with connect(
-                host=creds.db_host,
-                user=creds.db_user,
-                password=creds.db_password,
-                database=creds.db_name,
-        ) as connection:
-            with connection.cursor() as cursor:
-                cursor.execute(self.select_only_new_ads_query)
-                for ads_from_db in cursor.fetchall():
-                    new_ads_list.append(self.get_ads_from_db_record(ads_from_db))
 
     def get_records_from_ads(self, ads_list):
         ads_records = []
