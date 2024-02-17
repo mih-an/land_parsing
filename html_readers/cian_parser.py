@@ -162,8 +162,6 @@ class CianParser:
                 address_list.append(tag.text)
 
         ads.address = self.address_separator.join(address_list)
-        if len(address_list) >= 3:
-            ads.locality = address_list[2]
 
     def parse_description(self, target_div):
         p = target_div.find_next(self.is_description_tag).p

@@ -33,7 +33,6 @@ class TestSavingAds(unittest.TestCase):
         self.assertEqual(ads_from_db.price, ads2.price, 'price is not correct')
         self.assertEqual(ads_from_db.vri, ads2.vri, 'vri is not correct')
         self.assertEqual(ads_from_db.link, ads2.link, 'link is not correct')
-        self.assertEqual(ads_from_db.locality, ads2.locality, 'locality is not correct')
         self.assertEqual(ads_from_db.kp, ads2.kp, 'kp is not correct')
         self.assertEqual(ads_from_db.address, ads2.address, 'address is not correct')
         self.assertEqual(ads_from_db.description, ads2.description, 'description is not correct')
@@ -52,7 +51,6 @@ class TestSavingAds(unittest.TestCase):
         ads.vri = ''
         ads.link = 'https://istra.cian.ru/sale/suburban/287210218/'
         ads.id = ads_uuid
-        ads.locality = 'д. Малое Ушаково'
         ads.kp = 'КП «‎Прилесные дачи »'
         ads.address = 'Московская область, Истра городской округ, д. Малое Ушаково'
         ads.description = 'Самое крутое объявление 2'
@@ -73,7 +71,6 @@ class TestSavingAds(unittest.TestCase):
         ads.vri = 'Садоводство'
         ads.link = 'https://istra.cian.ru/sale/suburban/281048577/'
         ads.id = ads_uuid
-        ads.locality = 'Майские Дачи кп'
         ads.kp = 'Майские дачи 2'
         ads.address = 'Московская область, Истра городской округ, Майские Дачи кп'
         ads.description = 'Самое крутое объявление'

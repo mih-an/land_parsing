@@ -23,21 +23,21 @@ class AdsDataBase:
             WHERE ads_id not in (SELECT ads_id FROM ads)
         """
         self.select_one_ads_by_id_query = """
-            SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
                 last_parse_datetime 
             FROM ads WHERE ads_id = %s 
         """
         self.insert_tmp_ads_query = """
-            INSERT INTO tmp_ads (ads_id, ads_title, square, price, vri, link, locality, kp, address, description, 
+            INSERT INTO tmp_ads (ads_id, ads_title, square, price, vri, link, kp, address, description, 
                 kadastr, electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number,
                 last_parse_datetime)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.insert_new_ads_to_main_table_query = """
-            INSERT INTO ads(ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr,
+            INSERT INTO ads(ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime)
-            SELECT ads_id, ads_title, square, price, vri, link, locality, kp, address, description, kadastr, 
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
                 last_parse_datetime
             FROM tmp_ads
@@ -116,8 +116,8 @@ class AdsDataBase:
     def get_records_from_ads(self, ads_list):
         ads_records = []
         for ads in ads_list:
-            ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.locality,
-                                ads.kp, ads.address, ads.description, self.kadastr_separator.join(ads.kadastr_list),
+            ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.kp, ads.address,
+                                ads.description, self.kadastr_separator.join(ads.kadastr_list),
                                 ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.first_parse_datetime,
                                 ads.sector_number, ads.last_parse_datetime])
         return ads_records
@@ -145,21 +145,20 @@ class AdsDataBase:
         ads.price = ads_record_from_db[3]
         ads.vri = ads_record_from_db[4]
         ads.link = ads_record_from_db[5]
-        ads.locality = ads_record_from_db[6]
-        ads.kp = ads_record_from_db[7]
-        ads.address = ads_record_from_db[8]
-        ads.description = ads_record_from_db[9]
-        if ads_record_from_db[10] == '':
+        ads.kp = ads_record_from_db[6]
+        ads.address = ads_record_from_db[7]
+        ads.description = ads_record_from_db[8]
+        if ads_record_from_db[9] == '':
             ads.kadastr_list = []
         else:
-            ads.kadastr_list = ads_record_from_db[10].split(self.kadastr_separator)
-        ads.electronic_trading = ads_record_from_db[11]
+            ads.kadastr_list = ads_record_from_db[9].split(self.kadastr_separator)
+        ads.electronic_trading = ads_record_from_db[10]
         ads.is_electronic_trading = not ads.electronic_trading == ''
-        ads.ads_owner = ads_record_from_db[12]
-        ads.ads_owner_id = ads_record_from_db[13]
-        ads.first_parse_datetime = ads_record_from_db[14]
-        ads.sector_number = ads_record_from_db[15]
-        ads.last_parse_datetime = ads_record_from_db[16]
+        ads.ads_owner = ads_record_from_db[11]
+        ads.ads_owner_id = ads_record_from_db[12]
+        ads.first_parse_datetime = ads_record_from_db[13]
+        ads.sector_number = ads_record_from_db[14]
+        ads.last_parse_datetime = ads_record_from_db[15]
         return ads
 
     def select_price_history(self, ads_uuid):
