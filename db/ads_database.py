@@ -1,6 +1,6 @@
 from mysql.connector import connect, Error
 import creds
-from html_readers.cian_parser import Ads, AdsPriceHistoryItem
+from html_readers.ads import Ads, AdsPriceHistoryItem
 
 
 class AdsDataBase:
