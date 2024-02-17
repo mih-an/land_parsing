@@ -55,6 +55,7 @@ class CianParser:
     float_pattern = '[\d]+[.,\d]+|[\d]*[.][\d]+|[\d]+'
     int_pattern = '\D'
     title_separator = ','
+    address_separator = ', '
     link_separator = '/'
     vri_dict = {'Садоводство', 'ИЖС', 'ДНП', 'ЛПХ', 'Личное подсобное хозяйство', 'Фермерское хозяйство'}
 
@@ -211,15 +212,17 @@ class CianParser:
         return price
 
     def parce_address(self, ads, target_div):
-        address1 = target_div.find_next(self.is_address_tag)
-        ads.address1 = address1.text
-        # Two times next_sibling because it has comma between a tags
-        address2 = address1.next_sibling.next_sibling
-        ads.address2 = address2.text
-        address3 = address2.next_sibling.next_sibling
-        ads.address3 = address3.text
-        ads.address = f'{ads.address1}, {ads.address2}, {ads.address3}'
-        ads.locality = ads.address3
+        address_first_tag = target_div.find_next(self.is_address_tag)
+
+        address_div_tag = address_first_tag.parent
+        address_list = []
+        for tag in address_div_tag.contents:
+            if self.is_address_tag(tag):
+                address_list.append(tag.text)
+
+        ads.address = self.address_separator.join(address_list)
+        if len(address_list) >= 3:
+            ads.locality = address_list[2]
 
     def parce_description(self, target_div):
         p = target_div.find_next(self.is_description_tag).p
