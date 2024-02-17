@@ -1,6 +1,6 @@
 import unittest
 
-from html_readers.cian_parser import CianParser, ParceHelper
+from html_readers.cian_parser import CianParser, ParseHelper
 
 test_description1 = """Продаётся
  участок 9,9 соток в КП Майские Дачи.
@@ -353,6 +353,7 @@ class TestCianParser(unittest.TestCase):
 
         ads1 = ads_list[2]
         self.assertEqual('298501473', ads1.id, 'Id 1 is not correct')
+        self.assertEqual(6, ads1.square, 'square is not correct')
         self.assertEqual('Московская область, Истра, улица 9-й Гвардейской Дивизии', ads1.address,
                          'Address is not correct')
 
@@ -363,22 +364,23 @@ class TestCianParser(unittest.TestCase):
 
         ads1 = ads_list[7]
         self.assertEqual('296391361', ads1.id, 'Id 1 is not correct')
+        self.assertEqual(200, ads1.square, 'square is not correct')
         self.assertEqual('Московская область, Истра, Южный мкр, улица Луговая', ads1.address,
                          'Address is not correct')
 
     def test_parce_square_from_title(self):
-        cian_parser = CianParser()
-        square = cian_parser.search_square('Участок, 6 сот., Фермерское хозяйство')
+        parce_helper = ParseHelper()
+        square = parce_helper.parse_square('Участок, 6 сот., Фермерское хозяйство')
         self.assertEqual(6, square)
-        square = cian_parser.search_square('Участок, 13.03 сот.')
+        square = parce_helper.parse_square('Участок, 13.03 сот.')
         self.assertEqual(13.03, square)
-        square = cian_parser.search_square('Участок, 2 га, Садоводство')
+        square = parce_helper.parse_square('Участок, 2 га, Садоводство')
         self.assertEqual(200, square)
-        square = cian_parser.search_square('Участок, 600 м², 6 сот., ИЖС')
+        square = parce_helper.parse_square('Участок, 600 м², 6 сот., ИЖС')
         self.assertEqual(6, square)
 
     def test_parce_kadastr_number(self):
-        parce_helper = ParceHelper()
+        parce_helper = ParseHelper()
 
         description1 = 'профессиональной охраной.Кадастровый номер 50:09:0050704:823. Коммуникации по границе'
         kadastr_list = parce_helper.parse_kadastr(description1)

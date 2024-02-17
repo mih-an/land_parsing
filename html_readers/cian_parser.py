@@ -4,10 +4,15 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 
-class ParceHelper:
+class ParseHelper:
     def __init__(self):
         # https://regex101.com/r/Kb2L0r/2
         self.kadastr_pattern = '\d{2}:\d{2}:\d{6,7}:\d*'
+        self.float_pattern = '[\d]+[.,\d]+|[\d]*[.][\d]+|[\d]+'
+        self.title_separator = ', '
+        self.square_sot = 'сот.'
+        self.square_m2 = 'м²'
+        self.square_ga = 'га'
 
     def parse_kadastr(self, description: str):
         kadastr_list = []
@@ -18,6 +23,32 @@ class ParceHelper:
                 kadastr_list.append(catch[0])
 
         return kadastr_list
+
+    def search_float_number(self, search_str):
+        if re.search(self.float_pattern, search_str) is not None:
+            for catch in re.finditer(self.float_pattern, search_str):
+                result_float_number = float(catch[0])
+                return result_float_number
+        return 0
+
+    def parse_square(self, search_str):
+        title_segment_list = search_str.split(self.title_separator)
+
+        is_sot_found = False
+        for segment in title_segment_list:
+            if self.square_sot in segment:
+                needed_segment = segment
+                return self.search_float_number(needed_segment)
+
+        if not is_sot_found and self.square_m2 in search_str:
+            square_m2 = self.search_float_number(search_str)
+            return square_m2 / 100
+
+        if not is_sot_found and self.square_ga in search_str:
+            square_ga = self.search_float_number(search_str)
+            return square_ga * 100
+
+        return 0
 
 
 class AdsPriceHistoryItem:
@@ -52,7 +83,6 @@ class Ads:
 
 class CianParser:
     cian_ads_per_page = 28
-    float_pattern = '[\d]+[.,\d]+|[\d]*[.][\d]+|[\d]+'
     int_pattern = '\D'
     title_separator = ','
     address_separator = ', '
@@ -72,6 +102,7 @@ class CianParser:
         self.description_data_name = 'Description'
         self.ads_card_component = 'CardComponent'
         self.substr = "offer_type=suburban"
+        self.parse_helper = ParseHelper()
 
     def get_pages_count(self, html_text):
         soup = BeautifulSoup(html_text, "lxml")
@@ -94,13 +125,6 @@ class CianParser:
 
         return page_link
 
-    def search_float_number(self, search_str):
-        if re.search(self.float_pattern, search_str) is not None:
-            for catch in re.finditer(self.float_pattern, search_str):
-                result_float_number = float(catch[0])
-                return result_float_number
-        return 0
-
     def search_int_number(self, search_str):
         search_res = re.sub(self.int_pattern, "", search_str)
         if search_res == '':
@@ -108,26 +132,26 @@ class CianParser:
         return int(search_res)
 
     @staticmethod
-    def parce_link(target_div):
+    def parse_link(target_div):
         target_link = target_div.find_next('a')
         return target_link["href"]
 
-    def parce_ads(self, raw_ads):
+    def parse_ads(self, raw_ads):
         ads = Ads()
         target_div = raw_ads.find_next(self.is_main_link_area_tag)
 
-        ads.link = self.parce_link(target_div)
-        ads.title = self.parce_title(target_div)
-        ads.square = self.search_square(ads.title)
-        ads.price = self.parce_price(target_div)
-        self.parce_address(ads, target_div)
-        ads.description = self.parce_description(target_div)
+        ads.link = self.parse_link(target_div)
+        ads.title = self.parse_title(target_div)
+        ads.square = self.parse_square(ads.title)
+        ads.price = self.parse_price(target_div)
+        self.parse_address(ads, target_div)
+        ads.description = self.parse_description(target_div)
         ads.vri = self.get_vri(ads.title)
-        ads.id = self.parce_id(ads)
-        ads.kp = self.parce_kp(target_div)
-        self.parce_owner(ads, raw_ads)
-        self.parce_electronic_trading(ads, raw_ads)
-        self.parce_kadastr_number(ads)
+        ads.id = self.parse_id(ads)
+        ads.kp = self.parse_kp(target_div)
+        self.parse_owner(ads, raw_ads)
+        self.parse_electronic_trading(ads, raw_ads)
+        self.parse_kadastr_number(ads)
 
         return ads
 
@@ -141,7 +165,7 @@ class CianParser:
 
         ads_list = []
         for raw_ads in raw_ads_list:
-            ads = self.parce_ads(raw_ads)
+            ads = self.parse_ads(raw_ads)
             ads_list.append(ads)
 
         return ads_list
@@ -187,8 +211,8 @@ class CianParser:
             vri = ''
         return vri
 
-    def parce_title(self, target_div):
-        subtitle = self.parce_subtitle(target_div)
+    def parse_title(self, target_div):
+        subtitle = self.parse_subtitle(target_div)
         if subtitle == '':
             title = target_div.find_next(self.is_offer_title_tag).span.text
         else:
@@ -196,7 +220,7 @@ class CianParser:
 
         return title
 
-    def parce_subtitle(self, target_div):
+    def parse_subtitle(self, target_div):
         subtitle = ''
         offer_title_tag = target_div.find_next(self.is_offer_title_tag)
         next_sibling = offer_title_tag.next_sibling
@@ -206,12 +230,12 @@ class CianParser:
                 subtitle = subtitle_tag.text
         return subtitle
 
-    def parce_price(self, target_div):
+    def parse_price(self, target_div):
         price_span = target_div.find_next(self.is_price_tag).span
         price = self.search_int_number(price_span.text)
         return price
 
-    def parce_address(self, ads, target_div):
+    def parse_address(self, ads, target_div):
         address_first_tag = target_div.find_next(self.is_address_tag)
 
         address_div_tag = address_first_tag.parent
@@ -224,17 +248,17 @@ class CianParser:
         if len(address_list) >= 3:
             ads.locality = address_list[2]
 
-    def parce_description(self, target_div):
+    def parse_description(self, target_div):
         p = target_div.find_next(self.is_description_tag).p
         return p.text
 
-    def parce_id(self, ads):
+    def parse_id(self, ads):
         link_parts = ads.link.split(self.link_separator)
         # - 2 because the last element is an empty element
         ads_id = link_parts[len(link_parts) - 2]
         return ads_id
 
-    def parce_kp(self, target_div):
+    def parse_kp(self, target_div):
         price_span = target_div.find_next(self.is_price_tag)
         kp_parent_div_tag = price_span.parent.parent.next_sibling
         kp_tag = kp_parent_div_tag.find_next(self.is_kp_tag)
@@ -243,7 +267,7 @@ class CianParser:
 
         return ''
 
-    def parce_owner(self, ads, raw_ads):
+    def parse_owner(self, ads, raw_ads):
         brand_div = raw_ads.find_next(self.is_brand_main_tag)
         span = brand_div.div.div.next_sibling.div.div.span
         ads.ads_owner = span.text
@@ -256,16 +280,14 @@ class CianParser:
 
         ads.ads_owner_id = owner_id
 
-    def parce_electronic_trading(self, ads, raw_ads):
+    def parse_electronic_trading(self, ads, raw_ads):
         electronic_tag = raw_ads.div.a.div.next_sibling
         if electronic_tag is not None and self.is_electronic_tag(electronic_tag):
             ads.electronic_trading = electronic_tag.div.text
             ads.is_electronic_trading = True
 
-    @staticmethod
-    def parce_kadastr_number(ads):
-        parce_helper = ParceHelper()
-        ads.kadastr_list = parce_helper.parse_kadastr(ads.description)
+    def parse_kadastr_number(self, ads):
+        ads.kadastr_list = self.parse_helper.parse_kadastr(ads.description)
 
-    def search_square(self, title):
-        return self.search_float_number(title)
+    def parse_square(self, title):
+        return self.parse_helper.parse_square(title)
