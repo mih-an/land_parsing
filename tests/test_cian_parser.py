@@ -429,6 +429,18 @@ class TestCianParser(unittest.TestCase):
         kadastr_list = parce_helper.parse_kadastr(description10)
         self.assertEqual(0, len(kadastr_list))
 
+    def test_sector_26_p2_addresses(self):
+        with open('cian_pages/sector_26_p2.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_ads(test_html)
+
+        ads1 = ads_list[0]
+        self.assertEqual('298377384', ads1.id, 'Id 1 is not correct')
+        self.assertEqual('Московская область, Истра городской округ, д. Леоново, 6', ads1.address,
+                         'Address is not correct')
+
 
 if __name__ == '__main__':
     unittest.main()

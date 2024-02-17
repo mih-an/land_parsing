@@ -116,7 +116,8 @@ class CianParser:
         return self.is_needed_tag(tag, 'span', 'data-mark', self.price_span_data_mark)
 
     def is_address_tag(self, tag):
-        return self.is_needed_tag(tag, 'a', 'data-name', self.address_data_name)
+        return (self.is_needed_tag(tag, 'a', 'data-name', self.address_data_name) or
+                self.is_needed_tag(tag, 'span', 'data-name', self.address_data_name))
 
     def is_kp_tag(self, tag):
         return self.is_needed_tag(tag, 'div', 'data-name', self.kp_data_name)
