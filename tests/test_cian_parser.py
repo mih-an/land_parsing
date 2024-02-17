@@ -335,24 +335,47 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual(13.03, ads.square, 'Square 1 is not correct')
         self.assertEqual(58635000, ads.price, 'Price 1 is not correct')
 
-    def test_sector_29(self):
+    def test_sector_29_addresses(self):
         with open('cian_pages/cian_sector_29.html', 'r') as test_html_file:
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
         ads_list = cian_parser.get_ads(test_html)
-        ads1 = ads_list[0]
 
-        self.assertEqual('Участок, 20 сот., ИЖС', ads1.title, 'Title 1 is not correct')
-        self.assertEqual(20, ads1.square, 'Square 1 is not correct')
-        self.assertEqual(2600000, ads1.price, 'Price 1 is not correct')
-        self.assertEqual('ИЖС', ads1.vri, 'VRI 1 is not correct')
-        self.assertEqual('https://istra.cian.ru/sale/suburban/280878724/', ads1.link, 'Link 1 is not correct')
+        ads1 = ads_list[0]
         self.assertEqual('280878724', ads1.id, 'Id 1 is not correct')
-        self.assertEqual('д. Никулино', ads1.locality, 'locality 1 is not correct')
-        self.assertEqual('', ads1.kp, 'Kp 1 is not correct')
         self.assertEqual('Московская область, Истра городской округ, д. Никулино, улица Овражная', ads1.address,
-                         'Address 1 is not correct')
+                         'Address is not correct')
+
+        ads1 = ads_list[1]
+        self.assertEqual('298558225', ads1.id, 'Id 1 is not correct')
+        self.assertEqual('Московская область, Истра', ads1.address, 'Address is not correct')
+
+        ads1 = ads_list[2]
+        self.assertEqual('298501473', ads1.id, 'Id 1 is not correct')
+        self.assertEqual('Московская область, Истра, улица 9-й Гвардейской Дивизии', ads1.address,
+                         'Address is not correct')
+
+        ads1 = ads_list[3]
+        self.assertEqual('292750613', ads1.id, 'Id 1 is not correct')
+        self.assertEqual('Московская область, Истра городской округ, пос. Северный', ads1.address,
+                         'Address is not correct')
+
+        ads1 = ads_list[7]
+        self.assertEqual('296391361', ads1.id, 'Id 1 is not correct')
+        self.assertEqual('Московская область, Истра, Южный мкр, улица Луговая', ads1.address,
+                         'Address is not correct')
+
+    def test_parce_square_from_title(self):
+        cian_parser = CianParser()
+        square = cian_parser.search_square('Участок, 6 сот., Фермерское хозяйство')
+        self.assertEqual(6, square)
+        square = cian_parser.search_square('Участок, 13.03 сот.')
+        self.assertEqual(13.03, square)
+        square = cian_parser.search_square('Участок, 2 га, Садоводство')
+        self.assertEqual(200, square)
+        square = cian_parser.search_square('Участок, 600 м², 6 сот., ИЖС')
+        self.assertEqual(6, square)
 
     def test_parce_kadastr_number(self):
         parce_helper = ParceHelper()

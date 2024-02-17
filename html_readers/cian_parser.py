@@ -118,7 +118,7 @@ class CianParser:
 
         ads.link = self.parce_link(target_div)
         ads.title = self.parce_title(target_div)
-        ads.square = self.search_float_number(ads.title)
+        ads.square = self.search_square(ads.title)
         ads.price = self.parce_price(target_div)
         self.parce_address(ads, target_div)
         ads.description = self.parce_description(target_div)
@@ -266,3 +266,6 @@ class CianParser:
     def parce_kadastr_number(ads):
         parce_helper = ParceHelper()
         ads.kadastr_list = parce_helper.parse_kadastr(ads.description)
+
+    def search_square(self, title):
+        return self.search_float_number(title)
