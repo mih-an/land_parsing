@@ -1,47 +1,11 @@
 import re
 
 from bs4 import BeautifulSoup
-from datetime import datetime
-
+from html_readers.ads import Ads
 from html_readers.parse_helper import ParseHelper
 
 
-class AdsPriceHistoryItem:
-    ads_id: int = None
-    price: int = None
-    price_datetime: datetime = None
-
-
-class Ads:
-    square = 0
-    title = ''
-    price = 0
-    vri = ''
-    link = ''
-    id = ''
-    kp = ''
-    locality = ''
-    address1 = ''
-    address2 = ''
-    address3 = ''
-    address = ''
-    description = ''
-    ads_owner = ''
-    ads_owner_id = ''
-    electronic_trading = ''
-    is_electronic_trading = False
-    kadastr_list: list[str] = []
-    first_parse_datetime: datetime = None
-    last_parse_datetime: datetime = None
-    sector_number: int = None
-
-
 class CianParser:
-    cian_ads_per_page = 28
-    title_separator = ','
-    address_separator = ', '
-    link_separator = '/'
-    vri_dict = {'Садоводство', 'ИЖС', 'ДНП', 'ЛПХ', 'Личное подсобное хозяйство', 'Фермерское хозяйство'}
 
     def __init__(self):
         self.offer_subtitle_data_mark = 'OfferSubtitle'
@@ -57,6 +21,11 @@ class CianParser:
         self.ads_card_component = 'CardComponent'
         self.substr = "offer_type=suburban"
         self.parse_helper = ParseHelper()
+        self.cian_ads_per_page = 28
+        self.title_separator = ','
+        self.address_separator = ', '
+        self.link_separator = '/'
+        self.vri_dict = {'Садоводство', 'ИЖС', 'ДНП', 'ЛПХ', 'Личное подсобное хозяйство', 'Фермерское хозяйство'}
 
     def get_pages_count(self, html_text):
         soup = BeautifulSoup(html_text, "lxml")
