@@ -16,7 +16,7 @@ from loaders.sector_list_loader import SectorListLoader
 class ParsingWorker:
     def __init__(self):
         self.max_attempt = 3
-        self.google_credentials_file = 'tests/test_data/google_creds.json'
+        self.google_credentials_file = 'creds/google_creds.json'
         self.sector_list_url = "https://docs.google.com/spreadsheets/d/1ph9a4sfNmwIEZKbWGwLX5iDYnOx6B5qdHYtuyIFR7H4"
         self.google_sheets_id = self.sector_list_url[39:]
         self.proxies = {'http': f'{creds.login}:{creds.password}@{creds.ip}'}

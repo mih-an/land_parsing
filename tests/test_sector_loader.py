@@ -7,7 +7,7 @@ class TestLoadingSectorListCase(unittest.TestCase):
     def test_load_sector_list_from_google_sheet(self):
         test_sectors_url = "https://docs.google.com/spreadsheets/d/10egVpV2wRPsEtVvWVmqncP0cSwFu2tvdickJkBdGbBI"
         sheets_id = test_sectors_url[39:]
-        credentials_file = '../tests/test_data/google_creds.json'
+        credentials_file = '../creds/google_creds.json'
 
         sl = SectorListLoader()
         sectors = sl.load_sectors(sheets_id, credentials_file)
@@ -26,7 +26,7 @@ class TestLoadingSectorListCase(unittest.TestCase):
     def test_load_production_sector_list(self):
         test_sectors_url = "https://docs.google.com/spreadsheets/d/1ph9a4sfNmwIEZKbWGwLX5iDYnOx6B5qdHYtuyIFR7H4"
         sheets_id = test_sectors_url[39:]
-        credentials_file = '../tests/test_data/google_creds.json'
+        credentials_file = '../creds/google_creds.json'
 
         sl = SectorListLoader()
         sectors = sl.load_sectors(sheets_id, credentials_file)
