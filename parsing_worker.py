@@ -32,18 +32,20 @@ class ParsingWorker:
         while len(sector_list_copy) > 0:
             sector_link, sector_number = self.choose_sector_randomly(sector_list_copy)
             sector_link = self.link_helper.gen_new_unique_url(sector_link)
-            sector_html = self.try_few_attempts_downloading_sector_page(sector_link, sector_number, 1)
-            ads_list = self.parse_sector(sector_html, sector_number, 1)
-            self.save_to_database(ads_list, sector_number, 1)
+            sector_html = self.download_parse_save(sector_link, sector_number, 1)
 
             pages_count = self.get_sector_pages_count(sector_html, sector_number)
             for page_number in range(2, pages_count + 1):
                 page_link = self.get_page_link(page_number, sector_link)
-                sector_html = self.try_few_attempts_downloading_sector_page(page_link, sector_number, page_number)
-                ads_list = self.parse_sector(sector_html, sector_number, page_number)
-                self.save_to_database(ads_list, sector_number, page_number)
+                self.download_parse_save(page_link, sector_number, page_number)
 
             del sector_list_copy[sector_number]
+
+    def download_parse_save(self, link, sector_number, page_number):
+        html = self.try_few_attempts_downloading_sector_page(link, sector_number, page_number)
+        ads_list = self.parse_sector(html, sector_number, page_number)
+        self.save_to_database(ads_list, sector_number, page_number)
+        return html
 
     def get_page_link(self, page_number, sector_link):
         print("-" * 30)
@@ -110,9 +112,11 @@ class ParsingWorker:
     def parse_sector(self, sector_html, sector_number, page_number):
         try:
             ads_list, is_error_occurred = self.cian_parser.get_ads(sector_html)
-            if is_error_occurred:
-                self.save_sector_html_to_file(page_number, sector_html, sector_number)
             self.set_sector_number_and_parsing_time(ads_list, sector_number)
+            if not is_error_occurred:
+                print(f"Data from sector {sector_number} page {page_number} successfully parsed")
+            else:
+                self.save_sector_html_to_file(page_number, sector_html, sector_number)
             return ads_list
         except Exception as exc:
             self.save_sector_html_to_file(page_number, sector_html, sector_number)
