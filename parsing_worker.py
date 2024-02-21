@@ -1,5 +1,8 @@
 import random
 import time
+
+from sentry_sdk import capture_exception
+
 import creds
 from datetime import datetime
 
@@ -71,6 +74,7 @@ class ParsingWorker:
                 print(f"Failed loading sector number: {sector_number}, page_number: {page}. "
                       f"Trying again... Attempt № {attempt_number}")
                 print(f'Error: {exc}')
+                capture_exception(exc)
                 sleep_seconds = 10
                 print(f'Sleeping for {sleep_seconds} seconds...')
                 time.sleep(sleep_seconds)
@@ -107,6 +111,7 @@ class ParsingWorker:
             print(f"Data from sector {sector_number} page {page_number} successfully saved to database")
         except Exception as exc:
             print(f"Error saving sector {sector_number} page {page_number} to database")
+            capture_exception(exc)
             print(f'Exception: {exc}')
 
     def parse_sector(self, sector_html, sector_number, page_number):
@@ -120,6 +125,7 @@ class ParsingWorker:
             return ads_list
         except Exception as exc:
             self.save_sector_html_to_file(page_number, sector_html, sector_number)
+            capture_exception(exc)
             print(f'Exception: {exc}')
 
     @staticmethod

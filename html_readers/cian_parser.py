@@ -1,6 +1,8 @@
 import re
 
 from bs4 import BeautifulSoup
+from sentry_sdk import capture_exception
+
 from html_readers.ads import Ads
 from html_readers.parse_helper import ParseHelper
 
@@ -92,6 +94,7 @@ class CianParser:
                 ads_list.append(ads)
             except Exception as exc:
                 print(f'Error parsing ads number {i}: {exc}. Raw ads tag is {raw_ads}')
+                capture_exception(exc)
                 is_error_occurred = True
 
         return ads_list, is_error_occurred

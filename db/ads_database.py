@@ -62,6 +62,7 @@ class AdsDataBase:
             self.insert_ads_to_tmp_table(ads_list)
         except Error as e:
             print(f'Error saving ads list to tmp table: {e}')
+            raise e
 
         # Save new ads prices to price history table
         # This code should be executed before saving new ads to main table - self.insert_new_ads_to_main_table()
@@ -70,30 +71,35 @@ class AdsDataBase:
             self.insert_new_ads_prices_to_history()
         except Error as e:
             print(f'Error inserting ads prices to history: {e}')
+            raise e
 
         # Save new ads to main table
         try:
             self.insert_new_ads_from_tmp_to_main_table()
         except Error as e:
             print(f'Error saving ads list to main table: {e}')
+            raise e
 
         # Save old ads new prices to price history table
         try:
             self.insert_old_ads_new_prices_to_history()
         except Error as e:
             print(f'Error inserting old ads new prices to history: {e}')
+            raise e
 
         # Update prices for old ads in the main table and also update parsing time
         try:
             self.update_old_ads_prices_and_parsing_time()
         except Error as e:
             print(f'Error updating ads prices: {e}')
+            raise e
 
         # Clear tmp table
         try:
             self.delete_from_tmp_ads()
         except Error as e:
             print(f'Error deleting from tmp ads table: {e}')
+            raise e
 
     def execute_insert_query(self, ads_list, insert_query):
         with connect(
@@ -135,7 +141,7 @@ class AdsDataBase:
                     for ads_from_db in cursor.fetchall():
                         return self.get_ads_from_db_record(ads_from_db)
         except Error as e:
-            print(f'Error saving ads list to database: {e}')
+            print(f'Error getting ads from database: {e}')
 
     def get_ads_from_db_record(self, ads_record_from_db):
         ads = Ads()
