@@ -31,14 +31,17 @@ class ParsingWorker:
 
         while len(sector_list_copy) > 0:
             sector_link, sector_number = self.choose_sector_randomly(sector_list_copy)
+            sector_link = self.link_helper.gen_new_unique_url(sector_link)
             sector_html = self.try_few_attempts_downloading_sector_page(sector_link, sector_number, 1)
-            self.parse_and_save_to_database(sector_html, sector_number)
+            ads_list = self.parse_sector(sector_html, sector_number, 1)
+            self.save_to_database(ads_list, sector_number, 1)
 
             pages_count = self.get_sector_pages_count(sector_html, sector_number)
             for page_number in range(2, pages_count + 1):
                 page_link = self.get_page_link(page_number, sector_link)
                 sector_html = self.try_few_attempts_downloading_sector_page(page_link, sector_number, page_number)
-                self.parse_and_save_to_database(sector_html, sector_number)
+                ads_list = self.parse_sector(sector_html, sector_number, page_number)
+                self.save_to_database(ads_list, sector_number, page_number)
 
             del sector_list_copy[sector_number]
 
@@ -73,18 +76,10 @@ class ParsingWorker:
         return sector_html
 
     def download_sector_page(self, sector_link, sector_number, page):
-        sector_link = self.link_helper.gen_new_url(sector_link)
-
         print(f'Loading generated unique sector link... {sector_link}')
         response = self.html_loader.load_page(sector_link)
         html = response.text
         print(f"Sector {sector_number} page {page} loaded successfully!")
-
-        # todo remove when saving to database ready
-        file_name = f'sector_{sector_number}_p{page}.html'
-        with open(file_name, 'a') as html_file:
-            html_file.write(html)
-        print(f"Html saved to the file: {file_name}")
 
         sleep_seconds = random.randint(5, 7)
         print(f'Sleeping for {sleep_seconds} seconds...')
@@ -104,15 +99,34 @@ class ParsingWorker:
         print("Current Time =", current_time)
         return sector_link, sector_number
 
-    def parse_and_save_to_database(self, sector_html, sector_number):
-        # todo do it with try catch
-        ads_list = self.cian_parser.get_ads(sector_html)
-        self.set_sector_number_and_parse_time(ads_list, sector_number)
-        self.ads_db.save(ads_list)
-        print(f"Data from sector page successfully saved to database")
+    def save_to_database(self, ads_list, sector_number, page_number):
+        try:
+            self.ads_db.save(ads_list)
+            print(f"Data from sector {sector_number} page {page_number} successfully saved to database")
+        except Exception as exc:
+            print(f"Error saving sector {sector_number} page {page_number} to database")
+            print(f'Exception: {exc}')
+
+    def parse_sector(self, sector_html, sector_number, page_number):
+        try:
+            ads_list, is_error_occurred = self.cian_parser.get_ads(sector_html)
+            if is_error_occurred:
+                self.save_sector_html_to_file(page_number, sector_html, sector_number)
+            self.set_sector_number_and_parsing_time(ads_list, sector_number)
+            return ads_list
+        except Exception as exc:
+            self.save_sector_html_to_file(page_number, sector_html, sector_number)
+            print(f'Exception: {exc}')
 
     @staticmethod
-    def set_sector_number_and_parse_time(ads_list, sector_number):
+    def save_sector_html_to_file(page_number, sector_html, sector_number):
+        file_name = f'sector_{sector_number}_p{page_number}.html'
+        with open(file_name, 'a') as html_file:
+            html_file.write(sector_html)
+        print(f"Error parsing sector {sector_number} page {page_number}. Html saved to the file: {file_name}")
+
+    @staticmethod
+    def set_sector_number_and_parsing_time(ads_list, sector_number):
         for ads in ads_list:
             ads.sector_number = sector_number
             ads.first_parse_datetime = datetime.now().replace(microsecond=0)
