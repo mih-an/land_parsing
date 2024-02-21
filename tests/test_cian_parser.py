@@ -211,7 +211,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list, is_error = cian_parser.get_ads(test_html)
         ads1 = ads_list[0]
 
         self.assertEqual('Участок, 9.9 сот., Садоводство', ads1.title, 'Title 1 is not correct')
@@ -230,7 +230,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list, is_error = cian_parser.get_ads(test_html)
         ads1 = ads_list[1]
 
         self.assertEqual('Участок, 6 сот.', ads1.title, 'Title 2 is not correct')
@@ -249,7 +249,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list, is_error = cian_parser.get_ads(test_html)
         ads = ads_list[2]
 
         self.assertEqual('Участок, 12.5 сот., ДНП', ads.title, 'Title 3 is not correct')
@@ -267,7 +267,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list, is_error = cian_parser.get_ads(test_html)
 
         ads = ads_list[0]
         self.assertEqual('Агентство недвижимости', ads.ads_owner, 'ads 1 owner is not correct')
@@ -290,7 +290,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list, is_error = cian_parser.get_ads(test_html)
 
         ads = ads_list[0]
         self.assertEqual('', ads.electronic_trading, 'Electronic trading should not be')
@@ -313,7 +313,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list, is_error = cian_parser.get_ads(test_html)
         ads1 = ads_list[0]
 
         self.assertEqual('Участок, 14.41 сот.', ads1.title, 'Title 1 is not correct')
@@ -336,7 +336,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list, is_error = cian_parser.get_ads(test_html)
 
         ads1 = ads_list[0]
         self.assertEqual('280878724', ads1.id, 'Id 1 is not correct')
@@ -434,7 +434,7 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
 
         cian_parser = CianParser()
-        ads_list = cian_parser.get_ads(test_html)
+        ads_list, is_error = cian_parser.get_ads(test_html)
 
         ads1 = ads_list[0]
         self.assertEqual('298377384', ads1.id, 'Id 1 is not correct')

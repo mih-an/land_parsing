@@ -175,7 +175,7 @@ class TestUniqueLinks(unittest.TestCase):
 
     def test_bbox_modification(self):
         lh = LinkHelper()
-        new_link = lh.gen_new_url(test_link1)
+        new_link = lh.gen_new_unique_url(test_link1)
 
         bbox_coord_list = lh.read_bbox(new_link)
         self.assertEqual(2, len(bbox_coord_list), 'Bbox 1 list length isn\'t correct')
@@ -194,7 +194,7 @@ class TestUniqueLinks(unittest.TestCase):
         self.assertEqual(13, len(bbox_coord_list[1].longitude), 'Bbox coordinate 2 longitude length')
         self.assertEqual(13, len(bbox_coord_list[1].latitude), 'Bbox coordinate 2 latitude length')
 
-        new_link = lh.gen_new_url(test_link2)
+        new_link = lh.gen_new_unique_url(test_link2)
         bbox_coord_list = lh.read_bbox(new_link)
         self.assertEqual(0, len(bbox_coord_list), 'Bbox 2 list length isn\'t correct')
 
@@ -206,12 +206,12 @@ class TestUniqueLinks(unittest.TestCase):
 
     def test_center_modification(self):
         lh = LinkHelper()
-        new_link = lh.gen_new_url(test_link1)
+        new_link = lh.gen_new_unique_url(test_link1)
 
         center = lh.read_center(new_link)
         self.assertIsNone(center, 'Center should be None in first link')
 
-        new_link = lh.gen_new_url(test_link2)
+        new_link = lh.gen_new_unique_url(test_link2)
         center = lh.read_center(new_link)
         self.assertIsNotNone(center, 'Center should NOT be None in first link')
         # 55.806737048576515%2C36.995401242747896
@@ -229,7 +229,7 @@ class TestUniqueLinks(unittest.TestCase):
 
     def test_maxsite_modification(self):
         lh = LinkHelper()
-        new_link = lh.gen_new_url(test_link1)
+        new_link = lh.gen_new_unique_url(test_link1)
 
         maxsite = lh.read_maxsite(new_link)
         self.assertNotEqual('250', maxsite, 'Maxsite should be new')
@@ -249,7 +249,7 @@ class TestUniqueLinks(unittest.TestCase):
 
     def test_new_link2_coordinates(self):
         link_helper = LinkHelper()
-        new_link = link_helper.gen_new_url(test_link2)
+        new_link = link_helper.gen_new_unique_url(test_link2)
 
         self.assertEqual(len(test_link2), len(new_link))
         self.assertNotEqual(test_link2, new_link)
@@ -277,7 +277,7 @@ class TestUniqueLinks(unittest.TestCase):
 
     def test_new_link1_coordinates(self):
         link_helper = LinkHelper()
-        new_link = link_helper.gen_new_url(test_link1)
+        new_link = link_helper.gen_new_unique_url(test_link1)
 
         self.assertEqual(len(test_link1), len(new_link))
         self.assertNotEqual(test_link1, new_link)
@@ -312,7 +312,7 @@ class TestUniqueLinks(unittest.TestCase):
         self.assertEqual(new_coord_list[0].latitude, new_coord_list[31].latitude,
                          'First and last latitude should be the same')
 
-        new_link = lh.gen_new_url(test_link1)
+        new_link = lh.gen_new_unique_url(test_link1)
         new_coord_list = lh.read_coordinates(new_link)
         self.assertEqual(new_coord_list[31].latitude, new_coord_list[0].latitude,
                          'First and last latitude should be the same')

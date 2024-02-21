@@ -81,11 +81,17 @@ class CianParser:
         raw_ads_list = self.get_raw_ads(html)
 
         ads_list = []
-        for raw_ads in raw_ads_list:
-            ads = self.parse_ads(raw_ads)
-            ads_list.append(ads)
+        is_error_occurred = False
+        for i in range(0, len(raw_ads_list)):
+            raw_ads = raw_ads_list[i]
+            try:
+                ads = self.parse_ads(raw_ads)
+                ads_list.append(ads)
+            except Exception as exc:
+                print(f'Error parsing ads number {i}: {exc}. Raw ads tag is {raw_ads}')
+                is_error_occurred = True
 
-        return ads_list
+        return ads_list, is_error_occurred
 
     @staticmethod
     def is_needed_tag(tag, tag_name, data_attr_key, data_attr_value):

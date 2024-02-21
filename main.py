@@ -1,4 +1,5 @@
 from parsing_worker import ParsingWorker
 
-parsing_worker = ParsingWorker()
-parsing_worker.run()
+if __name__ == "__main__":
+    parsing_worker = ParsingWorker()
+    parsing_worker.run()
