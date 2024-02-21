@@ -83,7 +83,7 @@ class ParsingWorker:
         html = response.text
         print(f"Sector {sector_number} page {page} loaded successfully!")
 
-        sleep_seconds = random.randint(5, 7)
+        sleep_seconds = random.randint(5, 10)
         print(f'Sleeping for {sleep_seconds} seconds...')
         time.sleep(sleep_seconds)
 
