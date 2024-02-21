@@ -80,6 +80,9 @@ class CianParser:
     def get_ads(self, html):
         raw_ads_list = self.get_raw_ads(html)
 
+        if len(raw_ads_list) == 0:
+            raise ValueError('Error parsing sector page. There should be some ads.')
+
         ads_list = []
         is_error_occurred = False
         for i in range(0, len(raw_ads_list)):
