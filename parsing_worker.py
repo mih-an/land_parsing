@@ -49,7 +49,6 @@ class ParsingWorker:
         self.logger.addHandler(handler)
         self.cian_parser.set_logger(self.logger)
 
-
     def run(self):
         sectors = self.sector_loader.load_sectors(self.google_sheets_id, self.google_credentials_file)
         sector_list_copy = sectors.copy()
@@ -148,7 +147,8 @@ class ParsingWorker:
         file_name = f'sector_{sector_number}_p{page_number}.html'
         with open(file_name, 'a') as html_file:
             html_file.write(sector_html)
-        self.logger.info(f"Error parsing sector {sector_number} page {page_number}. Html saved to the file: {file_name}")
+        self.logger.info(
+            f"Error parsing sector {sector_number} page {page_number}. Html saved to the file: {file_name}")
 
     @staticmethod
     def set_sector_number_and_parsing_time(ads_list, sector_number):
