@@ -1,7 +1,8 @@
+import logging
 import re
+from logging import Logger
 
 from bs4 import BeautifulSoup
-from sentry_sdk import capture_exception
 
 from html_readers.ads import Ads
 from html_readers.parse_helper import ParseHelper
@@ -10,6 +11,7 @@ from html_readers.parse_helper import ParseHelper
 class CianParser:
 
     def __init__(self):
+        self.logger = None
         self.offer_subtitle_data_mark = 'OfferSubtitle'
         self.electronic_data_name = 'GalleryLabels'
         self.agency = 'Агентство недвижимости'
@@ -93,8 +95,8 @@ class CianParser:
                 ads = self.parse_ads(raw_ads)
                 ads_list.append(ads)
             except Exception as exc:
-                print(f'Error parsing ads number {i}: {exc}. Raw ads tag is {raw_ads}')
-                capture_exception(exc)
+                if self.logger is not None:
+                    self.logger.exception(f'Error parsing ads number {i}: {exc}. Raw ads tag is {raw_ads}')
                 is_error_occurred = True
 
         return ads_list, is_error_occurred
@@ -219,3 +221,6 @@ class CianParser:
 
     def parse_square(self, title):
         return self.parse_helper.parse_square(title)
+
+    def set_logger(self, logger: Logger):
+        self.logger = logger

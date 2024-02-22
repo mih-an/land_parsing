@@ -4,7 +4,7 @@ import creds
 from loaders.html_loader import HtmlLoader
 
 proxies = {
-    'http': f'{creds.login}:{creds.password}@{creds.ip}'
+    'http': f'{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'
 }
 
 print(proxies)
