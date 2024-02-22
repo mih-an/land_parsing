@@ -1,0 +1,10 @@
+cd /home/andrei
+rm -rf land_parsing
+git clone https://github.com/mih-an/land_parsing.git
+copy creds
+change root to andrei
+cd land_parsing
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python main.py
