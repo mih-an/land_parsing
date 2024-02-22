@@ -7,6 +7,7 @@ cd land_parsing
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-chmod +x random_launch.sh
+deactivate
+chmod +x launch_randomly.sh
 chmod +x launch.sh
 ./launch.sh
