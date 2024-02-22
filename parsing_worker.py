@@ -44,9 +44,6 @@ class ParsingWorker:
         formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s", datefmt='%d-%b-%y %H:%M:%S')
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
-        handler = logging.StreamHandler()
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
         self.cian_parser.set_logger(self.logger)
 
     def run(self):
