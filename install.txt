@@ -11,3 +11,4 @@ deactivate
 chmod +x launch_randomly.sh
 chmod +x launch.sh
 ./launch.sh
+tail -f parsing_log.log
