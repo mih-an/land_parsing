@@ -4,7 +4,6 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 import sentry_sdk
-from sentry_sdk import capture_exception
 
 import creds
 from datetime import datetime
@@ -47,6 +46,7 @@ class ParsingWorker:
         self.cian_parser.set_logger(self.logger)
 
     def run(self):
+        self.logger.info("\nNew parsing job begins: " + ">" * 150)
         sectors = self.sector_loader.load_sectors(self.google_sheets_id, self.google_credentials_file)
         sector_list_copy = sectors.copy()
 
