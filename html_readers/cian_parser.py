@@ -11,6 +11,7 @@ from html_readers.parse_helper import ParseHelper
 class CianParser:
 
     def __init__(self):
+        self.captcha_id = "captcha"
         self.logger = None
         self.offer_subtitle_data_mark = 'OfferSubtitle'
         self.electronic_data_name = 'GalleryLabels'
@@ -107,6 +108,9 @@ class CianParser:
 
     def is_ads_tag(self, tag):
         return self.is_needed_tag(tag, 'article', 'data-name', self.ads_card_component)
+
+    def is_captcha_tag(self, tag):
+        return self.is_needed_tag(tag, 'div', 'id', self.captcha_id)
 
     def is_brand_main_tag(self, tag):
         return self.is_needed_tag(tag, 'div', 'data-name', self.brand_area_data_name)
@@ -224,3 +228,8 @@ class CianParser:
 
     def set_logger(self, logger: Logger):
         self.logger = logger
+
+    def has_captcha(self, html):
+        soup = BeautifulSoup(html, "lxml")
+        captcha_tag_list = soup.find_all(self.is_captcha_tag)
+        return captcha_tag_list is not None and len(captcha_tag_list) > 0

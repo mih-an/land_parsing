@@ -54,6 +54,9 @@ class AdsDataBase:
         self.kadastr_separator = ','
 
     def save(self, ads_list):
+        if ads_list is None or len(ads_list) == 0:
+            return
+
         # We need to separate ads for 2 groups:
         # 1. New ones
         # 2. Already existed

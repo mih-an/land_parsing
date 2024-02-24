@@ -441,6 +441,19 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual('Московская область, Истра городской округ, д. Леоново, 6', ads1.address,
                          'Address is not correct')
 
+    def test_html_has_captcha(self):
+        cian_parser = CianParser()
+
+        with open('cian_pages/sector_4_p1.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+        has_captcha = cian_parser.has_captcha(test_html)
+        self.assertTrue(has_captcha)
+
+        with open('cian_pages/sector_26_p2.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+        has_captcha = cian_parser.has_captcha(test_html)
+        self.assertFalse(has_captcha)
+
 
 if __name__ == '__main__':
     unittest.main()

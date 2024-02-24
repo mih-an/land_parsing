@@ -46,7 +46,7 @@ class ParsingWorker:
         self.cian_parser.set_logger(self.logger)
 
     def run(self):
-        self.logger.info("\nNew parsing job begins: " + ">" * 150)
+        self.logger.info("\n\nNew parsing job begins: " + ">" * 150)
         sectors = self.sector_loader.load_sectors(self.google_sheets_id, self.google_credentials_file)
         sector_list_copy = sectors.copy()
 
@@ -102,6 +102,7 @@ class ParsingWorker:
         self.logger.info(f'Loading generated unique sector link... {sector_link}')
         response = self.html_loader.load_page(sector_link)
         html = response.text
+
         self.logger.info(f"Sector {sector_number} page {page} loaded successfully!")
 
         sleep_seconds = random.randint(5, 10)
