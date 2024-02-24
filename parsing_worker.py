@@ -103,6 +103,9 @@ class ParsingWorker:
         response = self.html_loader.load_page(sector_link)
         html = response.text
 
+        if self.cian_parser.has_captcha(html):
+            raise NotImplementedError("Implement captcha solving")
+
         self.logger.info(f"Sector {sector_number} page {page} loaded successfully!")
 
         sleep_seconds = random.randint(5, 10)
