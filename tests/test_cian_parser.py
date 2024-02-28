@@ -285,6 +285,11 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual('Застройщик', ads.ads_owner, 'ads 5 owner is not correct')
         self.assertEqual('Истринская Долина', ads.ads_owner_id, 'ads 5 owner ID is not correct')
 
+    #     https://korolev.cian.ru/sale/suburban/283592675/
+    # todo не распарсился Риэлтор (сектор 52)
+    # АВТОР ОБЪЯВЛЕНИЯ https://ivanteyevka.cian.ru/sale/suburban/298863196/ (сектор 56)
+
+
     def test_electronic_trading(self):
         with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
             test_html = test_html_file.read()

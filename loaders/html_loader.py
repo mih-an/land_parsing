@@ -17,3 +17,6 @@ class HtmlLoader:
 
     def set_proxies(self, proxies):
         self.session.proxies = proxies
+
+    def get_session(self):
+        return self.session

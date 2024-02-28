@@ -28,7 +28,7 @@ class ParsingWorker:
         self.sector_list_url = "https://docs.google.com/spreadsheets/d/1ph9a4sfNmwIEZKbWGwLX5iDYnOx6B5qdHYtuyIFR7H4"
         self.google_sheets_id = self.sector_list_url[39:]
         self.proxies = {'http': f'{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'}
-        # todo remove sectors list to our own database
+        # todo remove sectors list to txt file
         self.sector_loader = SectorListLoader()
         self.html_loader = HtmlLoader()
         self.html_loader.set_proxies(self.proxies)

@@ -1,4 +1,3 @@
-import datetime
 import time
 import creds
 from loaders.html_loader import HtmlLoader
@@ -19,10 +18,6 @@ while index < 100:
         resp = land_parser.load_page(url)
         print(f'Loop cycle number: {index}')
         print(resp.text)
-
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        print("Current Time =", current_time)
 
         print('Sleeping for 10 seconds...')
         time.sleep(10)
