@@ -28,11 +28,14 @@ class ParsingWorker:
         self.google_credentials_file = 'creds/google_creds.json'
         self.sector_list_url = "https://docs.google.com/spreadsheets/d/1ph9a4sfNmwIEZKbWGwLX5iDYnOx6B5qdHYtuyIFR7H4"
         self.google_sheets_id = self.sector_list_url[39:]
-        self.proxies = {'http': f'{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'}
         # todo remove sectors list to local file
         self.sector_loader = SectorListLoader()
+
         self.html_loader = HtmlLoader()
+        proxy_full_address = f'http://{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'
+        self.proxies = {'http': f'{proxy_full_address}', 'https': f'{proxy_full_address}'}
         self.html_loader.set_proxies(self.proxies)
+
         self.link_helper = LinkHelper()
         self.cian_parser = CianParser()
         self.ads_db = AdsDataBase()
