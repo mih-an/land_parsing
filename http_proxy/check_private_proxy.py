@@ -6,7 +6,8 @@ proxy_full_address = f'http://{creds.proxy_login}:{creds.proxy_password}@{creds.
 proxies = {'http': f'{proxy_full_address}', 'https': f'{proxy_full_address}'}
 
 print(proxies)
-url = "https://ipinfo.io/json"
+# url = "https://ipinfo.io/json"
+url = "https://cian.ru"
 
 land_parser = HtmlLoader()
 land_parser.set_proxies(proxies)
