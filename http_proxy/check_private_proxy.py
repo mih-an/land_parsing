@@ -1,4 +1,4 @@
-import time
+
 import creds
 from loaders.html_loader import HtmlLoader
 
