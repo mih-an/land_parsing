@@ -9,6 +9,7 @@ import creds
 from datetime import datetime
 
 from db.ads_database import AdsDataBase
+from html_readers.captcha_solver import CaptchaSolver
 from html_readers.cian_parser import CianParser
 from loaders.html_loader import HtmlLoader
 from loaders.link_helper import LinkHelper
@@ -28,7 +29,7 @@ class ParsingWorker:
         self.sector_list_url = "https://docs.google.com/spreadsheets/d/1ph9a4sfNmwIEZKbWGwLX5iDYnOx6B5qdHYtuyIFR7H4"
         self.google_sheets_id = self.sector_list_url[39:]
         self.proxies = {'http': f'{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'}
-        # todo remove sectors list to txt file
+        # todo remove sectors list to local file
         self.sector_loader = SectorListLoader()
         self.html_loader = HtmlLoader()
         self.html_loader.set_proxies(self.proxies)
@@ -104,7 +105,11 @@ class ParsingWorker:
         html = response.text
 
         if self.cian_parser.has_captcha(html):
-            raise NotImplementedError("Implement captcha solving")
+            self.logger.info(f"Captcha detected! Trying to solve it...")
+            cs = CaptchaSolver()
+            session = self.html_loader.get_session()
+            response = cs.solve(sector_link, session)
+            html = response.text
 
         self.logger.info(f"Sector {sector_number} page {page} loaded successfully!")
 
