@@ -39,8 +39,11 @@ class ParseHelper:
                 return self.search_float_number(needed_segment)
 
         if not is_sot_found and self.square_m2 in search_str:
-            square_m2 = self.search_float_number(search_str)
-            return square_m2 / 100
+            for segment in title_segment_list:
+                if self.square_m2 in segment:
+                    needed_segment = segment.replace(" ", "")
+                    square_m2 = self.search_float_number(needed_segment)
+                    return square_m2 / 100
 
         if not is_sot_found and self.square_ga in search_str:
             square_ga = self.search_float_number(search_str)

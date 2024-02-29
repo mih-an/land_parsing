@@ -262,6 +262,20 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual('Московская область, Истра городской округ, Озерный Край-2 кп', ads.address,
                          'Address 3 is not correct')
 
+    def test_sector53(self):
+        with open('cian_pages/cian_53.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list, is_error = cian_parser.get_ads(test_html)
+        ads = ads_list[9]
+
+        self.assertEqual('Участок, 5 сот., Садоводство', ads.title, 'Title 3 is not correct')
+        self.assertEqual(5, ads.square, 'Square 3 is not correct')
+        self.assertEqual(6000000, ads.price, 'Price 3 is not correct')
+        self.assertEqual('Садоводство', ads.vri, 'VRI 3 is not correct')
+        self.assertEqual('https://ivanteyevka.cian.ru/sale/suburban/298427227/', ads.link, 'Link 3 is not correct')
+
     def test_ads_owner(self):
         with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
             test_html = test_html_file.read()
@@ -288,7 +302,6 @@ class TestCianParser(unittest.TestCase):
     #     https://korolev.cian.ru/sale/suburban/283592675/
     # todo не распарсился Риэлтор (сектор 52)
     # АВТОР ОБЪЯВЛЕНИЯ https://ivanteyevka.cian.ru/sale/suburban/298863196/ (сектор 56)
-
 
     def test_electronic_trading(self):
         with open('cian_pages/cian_sector_17.html', 'r') as test_html_file:
@@ -379,6 +392,8 @@ class TestCianParser(unittest.TestCase):
         self.assertEqual(200, square)
         square = parce_helper.parse_square('Участок, 600 м², 6 сот., ИЖС')
         self.assertEqual(6, square)
+        square = parce_helper.parse_square('Участок, 10 500 м², 1 га, ИЖС')
+        self.assertEqual(105, square)
 
     def test_parce_kadastr_number(self):
         parce_helper = ParseHelper()
