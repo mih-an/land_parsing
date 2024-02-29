@@ -106,9 +106,14 @@ class ParsingWorker:
 
         if self.cian_parser.has_captcha(html):
             self.logger.info(f"Captcha detected! Trying to solve it...")
-            cs = CaptchaSolver()
             session = self.html_loader.get_session()
-            response = cs.solve(sector_link, session)
+            cs = CaptchaSolver()
+            solving_result = cs.solve(sector_link, session)
+            self.logger.info(f"Captcha solved! Solving code: {solving_result['code']}")
+            self.logger.info(f'Cookies with anti-bot: {session.cookies}')
+
+            self.logger.info(f'Loading sector link again...')
+            response = self.html_loader.load_page(sector_link)
             html = response.text
 
         self.logger.info(f"Sector {sector_number} page {page} loaded successfully!")

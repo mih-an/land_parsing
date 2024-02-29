@@ -13,12 +13,8 @@ class CaptchaSolver:
         self.captcha_url = self.cian_captcha_post_url + self.redirect_str
 
     def solve(self, redirect_url, session):
-        result = self.solver.recaptcha(sitekey=self.cian_site_key, url=self.captcha_url + redirect_url)
-        print(result)
-        data = {'g-recaptcha-response': result['code'], 'redirect_url': '/'}
-        response = session.post(self.cian_captcha_post_url, data)
-        print(response)
-        print(session.cookies)
+        solving_result = self.solver.recaptcha(sitekey=self.cian_site_key, url=self.captcha_url + redirect_url)
+        data = {'g-recaptcha-response': solving_result['code'], 'redirect_url': '/'}
+        session.post(self.cian_captcha_post_url, data)
 
-        response = session.get(redirect_url)
-        return response
+        return solving_result
