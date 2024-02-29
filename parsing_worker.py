@@ -32,9 +32,9 @@ class ParsingWorker:
         self.sector_loader = SectorListLoader()
 
         self.html_loader = HtmlLoader()
-        proxy_full_address = f'http://{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'
-        self.proxies = {'http': f'{proxy_full_address}', 'https': f'{proxy_full_address}'}
-        self.html_loader.set_proxies(self.proxies)
+        # proxy_full_address = f'http://{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'
+        # self.proxies = {'http': f'{proxy_full_address}', 'https': f'{proxy_full_address}'}
+        # self.html_loader.set_proxies(self.proxies)
 
         self.link_helper = LinkHelper()
         self.cian_parser = CianParser()
