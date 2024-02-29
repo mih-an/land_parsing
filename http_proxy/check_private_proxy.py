@@ -2,9 +2,8 @@ import time
 import creds
 from loaders.html_loader import HtmlLoader
 
-proxies = {
-    'http': f'{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'
-}
+proxy_full_address = f'http://{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'
+proxies = {'http': f'{proxy_full_address}', 'https': f'{proxy_full_address}'}
 
 print(proxies)
 url = "https://ipinfo.io/json"
@@ -12,18 +11,5 @@ url = "https://ipinfo.io/json"
 land_parser = HtmlLoader()
 land_parser.set_proxies(proxies)
 
-index = 0
-while index < 100:
-    try:
-        resp = land_parser.load_page(url)
-        print(f'Loop cycle number: {index}')
-        print(resp.text)
-
-        print('Sleeping for 10 seconds...')
-        time.sleep(10)
-        index += 1
-
-    except Exception as exc:
-        print(f"Failed: {exc}")
-        print('Sleeping for 10 seconds...')
-        time.sleep(10)
+resp = land_parser.load_page(url)
+print(resp.text)
