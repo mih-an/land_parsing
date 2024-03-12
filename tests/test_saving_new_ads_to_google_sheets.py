@@ -11,12 +11,11 @@ from tests.test_helper import TestHelper
 class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
     def setUp(self):
         self.test_helper = TestHelper()
+        self.new_ads_url = "https://docs.google.com/spreadsheets/d/1PMfgsa1wN1eWtwCCIWOCwTH1HQpz3Jb4o746Qc8UfLw"
+        self.sheets_id = self.new_ads_url[39:]
+        self.credentials_file = '../creds/google_creds.json'
 
     def test_save_new_ads_to_google_sheets(self):
-        new_ads_url = "https://docs.google.com/spreadsheets/d/1PMfgsa1wN1eWtwCCIWOCwTH1HQpz3Jb4o746Qc8UfLw"
-        sheets_id = new_ads_url[39:]
-        credentials_file = '../creds/google_creds.json'
-
         ads1 = Ads()
         ads1.id = 'id 1'
         ads2 = Ads()
@@ -24,18 +23,14 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         ads_list = [ads1, ads2]
 
         gs_ads_worker = GoogleSheetsWorker()
-        gs_ads_worker.save_ads(ads_list, sheets_id, credentials_file, "Values")
+        gs_ads_worker.save_ads(ads_list, self.sheets_id, self.credentials_file, "Values")
 
-        ads_list_from_gs = gs_ads_worker.load_ads(sheets_id, credentials_file, "Values")
+        ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "Values")
         self.assertEqual(2, len(ads_list_from_gs))
         self.assertEqual('id 1', ads_list_from_gs[0][0])
         self.assertEqual('id 2', ads_list_from_gs[1][0])
 
     def test_save_new_ads2(self):
-        new_ads_url = "https://docs.google.com/spreadsheets/d/1PMfgsa1wN1eWtwCCIWOCwTH1HQpz3Jb4o746Qc8UfLw"
-        sheets_id = new_ads_url[39:]
-        credentials_file = '../creds/google_creds.json'
-
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.test_helper.create_test_ads1(ads1_uuid)
         ads2_uuid = str(uuid.uuid4())
@@ -43,8 +38,8 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         ads_list = [ads1, ads2]
 
         gs_ads_worker = GoogleSheetsWorker()
-        gs_ads_worker.save_ads(ads_list, sheets_id, credentials_file, 'today')
-        ads_list_from_gs = gs_ads_worker.load_ads(sheets_id, credentials_file, 'today')
+        gs_ads_worker.save_ads(ads_list, self.sheets_id, self.credentials_file, 'today')
+        ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, 'today')
         self.assertEqual(2, len(ads_list_from_gs))
 
         self.assertEqual(ads1_uuid, ads_list_from_gs[0][0])
@@ -78,17 +73,13 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(ads2.description, ads_list_from_gs[1][14])
 
     def test_adding_header(self):
-        new_ads_url = "https://docs.google.com/spreadsheets/d/1PMfgsa1wN1eWtwCCIWOCwTH1HQpz3Jb4o746Qc8UfLw"
-        sheets_id = new_ads_url[39:]
-        credentials_file = '../creds/google_creds.json'
-
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.test_helper.create_test_ads1(ads1_uuid)
         ads_list = [ads1]
 
         gs_ads_worker = GoogleSheetsWorker()
-        gs_ads_worker.save_ads(ads_list, sheets_id, credentials_file, "today")
-        ads_list_from_gs = gs_ads_worker.load_ads_with_title(sheets_id, credentials_file, "today")
+        gs_ads_worker.save_ads(ads_list, self.sheets_id, self.credentials_file, "today")
+        ads_list_from_gs = gs_ads_worker.load_ads_with_title(self.sheets_id, self.credentials_file, "today")
         self.assertEqual(2, len(ads_list_from_gs))
 
         self.assertEqual('id', ads_list_from_gs[0][0])
@@ -107,10 +98,6 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual('description', ads_list_from_gs[0][13])
 
     def test_saving_many_ads(self):
-        new_ads_url = "https://docs.google.com/spreadsheets/d/1PMfgsa1wN1eWtwCCIWOCwTH1HQpz3Jb4o746Qc8UfLw"
-        sheets_id = new_ads_url[39:]
-        credentials_file = '../creds/google_creds.json'
-
         ads_list = []
         for i in range(0, 20):
             ads_uuid = str(uuid.uuid4())
@@ -118,8 +105,8 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
             ads_list.append(ads)
 
         gs_ads_worker = GoogleSheetsWorker()
-        gs_ads_worker.save_ads(ads_list, sheets_id, credentials_file, "ManyAds")
-        ads_list_from_gs = gs_ads_worker.load_ads(sheets_id, credentials_file, "ManyAds")
+        gs_ads_worker.save_ads(ads_list, self.sheets_id, self.credentials_file, "ManyAds")
+        ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "ManyAds")
         self.assertEqual(20, len(ads_list_from_gs))
 
     def test_saving_price_sotka(self):
@@ -127,13 +114,9 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         ads = self.test_helper.create_test_ads1(ads_uuid)
         ads_list = [ads]
 
-        new_ads_url = "https://docs.google.com/spreadsheets/d/1PMfgsa1wN1eWtwCCIWOCwTH1HQpz3Jb4o746Qc8UfLw"
-        sheets_id = new_ads_url[39:]
-        credentials_file = '../creds/google_creds.json'
-
         gs_ads_worker = GoogleSheetsWorker()
-        gs_ads_worker.save_ads(ads_list, sheets_id, credentials_file, "PriceSotka")
-        ads_list_from_gs = gs_ads_worker.load_ads(sheets_id, credentials_file, "PriceSotka")
+        gs_ads_worker.save_ads(ads_list, self.sheets_id, self.credentials_file, "PriceSotka")
+        ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "PriceSotka")
         self.assertEqual(ads_uuid, ads_list_from_gs[0][0])
         self.assertEqual(str(ads.sector_number), ads_list_from_gs[0][1])
         self.assertEqual(ads.title, ads_list_from_gs[0][2])
@@ -141,7 +124,7 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(str(ads.price), ads_list_from_gs[0][4])
         self.assertEqual(str(round(ads.price / ads.square, 0)), ads_list_from_gs[0][5])
 
-    def test_getting_ads_from_db_saving_to_sheet(self):
+    def test_saving_only_new_ads(self):
         ads_db = AdsDataBase()
         ads_db.delete_test_ads()
 

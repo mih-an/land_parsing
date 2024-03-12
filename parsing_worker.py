@@ -4,8 +4,6 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 import sentry_sdk
-
-import creds
 from datetime import datetime
 
 from db.ads_database import AdsDataBase
@@ -32,10 +30,6 @@ class ParsingWorker:
         self.sector_loader = SectorListLoader()
 
         self.html_loader = HtmlLoader()
-        # proxy_full_address = f'http://{creds.proxy_login}:{creds.proxy_password}@{creds.proxy_ip}'
-        # self.proxies = {'http': f'{proxy_full_address}', 'https': f'{proxy_full_address}'}
-        # self.html_loader.set_proxies(self.proxies)
-
         self.link_helper = LinkHelper()
         self.cian_parser = CianParser()
         self.ads_db = AdsDataBase()
@@ -49,7 +43,7 @@ class ParsingWorker:
         self.logger.addHandler(handler)
         self.cian_parser.set_logger(self.logger)
 
-    def run(self):
+    def parse_and_save_ads_from_cian(self):
         self.logger.info("\n\nNew parsing job begins: " + ">" * 150)
         sectors = self.sector_loader.load_sectors(self.google_sheets_id, self.google_credentials_file)
         sector_list_copy = sectors.copy()
@@ -65,6 +59,9 @@ class ParsingWorker:
                 self.download_parse_save(page_link, sector_number, page_number)
 
             del sector_list_copy[sector_number]
+
+    def copy_new_ads_to_google_sheet(self):
+        pass
 
     def download_parse_save(self, link, sector_number, page_number):
         html = self.try_few_attempts_downloading_sector_page(link, sector_number, page_number)
