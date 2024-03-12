@@ -5,6 +5,13 @@ from html_readers.ads import Ads, AdsPriceHistoryItem
 
 class AdsDataBase:
     def __init__(self):
+        self.select_new_ads_last_ten_days_query = """
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime 
+            FROM ads
+            WHERE DATE(first_parse_datetime) > DATE(NOW()) - INTERVAL 10 DAY
+            ORDER BY DATE(first_parse_datetime) DESC, sector_number"""
+        self.delete_test_ads_query = """DELETE FROM ads WHERE LENGTH(ads_id) = 36"""
         self.select_ads_price_history_query = """
             SELECT ads_id, price, price_datetime 
             FROM ads_price_history
@@ -211,3 +218,24 @@ class AdsDataBase:
 
     def delete_from_tmp_ads(self):
         self.execute_query(self.delete_from_tmp_ads_query)
+
+    def delete_test_ads(self):
+        self.execute_query(self.delete_test_ads_query)
+
+    def select_new_ads_last_ten_days(self):
+        try:
+            with connect(
+                    host=creds.db_host,
+                    user=creds.db_user,
+                    password=creds.db_password,
+                    database=creds.db_name,
+            ) as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(self.select_new_ads_last_ten_days_query)
+                    ads_list = []
+                    for ads_from_db in cursor.fetchall():
+                        ads = self.get_ads_from_db_record(ads_from_db)
+                        ads_list.append(ads)
+                    return ads_list
+        except Error as e:
+            print(f'Error getting new ads for last ten days from database: {e}')

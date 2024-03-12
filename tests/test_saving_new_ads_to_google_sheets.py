@@ -1,6 +1,8 @@
 import unittest
 import uuid
+from datetime import datetime, timedelta
 
+from db.ads_database import AdsDataBase
 from google_sheets.google_sheets_saver import GoogleSheetsWorker
 from html_readers.ads import Ads
 from tests.test_helper import TestHelper
@@ -137,11 +139,27 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(ads.title, ads_list_from_gs[0][2])
         self.assertEqual(str(ads.square), ads_list_from_gs[0][3])
         self.assertEqual(str(ads.price), ads_list_from_gs[0][4])
-        self.assertEqual(str(round(ads.price/ads.square, 0)), ads_list_from_gs[0][5])
+        self.assertEqual(str(round(ads.price / ads.square, 0)), ads_list_from_gs[0][5])
 
     def test_getting_ads_from_db_saving_to_sheet(self):
-        # Сохранить объявления с датами больше
-        pass
+        ads_db = AdsDataBase()
+        ads_db.delete_test_ads()
+
+        # Create 15 ads for every last 15 days
+        ads_list = []
+        for i in range(0, 15):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads1(ads_uuid)
+            d = datetime.now().replace(microsecond=0) - timedelta(days=i)
+            ads.first_parse_datetime = d
+            ads_list.append(ads)
+        ads_db.save(ads_list)
+
+        new_ads_list = ads_db.select_new_ads_last_ten_days()
+        self.assertEqual(10, len(new_ads_list))
+        self.assertEqual(new_ads_list[0].first_parse_datetime, ads_list[0].first_parse_datetime)
+        self.assertEqual(new_ads_list[7].first_parse_datetime, ads_list[7].first_parse_datetime)
+        self.assertEqual(new_ads_list[9].first_parse_datetime, ads_list[9].first_parse_datetime)
 
 
 if __name__ == '__main__':
