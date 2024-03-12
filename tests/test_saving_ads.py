@@ -8,7 +8,7 @@ from tests.test_helper import TestHelper
 
 
 class TestSavingAds(unittest.TestCase):
-    def __next__(self):
+    def setUp(self):
         self.test_helper = TestHelper()
 
     def test_save_ads(self):

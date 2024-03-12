@@ -7,7 +7,7 @@ from tests.test_helper import TestHelper
 
 
 class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
-    def __next__(self):
+    def setUp(self):
         self.test_helper = TestHelper()
 
     def test_save_new_ads_to_google_sheets(self):
@@ -140,6 +140,7 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(str(round(ads.price/ads.square, 0)), ads_list_from_gs[0][5])
 
     def test_getting_ads_from_db_saving_to_sheet(self):
+        # Сохранить объявления с датами больше
         pass
 
 
