@@ -90,6 +90,12 @@ class TestCianParser(unittest.TestCase):
 
         self.assertEqual(2, pages_count, "Wrong pages count:")  # add assertion here
 
+    def test_number_from_text(self):
+        title = "Купить земельный участок - 1 040 объявлений"
+        cian_parser = CianParser()
+        ads_count = cian_parser.get_number_from_str(title)
+        self.assertEqual(1040, ads_count)
+
     def test_no_pagination(self):
         with open('cian_pages/cian_sector1.html', 'r') as test_html_file:
             test_html = test_html_file.read()

@@ -37,11 +37,8 @@ class CianParser:
         if soup.title is None or soup.title.text == '':
             return 1
 
-        search_result = re.search(r'\d+', soup.title.text)
-        if search_result is None:
-            return 1
+        ads_count = self.parse_helper.search_int_number(soup.title.text)
 
-        ads_count = int(search_result.group())
         pages_count = ads_count // self.cian_ads_per_page
         return pages_count + 1
 
@@ -233,3 +230,7 @@ class CianParser:
         soup = BeautifulSoup(html, "lxml")
         captcha_tag_list = soup.find_all(self.is_captcha_tag)
         return captcha_tag_list is not None and len(captcha_tag_list) > 0
+
+    def get_number_from_str(self, str_to_search):
+        res = self.parse_helper.search_int_number(str_to_search)
+        return res
