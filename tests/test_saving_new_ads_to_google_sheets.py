@@ -55,7 +55,6 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(ads1.ads_owner, ads_list_from_gs[0][11])
         self.assertEqual(ads1.ads_owner_id, ads_list_from_gs[0][12])
         self.assertEqual(str(ads1.first_parse_datetime.date()), ads_list_from_gs[0][13])
-        self.assertEqual(ads1.description, ads_list_from_gs[0][14])
 
         self.assertEqual(ads2_uuid, ads_list_from_gs[1][0])
         self.assertEqual(str(ads2.sector_number), ads_list_from_gs[1][1])
@@ -70,7 +69,6 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(ads2.ads_owner, ads_list_from_gs[1][11])
         self.assertEqual(ads2.ads_owner_id, ads_list_from_gs[1][12])
         self.assertEqual(str(ads2.first_parse_datetime.date()), ads_list_from_gs[1][13])
-        self.assertEqual(ads2.description, ads_list_from_gs[1][14])
 
     def test_adding_header(self):
         ads1_uuid = str(uuid.uuid4())
@@ -96,7 +94,6 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual('ads_owner', ads_list_from_gs[0][11])
         self.assertEqual('ads_owner_id', ads_list_from_gs[0][12])
         self.assertEqual('first_parse_datetime', ads_list_from_gs[0][13])
-        self.assertEqual('description', ads_list_from_gs[0][14])
 
     def test_saving_many_ads(self):
         ads_list = []
