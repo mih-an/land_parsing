@@ -70,6 +70,7 @@ class ParsingWorker:
         new_ads_list = self.ads_db.select_new_ads_last_ten_days()
         self.gs_ads_worker.save_ads(new_ads_list, self.new_ads_sheets_id, self.google_credentials_file,
                                     "New10Days")
+        self.logger.info(f'Copying new {len(new_ads_list)} ads to google sheet')
 
     def download_parse_save(self, link, sector_number, page_number):
         html = self.try_few_attempts_downloading_sector_page(link, sector_number, page_number)
