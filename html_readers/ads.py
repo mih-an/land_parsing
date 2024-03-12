@@ -28,3 +28,9 @@ class Ads:
     first_parse_datetime: datetime = None
     last_parse_datetime: datetime = None
     sector_number: int = None
+
+    def get_price_sotka(self):
+        if self.square == 0:
+            return 0
+        else:
+            return round(self.price / self.square, 0)

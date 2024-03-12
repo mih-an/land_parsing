@@ -28,3 +28,4 @@ sentry-sdk==1.40.0
 2captcha-python==1.2.2
 bs4~=0.0.1
 TwoCaptcha==0.0.1
+gspread~=6.0.2
