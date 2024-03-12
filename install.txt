@@ -13,5 +13,8 @@ chmod +x launch.sh
 crontab -e
 0 10 * * * $HOME/land_parsing/launch_randomly.sh
 
-./launch.sh
+./launch.sh &
 tail -f parsing_log.log
+
+source venv/bin/activate
+python copy_new_ads_to_gs.py
