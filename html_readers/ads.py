@@ -33,4 +33,4 @@ class Ads:
         if self.square == 0:
             return 0
         else:
-            return round(self.price / self.square, 0)
+            return round(self.price / self.square)

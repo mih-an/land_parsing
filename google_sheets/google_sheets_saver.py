@@ -29,7 +29,7 @@ class GoogleSheetsWorker:
     def get_records_from_ads_to_gs(self, ads_list, ads_records):
         for ads in ads_list:
             ads_records.append([ads.id, ads.sector_number, ads.title, ads.square, ads.price,
-                                str(ads.get_price_sotka()), ads.vri, ads.link, ads.kp,
+                                ads.get_price_sotka(), ads.vri, ads.link, ads.kp,
                                 ads.address, self.kadastr_separator.join(ads.kadastr_list), ads.ads_owner,
                                 ads.ads_owner_id, str(ads.first_parse_datetime), ads.description])
         return ads_records

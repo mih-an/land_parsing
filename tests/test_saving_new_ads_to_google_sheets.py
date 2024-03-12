@@ -123,7 +123,7 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(ads.title, ads_list_from_gs[0][2])
         self.assertEqual(str(ads.square), ads_list_from_gs[0][3])
         self.assertEqual(str(ads.price), ads_list_from_gs[0][4])
-        self.assertEqual(str(round(ads.price / ads.square, 0)), ads_list_from_gs[0][5])
+        self.assertEqual(str(ads.get_price_sotka()), ads_list_from_gs[0][5])
 
     def test_saving_only_new_ads(self):
         ads_db = AdsDataBase()
