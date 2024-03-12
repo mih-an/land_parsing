@@ -9,7 +9,8 @@ class AdsDataBase:
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime 
             FROM ads
-            WHERE DATE(first_parse_datetime) > DATE(NOW()) - INTERVAL 10 DAY AND ads_owner <> 'Застройщик'
+            WHERE DATE(first_parse_datetime) > DATE(NOW()) - INTERVAL 10 DAY 
+                AND ads_owner <> 'Застройщик' AND square >= 12
             ORDER BY DATE(first_parse_datetime) DESC, sector_number"""
         self.delete_test_ads_query = """DELETE FROM ads WHERE LENGTH(ads_id) = 36"""
         self.select_ads_price_history_query = """

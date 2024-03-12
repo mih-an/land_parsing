@@ -18,8 +18,10 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
     def test_save_new_ads_to_google_sheets(self):
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.test_helper.create_test_ads1(ads1_uuid)
+        ads1.square = 13
         ads2_uuid = str(uuid.uuid4())
         ads2 = self.test_helper.create_test_ads2(ads2_uuid)
+        ads2.square = 15
         ads_list = [ads1, ads2]
 
         gs_ads_worker = GoogleSheetsWorker()
@@ -33,8 +35,10 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
     def test_save_new_ads2(self):
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.test_helper.create_test_ads1(ads1_uuid)
+        ads1.square = 13
         ads2_uuid = str(uuid.uuid4())
         ads2 = self.test_helper.create_test_ads2(ads2_uuid)
+        ads2.square = 15
         ads_list = [ads1, ads2]
 
         gs_ads_worker = GoogleSheetsWorker()
@@ -73,6 +77,7 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
     def test_adding_header(self):
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.test_helper.create_test_ads1(ads1_uuid)
+        ads1.square = 13
         ads_list = [ads1]
 
         gs_ads_worker = GoogleSheetsWorker()
@@ -131,6 +136,7 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         for i in range(0, 15):
             ads_uuid = str(uuid.uuid4())
             ads = self.test_helper.create_test_ads1(ads_uuid)
+            ads.square = 15
             d = datetime.now().replace(microsecond=0) - timedelta(days=i)
             ads.first_parse_datetime = d
             ads_list.append(ads)
@@ -144,11 +150,6 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
 
         gs_ads_worker = GoogleSheetsWorker()
         gs_ads_worker.save_ads(new_ads_list, self.sheets_id, self.credentials_file, "OnlyNewAds")
-
-    def test_ads_date(self):
-        ads_uuid = str(uuid.uuid4())
-        ads = self.test_helper.create_test_ads1(ads_uuid)
-        print(ads.first_parse_datetime.date())
 
 
 if __name__ == '__main__':
