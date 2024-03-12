@@ -31,7 +31,7 @@ class GoogleSheetsWorker:
             ads_records.append([ads.id, ads.sector_number, ads.title, ads.square, ads.price,
                                 ads.get_price_sotka(), ads.vri, ads.link, ads.kp,
                                 ads.address, self.kadastr_separator.join(ads.kadastr_list), ads.ads_owner,
-                                ads.ads_owner_id, str(ads.first_parse_datetime), ads.description])
+                                ads.ads_owner_id, str(ads.first_parse_datetime.date()), ads.description])
         return ads_records
 
     def load_ads_with_title(self, sheet_id, credentials_file, sheet_name):

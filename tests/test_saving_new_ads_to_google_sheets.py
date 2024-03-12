@@ -16,10 +16,10 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.credentials_file = '../creds/google_creds.json'
 
     def test_save_new_ads_to_google_sheets(self):
-        ads1 = Ads()
-        ads1.id = 'id 1'
-        ads2 = Ads()
-        ads2.id = 'id 2'
+        ads1_uuid = str(uuid.uuid4())
+        ads1 = self.test_helper.create_test_ads1(ads1_uuid)
+        ads2_uuid = str(uuid.uuid4())
+        ads2 = self.test_helper.create_test_ads2(ads2_uuid)
         ads_list = [ads1, ads2]
 
         gs_ads_worker = GoogleSheetsWorker()
@@ -27,8 +27,8 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
 
         ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "Values")
         self.assertEqual(2, len(ads_list_from_gs))
-        self.assertEqual('id 1', ads_list_from_gs[0][0])
-        self.assertEqual('id 2', ads_list_from_gs[1][0])
+        self.assertEqual(ads1_uuid, ads_list_from_gs[0][0])
+        self.assertEqual(ads2_uuid, ads_list_from_gs[1][0])
 
     def test_save_new_ads2(self):
         ads1_uuid = str(uuid.uuid4())
@@ -54,7 +54,7 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(','.join(ads1.kadastr_list), ads_list_from_gs[0][10])
         self.assertEqual(ads1.ads_owner, ads_list_from_gs[0][11])
         self.assertEqual(ads1.ads_owner_id, ads_list_from_gs[0][12])
-        self.assertEqual(str(ads1.first_parse_datetime), ads_list_from_gs[0][13])
+        self.assertEqual(str(ads1.first_parse_datetime.date()), ads_list_from_gs[0][13])
         self.assertEqual(ads1.description, ads_list_from_gs[0][14])
 
         self.assertEqual(ads2_uuid, ads_list_from_gs[1][0])
@@ -69,7 +69,7 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(','.join(ads2.kadastr_list), ads_list_from_gs[1][10])
         self.assertEqual(ads2.ads_owner, ads_list_from_gs[1][11])
         self.assertEqual(ads2.ads_owner_id, ads_list_from_gs[1][12])
-        self.assertEqual(str(ads2.first_parse_datetime), ads_list_from_gs[1][13])
+        self.assertEqual(str(ads2.first_parse_datetime.date()), ads_list_from_gs[1][13])
         self.assertEqual(ads2.description, ads_list_from_gs[1][14])
 
     def test_adding_header(self):
@@ -147,6 +147,11 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
 
         gs_ads_worker = GoogleSheetsWorker()
         gs_ads_worker.save_ads(new_ads_list, self.sheets_id, self.credentials_file, "OnlyNewAds")
+
+    def test_ads_date(self):
+        ads_uuid = str(uuid.uuid4())
+        ads = self.test_helper.create_test_ads1(ads_uuid)
+        print(ads.first_parse_datetime.date())
 
 
 if __name__ == '__main__':
