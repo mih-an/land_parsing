@@ -11,8 +11,7 @@ from tests.test_helper import TestHelper
 class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
     def setUp(self):
         self.test_helper = TestHelper()
-        # self.new_ads_url = "https://docs.google.com/spreadsheets/d/1PMfgsa1wN1eWtwCCIWOCwTH1HQpz3Jb4o746Qc8UfLw"
-        self.new_ads_url = "https://docs.google.com/spreadsheets/d/1qcOY-hDiWNzv3-snSWxrOkHoelcL-uItszx-ARmbtAc"
+        self.new_ads_url = "https://docs.google.com/spreadsheets/d/1PMfgsa1wN1eWtwCCIWOCwTH1HQpz3Jb4o746Qc8UfLw"
         self.sheets_id = self.new_ads_url[39:]
         self.credentials_file = '../creds/google_creds.json'
 
