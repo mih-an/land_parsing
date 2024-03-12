@@ -87,15 +87,16 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual('title', ads_list_from_gs[0][2])
         self.assertEqual('square', ads_list_from_gs[0][3])
         self.assertEqual('price', ads_list_from_gs[0][4])
-        self.assertEqual('vri', ads_list_from_gs[0][5])
-        self.assertEqual('link', ads_list_from_gs[0][6])
-        self.assertEqual('kp', ads_list_from_gs[0][7])
-        self.assertEqual('address', ads_list_from_gs[0][8])
-        self.assertEqual('kadastr_list', ads_list_from_gs[0][9])
-        self.assertEqual('ads_owner', ads_list_from_gs[0][10])
-        self.assertEqual('ads_owner_id', ads_list_from_gs[0][11])
-        self.assertEqual('first_parse_datetime', ads_list_from_gs[0][12])
-        self.assertEqual('description', ads_list_from_gs[0][13])
+        self.assertEqual('price_sotka', ads_list_from_gs[0][5])
+        self.assertEqual('vri', ads_list_from_gs[0][6])
+        self.assertEqual('link', ads_list_from_gs[0][7])
+        self.assertEqual('kp', ads_list_from_gs[0][8])
+        self.assertEqual('address', ads_list_from_gs[0][9])
+        self.assertEqual('kadastr_list', ads_list_from_gs[0][10])
+        self.assertEqual('ads_owner', ads_list_from_gs[0][11])
+        self.assertEqual('ads_owner_id', ads_list_from_gs[0][12])
+        self.assertEqual('first_parse_datetime', ads_list_from_gs[0][13])
+        self.assertEqual('description', ads_list_from_gs[0][14])
 
     def test_saving_many_ads(self):
         ads_list = []
@@ -143,6 +144,9 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(new_ads_list[0].first_parse_datetime, ads_list[0].first_parse_datetime)
         self.assertEqual(new_ads_list[7].first_parse_datetime, ads_list[7].first_parse_datetime)
         self.assertEqual(new_ads_list[9].first_parse_datetime, ads_list[9].first_parse_datetime)
+
+        gs_ads_worker = GoogleSheetsWorker()
+        gs_ads_worker.save_ads(new_ads_list, self.sheets_id, self.credentials_file, "OnlyNewAds")
 
 
 if __name__ == '__main__':

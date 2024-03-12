@@ -53,6 +53,7 @@ class GoogleSheetsWorker:
 
     @staticmethod
     def add_headers(ads_records):
-        ads_records.append(['id', 'sector_number', 'title', 'square', 'price', 'vri', 'link', 'kp', 'address',
-                            'kadastr_list', 'ads_owner', 'ads_owner_id', 'first_parse_datetime', 'description'])
+        ads_records.append(['id', 'sector_number', 'title', 'square', 'price', 'price_sotka', 'vri', 'link', 'kp',
+                            'address', 'kadastr_list', 'ads_owner', 'ads_owner_id', 'first_parse_datetime',
+                            'description'])
 
