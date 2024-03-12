@@ -67,10 +67,15 @@ class ParsingWorker:
             del sector_list_copy[sector_number]
 
     def copy_new_ads_to_google_sheet(self):
+        sheet_name = "New10Days"
         new_ads_list = self.ads_db.select_new_ads_last_ten_days()
-        self.gs_ads_worker.save_ads(new_ads_list, self.new_ads_sheets_id, self.google_credentials_file,
-                                    "New10Days")
-        self.logger.info(f'Copying new {len(new_ads_list)} ads to google sheet')
+        self.gs_ads_worker.save_ads(new_ads_list, self.new_ads_sheets_id, self.google_credentials_file, sheet_name)
+        self.logger.info(f'Copying new {len(new_ads_list)} ads to google sheet {sheet_name}')
+
+        sheet_name = "New2Days"
+        new_ads_list = self.ads_db.select_new_ads_last_2_days()
+        self.gs_ads_worker.save_ads(new_ads_list, self.new_ads_sheets_id, self.google_credentials_file, sheet_name)
+        self.logger.info(f'Copying new {len(new_ads_list)} ads to google sheet {sheet_name}')
 
     def download_parse_save(self, link, sector_number, page_number):
         html = self.try_few_attempts_downloading_sector_page(link, sector_number, page_number)

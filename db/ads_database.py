@@ -5,6 +5,13 @@ from html_readers.ads import Ads, AdsPriceHistoryItem
 
 class AdsDataBase:
     def __init__(self):
+        self.select_new_ads_last_2_days_query = """
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime 
+            FROM ads
+            WHERE DATE(first_parse_datetime) > DATE(NOW()) - INTERVAL 2 DAY 
+                AND ads_owner <> 'Застройщик' AND square >= 12
+            ORDER BY DATE(first_parse_datetime) DESC, sector_number"""
         self.select_new_ads_last_ten_days_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime 
@@ -233,6 +240,24 @@ class AdsDataBase:
             ) as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(self.select_new_ads_last_ten_days_query)
+                    ads_list = []
+                    for ads_from_db in cursor.fetchall():
+                        ads = self.get_ads_from_db_record(ads_from_db)
+                        ads_list.append(ads)
+                    return ads_list
+        except Error as e:
+            print(f'Error getting new ads for last ten days from database: {e}')
+
+    def select_new_ads_last_2_days(self):
+        try:
+            with connect(
+                    host=creds.db_host,
+                    user=creds.db_user,
+                    password=creds.db_password,
+                    database=creds.db_name,
+            ) as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(self.select_new_ads_last_2_days_query)
                     ads_list = []
                     for ads_from_db in cursor.fetchall():
                         ads = self.get_ads_from_db_record(ads_from_db)

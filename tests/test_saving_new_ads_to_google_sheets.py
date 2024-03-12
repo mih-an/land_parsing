@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 
 from db.ads_database import AdsDataBase
 from google_sheets.google_sheets_saver import GoogleSheetsWorker
-from html_readers.ads import Ads
 from tests.test_helper import TestHelper
 
 
@@ -150,6 +149,26 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
 
         gs_ads_worker = GoogleSheetsWorker()
         gs_ads_worker.save_ads(new_ads_list, self.sheets_id, self.credentials_file, "OnlyNewAds")
+
+    def test_saving_only_new_ads2(self):
+        ads_db = AdsDataBase()
+        ads_db.delete_test_ads()
+
+        # Create 15 ads for every last 15 days
+        ads_list = []
+        for i in range(0, 5):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads1(ads_uuid)
+            ads.square = 15
+            d = datetime.now().replace(microsecond=0) - timedelta(days=i)
+            ads.first_parse_datetime = d
+            ads_list.append(ads)
+        ads_db.save(ads_list)
+
+        new_ads_list = ads_db.select_new_ads_last_2_days()
+        self.assertEqual(2, len(new_ads_list))
+        self.assertEqual(new_ads_list[0].first_parse_datetime, ads_list[0].first_parse_datetime)
+        self.assertEqual(new_ads_list[1].first_parse_datetime, ads_list[1].first_parse_datetime)
 
 
 if __name__ == '__main__':
