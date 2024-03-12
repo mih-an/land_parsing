@@ -7,6 +7,7 @@ import sentry_sdk
 from datetime import datetime
 
 from db.ads_database import AdsDataBase
+from google_sheets.google_sheets_saver import GoogleSheetsWorker
 from html_readers.captcha_solver import CaptchaSolver
 from html_readers.cian_parser import CianParser
 from loaders.html_loader import HtmlLoader
@@ -33,6 +34,11 @@ class ParsingWorker:
         self.link_helper = LinkHelper()
         self.cian_parser = CianParser()
         self.ads_db = AdsDataBase()
+
+        self.gs_ads_worker = GoogleSheetsWorker()
+        self.new_ads_url = "https://docs.google.com/spreadsheets/d/1qcOY-hDiWNzv3-snSWxrOkHoelcL-uItszx-ARmbtAc"
+        self.new_ads_sheets_id = self.new_ads_url[39:]
+
         logger_name = "parsing_log"
         self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(logging.INFO)
@@ -61,7 +67,9 @@ class ParsingWorker:
             del sector_list_copy[sector_number]
 
     def copy_new_ads_to_google_sheet(self):
-        pass
+        new_ads_list = self.ads_db.select_new_ads_last_ten_days()
+        self.gs_ads_worker.save_ads(new_ads_list, self.new_ads_sheets_id, self.google_credentials_file,
+                                    "New10Days")
 
     def download_parse_save(self, link, sector_number, page_number):
         html = self.try_few_attempts_downloading_sector_page(link, sector_number, page_number)

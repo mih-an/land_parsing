@@ -1,6 +1,5 @@
 import gspread
 from google.oauth2.service_account import Credentials
-from gspread_formatting import *
 
 
 class GoogleSheetsWorker:
@@ -18,7 +17,7 @@ class GoogleSheetsWorker:
         if sheet_name in worksheet_list:
             sheet = workbook.worksheet(sheet_name)
         else:
-            sheet = workbook.add_worksheet(sheet_name, rows=len(ads_list)+1, cols=15)
+            sheet = workbook.add_worksheet(sheet_name, rows=len(ads_list) + 1, cols=15)
 
         sheet.clear()
         ads_records = []
@@ -26,7 +25,6 @@ class GoogleSheetsWorker:
         self.get_records_from_ads_to_gs(ads_list, ads_records)
         sheet.update(range_name=f"A1:O{len(ads_records)}", values=ads_records)
         sheet.format('A1:O1', {'textFormat': {'bold': True}})
-
 
     def get_records_from_ads_to_gs(self, ads_list, ads_records):
         for ads in ads_list:
@@ -59,4 +57,3 @@ class GoogleSheetsWorker:
         ads_records.append(['id', 'sector_number', 'title', 'square', 'price', 'price_sotka', 'vri', 'link', 'kp',
                             'address', 'kadastr_list', 'ads_owner', 'ads_owner_id', 'first_parse_datetime',
                             'description'])
-
