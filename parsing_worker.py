@@ -23,19 +23,17 @@ sentry_sdk.init(
 
 class ParsingWorker:
     def __init__(self):
+        self.sector_list_file = "loaders/sector_list.csv"
         self.max_attempt = 3
-        self.google_credentials_file = 'creds/google_creds.json'
-        self.sector_list_url = "https://docs.google.com/spreadsheets/d/1ph9a4sfNmwIEZKbWGwLX5iDYnOx6B5qdHYtuyIFR7H4"
-        self.google_sheets_id = self.sector_list_url[39:]
-        # todo remove sectors list to local file
-        self.sector_loader = SectorListLoader()
 
+        self.sector_loader = SectorListLoader()
         self.html_loader = HtmlLoader()
         self.link_helper = LinkHelper()
         self.cian_parser = CianParser()
         self.ads_db = AdsDataBase()
 
         self.gs_ads_worker = GoogleSheetsWorker()
+        self.google_credentials_file = 'creds/google_creds.json'
         self.new_ads_url = "https://docs.google.com/spreadsheets/d/1qcOY-hDiWNzv3-snSWxrOkHoelcL-uItszx-ARmbtAc"
         self.new_ads_sheets_id = self.new_ads_url[39:]
 
@@ -51,7 +49,7 @@ class ParsingWorker:
 
     def parse_and_save_ads_from_cian(self):
         self.logger.info("\n\nNew parsing job begins: " + ">" * 150)
-        sectors = self.sector_loader.load_sectors(self.google_sheets_id, self.google_credentials_file)
+        sectors = self.sector_loader.load_sectors_from_cvs(self.sector_list_file)
         sector_list_copy = sectors.copy()
 
         while len(sector_list_copy) > 0:

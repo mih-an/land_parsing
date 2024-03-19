@@ -4,13 +4,11 @@ from loaders.sector_list_loader import SectorListLoader
 
 
 class TestLoadingSectorListCase(unittest.TestCase):
-    def test_load_sector_list_from_google_sheet(self):
-        test_sectors_url = "https://docs.google.com/spreadsheets/d/10egVpV2wRPsEtVvWVmqncP0cSwFu2tvdickJkBdGbBI"
-        sheets_id = test_sectors_url[39:]
-        credentials_file = '../creds/google_creds.json'
+    def test_load_sector_list_from_cvs(self):
+        test_sectors_cvs_file = "test_data/test_sector_list.csv"
 
         sl = SectorListLoader()
-        sectors = sl.load_sectors(sheets_id, credentials_file)
+        sectors = sl.load_sectors_from_cvs(test_sectors_cvs_file)
 
         self.assertEqual(4, len(sectors), "Wrong sectors count")
         self.assertEqual(True, '1' in sectors.keys(), "Sector #1 is not in the list")
@@ -24,13 +22,9 @@ class TestLoadingSectorListCase(unittest.TestCase):
         self.assertEqual(True, "http://link12.com/12" in sectors.values())
 
     def test_load_production_sector_list(self):
-        test_sectors_url = "https://docs.google.com/spreadsheets/d/1ph9a4sfNmwIEZKbWGwLX5iDYnOx6B5qdHYtuyIFR7H4"
-        sheets_id = test_sectors_url[39:]
-        credentials_file = '../creds/google_creds.json'
-
+        sectors_cvs_file = "../loaders/sector_list.csv"
         sl = SectorListLoader()
-        sectors = sl.load_sectors(sheets_id, credentials_file)
-
+        sectors = sl.load_sectors_from_cvs(sectors_cvs_file)
         self.assertLess(0, len(sectors), "Wrong sectors count")
 
 
