@@ -1,5 +1,7 @@
 import unittest
+from datetime import datetime
 
+from db.ads_database import AdsDataBase
 from html_readers.cian_parser import CianParser, ParseHelper
 
 test_description1 = """Продаётся
@@ -479,6 +481,25 @@ class TestCianParser(unittest.TestCase):
             test_html = test_html_file.read()
         has_captcha = cian_parser.has_captcha(test_html)
         self.assertFalse(has_captcha)
+
+    def test_bug_out_of_range_price(self):
+        with open('cian_pages/cian_31_21.html', 'r') as test_html_file:
+            test_html = test_html_file.read()
+
+        cian_parser = CianParser()
+        ads_list = cian_parser.get_raw_ads(test_html)
+        self.assertEqual(16, len(ads_list), "Wrong ads count:")
+
+        ads_list, is_error = cian_parser.get_ads(test_html)
+        self.assertFalse(is_error, "It should not have errors")
+        self.assertEqual(16, len(ads_list), "Wrong ads count:")
+
+        ads_db = AdsDataBase()
+        for ads in ads_list:
+            ads.sector_number = 1
+            ads.first_parse_datetime = datetime.now().replace(microsecond=0)
+            ads.last_parse_datetime = ads.first_parse_datetime
+        ads_db.save(ads_list)
 
 
 if __name__ == '__main__':
