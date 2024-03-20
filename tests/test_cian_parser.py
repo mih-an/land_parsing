@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime
+import uuid
 
 from db.ads_database import AdsDataBase
 from html_readers.cian_parser import CianParser, ParseHelper
@@ -497,7 +497,9 @@ class TestCianParser(unittest.TestCase):
         ads_db = AdsDataBase()
         for ads in ads_list:
             ads.sector_number = 1
-            ads.first_parse_datetime = datetime.now().replace(microsecond=0)
+            ads.id = str(uuid.uuid4())
+            # Old date. Does not need to bother other test because it relies on creation date
+            ads.first_parse_datetime = '2023-01-20 10:28:10'
             ads.last_parse_datetime = ads.first_parse_datetime
         ads_db.save(ads_list)
 

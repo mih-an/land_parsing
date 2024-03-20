@@ -225,41 +225,9 @@ class AdsDataBase:
 
     def select_new_ads_last_ten_days(self):
         return self.select_new_ads_last_n_days(10)
-        # try:
-        #     with connect(
-        #             host=creds.db_host,
-        #             user=creds.db_user,
-        #             password=creds.db_password,
-        #             database=creds.db_name,
-        #     ) as connection:
-        #         with connection.cursor() as cursor:
-        #             cursor.execute(self.select_new_ads_last_ten_days_query)
-        #             ads_list = []
-        #             for ads_from_db in cursor.fetchall():
-        #                 ads = self.get_ads_from_db_record(ads_from_db)
-        #                 ads_list.append(ads)
-        #             return ads_list
-        # except Error as e:
-        #     print(f'Error getting new ads for last ten days from database: {e}')
 
     def select_new_ads_last_2_days(self):
         return self.select_new_ads_last_n_days(2)
-        # try:
-        #     with connect(
-        #             host=creds.db_host,
-        #             user=creds.db_user,
-        #             password=creds.db_password,
-        #             database=creds.db_name,
-        #     ) as connection:
-        #         with connection.cursor() as cursor:
-        #             cursor.execute(self.select_new_ads_last_2_days_query)
-        #             ads_list = []
-        #             for ads_from_db in cursor.fetchall():
-        #                 ads = self.get_ads_from_db_record(ads_from_db)
-        #                 ads_list.append(ads)
-        #             return ads_list
-        # except Error as e:
-        #     print(f'Error getting new ads for last ten days from database: {e}')
 
     def select_new_ads_last_n_days(self, days):
         try:

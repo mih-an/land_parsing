@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from db.ads_database import AdsDataBase
 from google_sheets.google_sheets_saver import GoogleSheetsWorker
+from html_readers.ads import Ads
 from tests.test_helper import TestHelper
 
 
@@ -169,6 +170,16 @@ class SavingAdsToGoogleSheetsTestCase(unittest.TestCase):
         self.assertEqual(2, len(new_ads_list))
         self.assertEqual(new_ads_list[0].first_parse_datetime, ads_list[0].first_parse_datetime)
         self.assertEqual(new_ads_list[1].first_parse_datetime, ads_list[1].first_parse_datetime)
+
+    def test_price_sotka(self):
+        ads = Ads()
+        # 12 billions
+        ads.price = 12300400500
+        ads.square = 24.5
+        price_sotka = ads.get_price_sotka()
+        print(price_sotka)
+        print(type(price_sotka))
+        self.assertEqual(502057163, price_sotka)
 
 
 if __name__ == '__main__':

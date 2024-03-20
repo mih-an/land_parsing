@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 
 class AdsPriceHistoryItem:
@@ -33,4 +34,4 @@ class Ads:
         if self.square == 0:
             return 0
         else:
-            return round(self.price / self.square)
+            return round(float(self.price / decimal.Decimal(self.square)))
