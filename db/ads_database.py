@@ -56,7 +56,8 @@ class AdsDataBase:
         """
         self.update_ads_prices_and_parsing_time_query = """
             UPDATE ads, tmp_ads
-            SET ads.price = tmp_ads.price, ads.last_parse_datetime = tmp_ads.last_parse_datetime
+            SET ads.price = tmp_ads.price, ads.last_parse_datetime = tmp_ads.last_parse_datetime, 
+                ads.kadastr = tmp_ads.kadastr
             WHERE ads.ads_id = tmp_ads.ads_id;
         """
         self.kadastr_separator = ','
