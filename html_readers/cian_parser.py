@@ -11,6 +11,7 @@ from html_readers.parse_helper import ParseHelper
 class CianParser:
 
     def __init__(self):
+        self.unpublished_data_name = "OfferUnpublished"
         self.captcha_id = "captcha"
         self.logger = None
         self.offer_subtitle_data_mark = 'OfferSubtitle'
@@ -136,6 +137,9 @@ class CianParser:
 
     def is_kp_tag(self, tag):
         return self.is_needed_tag(tag, 'div', 'data-name', self.kp_data_name)
+    
+    def is_unpublished_tag(self, tag):
+        return self.is_needed_tag(tag, 'div', 'data-name', self.unpublished_data_name)
 
     def get_vri(self, title):
         title_parts = title.split(self.title_separator)
@@ -234,3 +238,8 @@ class CianParser:
     def get_number_from_str(self, str_to_search):
         res = self.parse_helper.search_int_number(str_to_search)
         return res
+
+    def is_unpublished(self, ads_html):
+        soup = BeautifulSoup(ads_html, "lxml")
+        unpublished_div_list = soup.find_all(self.is_unpublished_tag)
+        return unpublished_div_list is not None and len(unpublished_div_list) > 0
