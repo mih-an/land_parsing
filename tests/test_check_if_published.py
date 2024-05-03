@@ -61,8 +61,28 @@ class TestCaseAdsIsPublished(unittest.TestCase):
         ads1 = ads_db.select_ads_by_id(ads1_uuid)
         self.assertEqual(ads1.is_unpublished, False, 'Ads should be published in database now')
 
-    def test_published_again_after_unpublishing(self):
-        pass
+    def test_published_again_after_parsing(self):
+        # new published ads
+        ads1_uuid = str(uuid.uuid4())
+        ads1 = self.test_helper.create_test_ads1(ads1_uuid)
+        ads_list = [ads1]
+        ads_db = AdsDataBase()
+        ads_db.save(ads_list)
+
+        # let's assume we've checked ads and it's unpublished already
+        ads1.is_unpublished = True
+        ads_db.save_published_status(ads1)
+        ads1 = ads_db.select_ads_by_id(ads1_uuid)
+        self.assertEqual(ads1.is_unpublished, True, 'Ads should be unpublished in database now')
+
+        # let's assume we parse it again, and it's again in the parsing list, and we saved it to database
+        ads1.is_unpublished = False
+        ads_list = [ads1]
+        ads_db.save(ads_list)
+
+        # Now we expect that ads should be published again in database
+        ads1 = ads_db.select_ads_by_id(ads1_uuid)
+        self.assertEqual(ads1.is_unpublished, False, 'Ads should be published in database after parsing')
 
     def test_select_ads_to_check_if_unpublished(self):
         # Cоздаем несколько тестовых объявлений в тестовом секторе (-1 сектор) На проверку снятости должны попадать

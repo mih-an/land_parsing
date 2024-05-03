@@ -39,15 +39,16 @@ class AdsDataBase:
         self.insert_tmp_ads_query = """
             INSERT INTO tmp_ads (ads_id, ads_title, square, price, vri, link, kp, address, description, 
                 kadastr, electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number,
-                last_parse_datetime)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                last_parse_datetime, is_unpublished)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.insert_new_ads_to_main_table_query = """
             INSERT INTO ads(ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
-                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime)
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
+                is_unpublished)
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
-                last_parse_datetime
+                last_parse_datetime, is_unpublished
             FROM tmp_ads
             WHERE ads_id not in (SELECT ads_id FROM ads)
         """
@@ -57,7 +58,7 @@ class AdsDataBase:
         self.update_ads_prices_and_parsing_time_query = """
             UPDATE ads, tmp_ads
             SET ads.price = tmp_ads.price, ads.last_parse_datetime = tmp_ads.last_parse_datetime, 
-                ads.kadastr = tmp_ads.kadastr
+                ads.kadastr = tmp_ads.kadastr, ads.is_unpublished = tmp_ads.is_unpublished
             WHERE ads.ads_id = tmp_ads.ads_id;
         """
         self.kadastr_separator = ','
@@ -142,7 +143,7 @@ class AdsDataBase:
             ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.kp, ads.address,
                                 ads.description, self.kadastr_separator.join(ads.kadastr_list),
                                 ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.first_parse_datetime,
-                                ads.sector_number, ads.last_parse_datetime])
+                                ads.sector_number, ads.last_parse_datetime, ads.is_unpublished])
         return ads_records
 
     def select_ads_by_id(self, ads_id):

@@ -53,4 +53,5 @@ CREATE TABLE IF NOT EXISTS ads_price_history(
 );
 
 ALTER TABLE ads ADD is_unpublished BIT DEFAULT(FALSE) NOT NULL;
+ALTER TABLE tmp_ads ADD is_unpublished BIT DEFAULT(FALSE) NOT NULL;
 
