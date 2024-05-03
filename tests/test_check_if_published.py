@@ -39,8 +39,8 @@ class TestCaseAdsIsPublished(unittest.TestCase):
         is_unpublished = ads_checker.check_ads(ads1)
         self.assertTrue(is_unpublished, 'Ads should be unpublished because it really is')
 
-        # ads1 = ads_db.select_ads_by_id(ads1_uuid)
-        # self.assertTrue(ads1.is_unpublished, 'Ads should be unpublished in database also')
+        ads1 = ads_db.select_ads_by_id(ads1_uuid)
+        self.assertTrue(ads1.is_unpublished, 'Ads should be unpublished in database also')
 
     def test_saving_published_status(self):
         ads1_uuid = str(uuid.uuid4())

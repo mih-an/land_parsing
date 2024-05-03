@@ -116,7 +116,6 @@ class ParsingWorker:
         response = self.html_loader.load_page(sector_link)
         html = response.text
 
-        # todo extract method solve_captcha
         if self.cian_parser.has_captcha(html):
             self.logger.info(f"Captcha detected! Trying to solve it...")
             session = self.html_loader.get_session()
