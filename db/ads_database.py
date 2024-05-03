@@ -33,7 +33,7 @@ class AdsDataBase:
         self.select_one_ads_by_id_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
-                last_parse_datetime 
+                last_parse_datetime, is_unpublished 
             FROM ads WHERE ads_id = %s 
         """
         self.insert_tmp_ads_query = """
@@ -61,6 +61,11 @@ class AdsDataBase:
             WHERE ads.ads_id = tmp_ads.ads_id;
         """
         self.kadastr_separator = ','
+        self.update_ads_published_status = """
+            UPDATE ads
+            SET is_unpublished = %s
+            WHERE ads_id = %s 
+        """
 
     def save(self, ads_list):
         if ads_list is None or len(ads_list) == 0:
@@ -177,6 +182,7 @@ class AdsDataBase:
         ads.first_parse_datetime = ads_record_from_db[13]
         ads.sector_number = ads_record_from_db[14]
         ads.last_parse_datetime = ads_record_from_db[15]
+        ads.is_unpublished = ads_record_from_db[16]
         return ads
 
     def select_price_history(self, ads_uuid):
@@ -247,3 +253,18 @@ class AdsDataBase:
                     return ads_list
         except Error as e:
             print(f'Error getting new ads for last ten days from database: {e}')
+
+    def save_published_status(self, ads):
+        try:
+            with connect(
+                    host=creds.db_host,
+                    user=creds.db_user,
+                    password=creds.db_password,
+                    database=creds.db_name,
+            ) as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(self.update_ads_published_status, [ads.is_unpublished, ads.id])
+                    connection.commit()
+
+        except Error as e:
+            print(f'Error updating ads is_published in database: {e}')
