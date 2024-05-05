@@ -14,6 +14,7 @@ class AdsDataBase:
                 AND ads_owner <> 'Застройщик' AND square >= 12
             ORDER BY DATE(first_parse_datetime) DESC, sector_number"""
         self.delete_test_ads_query = """DELETE FROM ads WHERE LENGTH(ads_id) = 36"""
+        self.delete_test_ads_to_call_query = """DELETE FROM ads_to_call WHERE LENGTH(ads_id) = 36"""
         self.select_ads_price_history_query = """
             SELECT ads_id, price, price_datetime 
             FROM ads_price_history
@@ -68,6 +69,22 @@ class AdsDataBase:
             SET is_unpublished = %s
             WHERE ads_id = %s 
         """
+        self.insert_ads_to_call_query = """
+            INSERT INTO ads_to_call (ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
+                is_unpublished)
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
+                is_unpublished
+            FROM ads
+            WHERE ads_id in (%s)
+        """
+        self.select_ads_to_call_query = """
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
+                last_parse_datetime, is_unpublished 
+            FROM ads_to_call
+        """
 
     def save(self, ads_list):
         if ads_list is None or len(ads_list) == 0:
@@ -120,23 +137,12 @@ class AdsDataBase:
             print(f'Error deleting from tmp ads table: {e}')
             raise e
 
-    def execute_insert_query(self, ads_list, insert_query):
-        with connect(
-                host=creds.db_host,
-                user=creds.db_user,
-                password=creds.db_password,
-                database=creds.db_name,
-        ) as connection:
-            ads_records = self.get_records_from_ads(ads_list)
-            with connection.cursor() as cursor:
-                cursor.executemany(insert_query, ads_records)
-                connection.commit()
-
     def insert_new_ads_from_tmp_to_main_table(self):
         self.execute_query(self.insert_new_ads_to_main_table_query)
 
     def insert_ads_to_tmp_table(self, ads_list):
-        self.execute_insert_query(ads_list, self.insert_tmp_ads_query)
+        ads_records = self.get_records_from_ads(ads_list)
+        self.insert_records(self.insert_tmp_ads_query, ads_records)
 
     def get_records_from_ads(self, ads_list):
         ads_records = []
@@ -145,6 +151,13 @@ class AdsDataBase:
                                 ads.description, self.kadastr_separator.join(ads.kadastr_list),
                                 ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.first_parse_datetime,
                                 ads.sector_number, ads.last_parse_datetime, ads.is_unpublished])
+        return ads_records
+
+    @staticmethod
+    def get_records_from_ads_id(ads_list):
+        ads_records = []
+        for ads in ads_list:
+            ads_records.append([ads.id])
         return ads_records
 
     def select_ads_by_id(self, ads_id):
@@ -231,6 +244,7 @@ class AdsDataBase:
 
     def delete_test_ads(self):
         self.execute_query(self.delete_test_ads_query)
+        self.execute_query(self.delete_test_ads_to_call_query)
 
     def select_new_ads_last_ten_days(self):
         return self.select_new_ads_last_n_days(10)
@@ -270,3 +284,36 @@ class AdsDataBase:
 
         except Error as e:
             print(f'Error updating ads is_published in database: {e}')
+
+    def save_to_call(self, ads_list):
+        ads_records = self.get_records_from_ads_id(ads_list)
+        self.insert_records(self.insert_ads_to_call_query, ads_records)
+
+    @staticmethod
+    def insert_records(insert_query, records):
+        with connect(
+                host=creds.db_host,
+                user=creds.db_user,
+                password=creds.db_password,
+                database=creds.db_name,
+        ) as connection:
+            with connection.cursor() as cursor:
+                cursor.executemany(insert_query, records)
+                connection.commit()
+
+    def select_ads_to_call(self):
+        try:
+            with connect(
+                    host=creds.db_host,
+                    user=creds.db_user,
+                    password=creds.db_password,
+                    database=creds.db_name,
+            ) as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(self.select_ads_to_call_query)
+                    ads_list = []
+                    for ads_from_db in cursor.fetchall():
+                        ads_list.append(self.get_ads_from_db_record(ads_from_db))
+                    return ads_list
+        except Error as e:
+            print(f'Error getting ads from database: {e}')
