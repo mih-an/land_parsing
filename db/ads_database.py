@@ -7,7 +7,8 @@ class AdsDataBase:
     def __init__(self):
         self.select_new_ads_last_N_days_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime 
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
+                is_unpublished 
             FROM ads
             WHERE DATE(first_parse_datetime) > DATE(NOW()) - INTERVAL %s DAY 
                 AND ads_owner <> 'Застройщик' AND square >= 12
