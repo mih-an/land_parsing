@@ -324,7 +324,7 @@ class AdsDataBase:
                 cursor.executemany(insert_query, records)
                 connection.commit()
 
-    def select_ads_to_call(self):
+    def select_ads(self, query):
         try:
             with connect(
                     host=creds.db_host,
@@ -333,7 +333,7 @@ class AdsDataBase:
                     database=creds.db_name,
             ) as connection:
                 with connection.cursor() as cursor:
-                    cursor.execute(self.select_ads_to_call_query)
+                    cursor.execute(query)
                     ads_list = []
                     for ads_from_db in cursor.fetchall():
                         ads_list.append(self.get_ads_from_db_record(ads_from_db))
@@ -341,23 +341,41 @@ class AdsDataBase:
         except Error as e:
             print(f'Error getting ads from database: {e}')
 
-    # todo extract method
+    def select_ads_to_call(self):
+        return self.select_ads(self.select_ads_to_call_query)
+        # try:
+        #     with connect(
+        #             host=creds.db_host,
+        #             user=creds.db_user,
+        #             password=creds.db_password,
+        #             database=creds.db_name,
+        #     ) as connection:
+        #         with connection.cursor() as cursor:
+        #             cursor.execute(self.select_ads_to_call_query)
+        #             ads_list = []
+        #             for ads_from_db in cursor.fetchall():
+        #                 ads_list.append(self.get_ads_from_db_record(ads_from_db))
+        #             return ads_list
+        # except Error as e:
+        #     print(f'Error getting ads from database: {e}')
+
     def select_portion_to_call(self):
-        try:
-            with connect(
-                    host=creds.db_host,
-                    user=creds.db_user,
-                    password=creds.db_password,
-                    database=creds.db_name,
-            ) as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(self.select_portion_to_call_query)
-                    ads_list = []
-                    for ads_from_db in cursor.fetchall():
-                        ads_list.append(self.get_ads_from_db_record(ads_from_db))
-                    return ads_list
-        except Error as e:
-            print(f'Error getting ads from database: {e}')
+        return self.select_ads(self.select_portion_to_call_query)
+        # try:
+        #     with connect(
+        #             host=creds.db_host,
+        #             user=creds.db_user,
+        #             password=creds.db_password,
+        #             database=creds.db_name,
+        #     ) as connection:
+        #         with connection.cursor() as cursor:
+        #             cursor.execute(self.select_portion_to_call_query)
+        #             ads_list = []
+        #             for ads_from_db in cursor.fetchall():
+        #                 ads_list.append(self.get_ads_from_db_record(ads_from_db))
+        #             return ads_list
+        # except Error as e:
+        #     print(f'Error getting ads from database: {e}')
 
     def insert_portion_to_call(self):
         self.execute_query(self.insert_portion_to_call_query)
