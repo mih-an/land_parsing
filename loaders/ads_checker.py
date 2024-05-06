@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 
 from db.ads_database import AdsDataBase
 from html_readers.captcha_solver import CaptchaSolver
@@ -15,6 +16,12 @@ class AdsChecker:
     def check_ads(self, ads):
         # for testing purposes
         if ads.link == 'dont_check':
+            return ads.is_unpublished
+
+        # doesn't check new ads
+        now = datetime.now().replace(microsecond=0)
+        delta = now - ads.last_parse_datetime
+        if delta.days > 1:
             return ads.is_unpublished
 
         response = self.html_loader.load_page(ads.link)

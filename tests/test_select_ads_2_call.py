@@ -4,6 +4,7 @@ import uuid
 from calling_bp.calling_bp import CallBusinessProcess
 from db.ads_database import AdsDataBase
 from tests.test_helper import TestHelper
+from datetime import timedelta
 
 
 # Как я хочу, чтобы это работало.
@@ -32,10 +33,12 @@ from tests.test_helper import TestHelper
 # 6. (done) Выбор на прозвон только тех, кто до этого еще не был отправлен на прозвон
 # 7. (done) Проверка снятия с публикации перед отправкой на прозвон
 # 8. Не отправлять на проверку "снят с публикации" те объявления, которые только сегодня были созданы/актуализированы
-# 9. Отправить конкретному менеджеру на прозвон
 # 10. Не отправлять на прозвон электронные торги
 # 11. Сохранять и загружать дату отправки на прозвон
 # 12. Не отправлять больше 50 штук на прозвон в одну дату
+
+# Позже:
+# Отправить конкретному менеджеру на прозвон
 
 
 class TestCaseSelectAds2Call(unittest.TestCase):
@@ -172,6 +175,32 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         self.assertEqual(49, len(ads_list_to_call))
         for ads in ads_list_to_call:
             self.assertNotEqual(ads.link, 'https://www.cian.ru/sale/suburban/291001135/')
+
+    # Не отправлять на проверку "снят с публикации" те объявления, которые только сегодня были созданы/актуализированы
+    def test_dont_check_new_ads(self):
+        ads_db = AdsDataBase()
+        ads_db.delete_test_ads()
+
+        ads_list = []
+        for i in range(50):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads1(ads_uuid)
+            ads.sector_number = 4110
+            # Real unpublished ads
+            ads.link = 'dont_check'
+            ads_list.append(ads)
+
+        # Only one ads should be checked
+        ads_list[0].link = 'https://www.cian.ru/sale/suburban/291001135/'
+        ads_list[0].last_parse_datetime = ads_list[0].last_parse_datetime - timedelta(days=2)
+        # despite ads link is really unpublished they shouldn't be checked because it's fresh
+        ads_list[1].link = 'https://www.cian.ru/sale/suburban/291001135/'
+        ads_db.save(ads_list)
+
+        cbp = CallBusinessProcess()
+        cbp.insert_portion_to_call()
+        ads_list_to_call = cbp.load_ads_list_to_call()
+        self.assertEqual(49, len(ads_list_to_call))
 
 
 if __name__ == '__main__':
