@@ -1,3 +1,5 @@
+import time
+
 from db.ads_database import AdsDataBase
 from html_readers.captcha_solver import CaptchaSolver
 from html_readers.cian_parser import CianParser
@@ -11,6 +13,10 @@ class AdsChecker:
         self.ads_db = AdsDataBase()
 
     def check_ads(self, ads):
+        # for testing purposes
+        if ads.link == 'dont_check':
+            return ads.is_unpublished
+
         response = self.html_loader.load_page(ads.link)
         html = response.text
 
@@ -20,6 +26,9 @@ class AdsChecker:
             cs.solve(ads.link, session)
             response = self.html_loader.load_page(ads.link)
             html = response.text
+
+        sleep_seconds = 10
+        time.sleep(sleep_seconds)
 
         ads.is_unpublished = self.cian_parser.is_unpublished(html)
         self.ads_db.save_published_status(ads)
