@@ -76,3 +76,20 @@ CREATE TABLE IF NOT EXISTS ads_to_call(
 	is_unpublished BIT DEFAULT(FALSE) NOT NULL
 );
 
+DROP TABLE sectors_priority;
+
+CREATE TABLE IF NOT EXISTS sectors_priority(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	sector_number INT NOT NULL,
+	sector_order INT NOT NULL,
+	UNIQUE (sector_number),
+	UNIQUE (sector_order)
+);
+
+-- only for test_db
+INSERT INTO sectors_priority (sector_number, sector_order)
+VALUES
+(4110, 1),
+(5110, 2),
+(6110, 3);
+

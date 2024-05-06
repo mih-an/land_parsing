@@ -5,6 +5,16 @@ from html_readers.ads import Ads, AdsPriceHistoryItem
 
 class AdsDataBase:
     def __init__(self):
+        self.select_portion_to_call_query = """
+            INSERT INTO ads_to_call (ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
+                is_unpublished)
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, electronic_trading, 
+                ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished
+            FROM ads INNER JOIN sectors_priority ON ads.sector_number = sectors_priority.sector_number
+            WHERE ads.ads_id NOT IN (SELECT ads_id FROM ads_to_call)
+            ORDER BY sector_order
+            LIMIT 50"""
         self.select_new_ads_last_N_days_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
@@ -317,3 +327,6 @@ class AdsDataBase:
                     return ads_list
         except Error as e:
             print(f'Error getting ads from database: {e}')
+
+    def select_portion_to_call(self):
+        self.execute_query(self.select_portion_to_call_query)

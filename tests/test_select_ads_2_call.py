@@ -25,8 +25,8 @@ from tests.test_helper import TestHelper
 #
 # Какие тесты надо написать
 # 1. Статус - нужно понимать, было ли данное объявление отправлено на прозвон и когда?
-# 2. Отправить на прозвон одно объявление + проверить статус
-# 3. Отправить на прозвон группу объявлений + проверить статус, что было отправлено
+# 2. (done) Отправить на прозвон одно объявление + проверить статус
+# 3. (done) Отправить на прозвон группу объявлений + проверить статус, что было отправлено
 # 4. Выбор на прозвон 50 штук объявлений новых
 # 5. Выбор на прозвон только тех, кто не снят с публикации
 # 6. Выбор на прозвон только тех, кто до этого еще не был отправлен на прозвон
@@ -41,13 +41,14 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         self.test_helper = TestHelper()
 
     def test_set_ads_to_call(self):
+        ads_db = AdsDataBase()
+        ads_db.delete_test_ads()
+
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.test_helper.create_test_ads1(ads1_uuid)
         ads2_uuid = str(uuid.uuid4())
         ads2 = self.test_helper.create_test_ads2(ads2_uuid)
         ads_list = [ads1, ads2]
-        ads_db = AdsDataBase()
-        ads_db.delete_test_ads()
         ads_db.save(ads_list)
 
         cbp = CallBusinessProcess()
@@ -57,6 +58,44 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         self.assertEqual(2, len(ads_list_to_call))
         self.test_helper.check_ads_are_equal(ads1, ads_list_to_call[0])
         self.test_helper.check_ads_are_equal(ads2, ads_list_to_call[1])
+
+    def test_50_ads_to_call(self):
+        ads_db = AdsDataBase()
+        ads_db.delete_test_ads()
+
+        ads_list1 = []
+        for i in range(50):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads1(ads_uuid)
+            ads.sector_number = 4110
+            ads_list1.append(ads)
+
+        ads_list2 = []
+        for i in range(50):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads2(ads_uuid)
+            ads.sector_number = 5110
+            ads_list2.append(ads)
+
+        ads_list = []
+        ads_list.extend(ads_list1)
+        ads_list.extend(ads_list2)
+        ads_db.save(ads_list)
+
+        cbp = CallBusinessProcess()
+        cbp.select_portion_to_call()
+        ads_list_to_call = cbp.load_ads_list_to_call()
+
+        self.assertEqual(50, len(ads_list_to_call))
+        for ads in ads_list_to_call:
+            self.assertEqual(ads.sector_number, 4110)
+
+        cbp.select_portion_to_call()
+        ads_list_to_call = cbp.load_ads_list_to_call()
+        self.assertEqual(100, len(ads_list_to_call))
+        ads_list_to_call = ads_list_to_call[50:]
+        for ads in ads_list_to_call:
+            self.assertEqual(ads.sector_number, 5110)
 
 
 if __name__ == '__main__':

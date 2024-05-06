@@ -10,3 +10,6 @@ class CallBusinessProcess:
 
     def load_ads_list_to_call(self):
         return self.ads_db.select_ads_to_call()
+
+    def select_portion_to_call(self):
+        self.ads_db.select_portion_to_call()
