@@ -32,7 +32,7 @@ from datetime import timedelta
 # 5. (done) Выбор на прозвон только тех, кто не снят с публикации
 # 6. (done) Выбор на прозвон только тех, кто до этого еще не был отправлен на прозвон
 # 7. (done) Проверка снятия с публикации перед отправкой на прозвон
-# 8. Не отправлять на проверку "снят с публикации" те объявления, которые только сегодня были созданы/актуализированы
+# 8. (done) Не отправлять на проверку "снят с публикации" те объявления, которые только сегодня были актуализированы
 # 10. Не отправлять на прозвон электронные торги
 # 11. Сохранять и загружать дату отправки на прозвон
 # 12. Не отправлять больше 50 штук на прозвон в одну дату
@@ -53,10 +53,14 @@ class TestCaseSelectAds2Call(unittest.TestCase):
 
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.test_helper.create_test_ads1(ads1_uuid)
+        ads1.electronic_trading = ''
+        ads1.is_electronic_trading = False
         ads1.link = 'dont_check'
         ads2_uuid = str(uuid.uuid4())
         ads2 = self.test_helper.create_test_ads2(ads2_uuid)
         ads2.link = 'dont_check'
+        ads2.electronic_trading = ''
+        ads2.is_electronic_trading = False
         ads_list = [ads1, ads2]
         ads_db.save(ads_list)
 
@@ -79,6 +83,8 @@ class TestCaseSelectAds2Call(unittest.TestCase):
             ads = self.test_helper.create_test_ads1(ads_uuid)
             ads.sector_number = 4110
             ads.link = 'dont_check'
+            ads.electronic_trading = ''
+            ads.is_electronic_trading = False
             ads_list1.append(ads)
 
         ads_list2 = []
@@ -120,6 +126,8 @@ class TestCaseSelectAds2Call(unittest.TestCase):
             ads = self.test_helper.create_test_ads1(ads_uuid)
             ads.sector_number = 4110
             ads.link = 'dont_check'
+            ads.electronic_trading = ''
+            ads.is_electronic_trading = False
             ads_list.append(ads)
         ads_db.save(ads_list)
 
@@ -142,6 +150,8 @@ class TestCaseSelectAds2Call(unittest.TestCase):
             ads = self.test_helper.create_test_ads1(ads_uuid)
             ads.sector_number = 4110
             ads.link = 'dont_check'
+            ads.electronic_trading = ''
+            ads.is_electronic_trading = False
             ads_list.append(ads)
         ads_list[0].is_unpublished = True
         ads_list[10].is_unpublished = True
@@ -164,6 +174,8 @@ class TestCaseSelectAds2Call(unittest.TestCase):
             ads = self.test_helper.create_test_ads1(ads_uuid)
             ads.sector_number = 4110
             ads.link = 'dont_check'
+            ads.electronic_trading = ''
+            ads.is_electronic_trading = False
             ads_list.append(ads)
         # Real unpublished ads
         ads_list[0].link = 'https://www.cian.ru/sale/suburban/291001135/'
@@ -188,6 +200,8 @@ class TestCaseSelectAds2Call(unittest.TestCase):
             ads.sector_number = 4110
             # Real unpublished ads
             ads.link = 'dont_check'
+            ads.electronic_trading = ''
+            ads.is_electronic_trading = False
             ads_list.append(ads)
 
         # Only one ads should be checked
@@ -201,6 +215,27 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         cbp.insert_portion_to_call()
         ads_list_to_call = cbp.load_ads_list_to_call()
         self.assertEqual(49, len(ads_list_to_call))
+
+    def test_dont_send_to_call_electronic_trades(self):
+        ads_db = AdsDataBase()
+        ads_db.delete_test_ads()
+
+        ads_list = []
+        for i in range(50):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads1(ads_uuid)
+            ads.sector_number = 4110
+            ads.link = 'dont_check'
+            ads_list.append(ads)
+
+        ads_list[0].electronic_trading = ''
+        ads_list[0].is_electronic_trading = False
+        ads_db.save(ads_list)
+
+        cbp = CallBusinessProcess()
+        cbp.insert_portion_to_call()
+        ads_list_to_call = cbp.load_ads_list_to_call()
+        self.assertEqual(1, len(ads_list_to_call))
 
 
 if __name__ == '__main__':

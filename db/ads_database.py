@@ -10,6 +10,7 @@ class AdsDataBase:
                 ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished
             FROM ads INNER JOIN sectors_priority ON ads.sector_number = sectors_priority.sector_number
             WHERE ads.ads_id NOT IN (SELECT ads_id FROM ads_to_call) AND ads.is_unpublished = FALSE
+                AND ads.electronic_trading = ''
             ORDER BY sector_order
             LIMIT 50"""
         self.insert_test_sector_priority_query = """
@@ -24,6 +25,7 @@ class AdsDataBase:
                 ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished
             FROM ads INNER JOIN sectors_priority ON ads.sector_number = sectors_priority.sector_number
             WHERE ads.ads_id NOT IN (SELECT ads_id FROM ads_to_call) AND ads.is_unpublished = FALSE
+                AND ads.electronic_trading = ''
             ORDER BY sector_order
             LIMIT 50"""
         self.select_new_ads_last_N_days_query = """
@@ -343,39 +345,9 @@ class AdsDataBase:
 
     def select_ads_to_call(self):
         return self.select_ads(self.select_ads_to_call_query)
-        # try:
-        #     with connect(
-        #             host=creds.db_host,
-        #             user=creds.db_user,
-        #             password=creds.db_password,
-        #             database=creds.db_name,
-        #     ) as connection:
-        #         with connection.cursor() as cursor:
-        #             cursor.execute(self.select_ads_to_call_query)
-        #             ads_list = []
-        #             for ads_from_db in cursor.fetchall():
-        #                 ads_list.append(self.get_ads_from_db_record(ads_from_db))
-        #             return ads_list
-        # except Error as e:
-        #     print(f'Error getting ads from database: {e}')
 
     def select_portion_to_call(self):
         return self.select_ads(self.select_portion_to_call_query)
-        # try:
-        #     with connect(
-        #             host=creds.db_host,
-        #             user=creds.db_user,
-        #             password=creds.db_password,
-        #             database=creds.db_name,
-        #     ) as connection:
-        #         with connection.cursor() as cursor:
-        #             cursor.execute(self.select_portion_to_call_query)
-        #             ads_list = []
-        #             for ads_from_db in cursor.fetchall():
-        #                 ads_list.append(self.get_ads_from_db_record(ads_from_db))
-        #             return ads_list
-        # except Error as e:
-        #     print(f'Error getting ads from database: {e}')
 
     def insert_portion_to_call(self):
         self.execute_query(self.insert_portion_to_call_query)

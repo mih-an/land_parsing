@@ -18,7 +18,7 @@ class AdsChecker:
         if ads.link == 'dont_check':
             return ads.is_unpublished
 
-        # doesn't check new ads
+        # don't check new ads
         now = datetime.now().replace(microsecond=0)
         delta = now - ads.last_parse_datetime
         if delta.days > 1:
