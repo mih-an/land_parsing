@@ -85,11 +85,3 @@ CREATE TABLE IF NOT EXISTS sectors_priority(
 	UNIQUE (sector_number),
 	UNIQUE (sector_order)
 );
-
--- only for test_db
-INSERT INTO sectors_priority (sector_number, sector_order)
-VALUES
-(4110, 1),
-(5110, 2),
-(6110, 3);
-

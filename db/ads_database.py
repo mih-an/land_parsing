@@ -5,6 +5,10 @@ from html_readers.ads import Ads, AdsPriceHistoryItem
 
 class AdsDataBase:
     def __init__(self):
+        self.insert_test_sector_priority_query = """
+            INSERT INTO sectors_priority (sector_number, sector_order)
+            VALUES (4110, 1), (5110, 2), (6110, 3);"""
+        self.delete_test_sector_priority_query = """DELETE FROM sectors_priority"""
         self.select_portion_to_call_query = """
             INSERT INTO ads_to_call (ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
@@ -255,6 +259,8 @@ class AdsDataBase:
     def delete_test_ads(self):
         self.execute_query(self.delete_test_ads_query)
         self.execute_query(self.delete_test_ads_to_call_query)
+        self.execute_query(self.delete_test_sector_priority_query)
+        self.execute_query(self.insert_test_sector_priority_query)
 
     def select_new_ads_last_ten_days(self):
         return self.select_new_ads_last_n_days(10)
