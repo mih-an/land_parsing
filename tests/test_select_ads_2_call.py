@@ -32,7 +32,7 @@ from datetime import timedelta
 # 5. (done) Выбор на прозвон только тех, кто не снят с публикации
 # 6. (done) Выбор на прозвон только тех, кто до этого еще не был отправлен на прозвон
 # 7. (done) Проверка снятия с публикации перед отправкой на прозвон
-# 8. (done) Не отправлять на проверку "снят с публикации" те объявления, которые только сегодня были актуализированы
+# 8. (done) Не отправлять на проверку снятия с публикации те объявления, которые только сегодня были актуализированы
 # 10. (done) Не отправлять на прозвон электронные торги
 # 11. Сохранять и загружать дату отправки на прозвон
 # 13. Выгружать в гугл таблицу на прозвон
@@ -196,7 +196,7 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         ads_db.delete_test_ads()
 
         ads_list = []
-        for i in range(50):
+        for i in range(10):
             ads_uuid = str(uuid.uuid4())
             ads = self.test_helper.create_test_ads1(ads_uuid)
             ads.sector_number = 4110
@@ -209,14 +209,16 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         # Only one ads should be checked
         ads_list[0].link = 'https://www.cian.ru/sale/suburban/291001135/'
         ads_list[0].last_parse_datetime = ads_list[0].last_parse_datetime - timedelta(days=2)
-        # despite ads link is really unpublished they shouldn't be checked because it's fresh
+        # despite ads link is really unpublished they shouldn't be checked because they are fresh
         ads_list[1].link = 'https://www.cian.ru/sale/suburban/291001135/'
+        ads_list[2].link = 'https://www.cian.ru/sale/suburban/291001135/'
+        ads_list[9].link = 'https://www.cian.ru/sale/suburban/291001135/'
         ads_db.save(ads_list)
 
         cbp = CallBusinessProcess()
         cbp.insert_portion_to_call()
         ads_list_to_call = cbp.load_ads_list_to_call()
-        self.assertEqual(49, len(ads_list_to_call))
+        self.assertEqual(9, len(ads_list_to_call))
 
     def test_dont_send_to_call_electronic_trades(self):
         ads_db = AdsDataBase()

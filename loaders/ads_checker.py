@@ -21,7 +21,7 @@ class AdsChecker:
         # don't check new ads
         now = datetime.now().replace(microsecond=0)
         delta = now - ads.last_parse_datetime
-        if delta.days > 1:
+        if delta.days <= 1:
             return ads.is_unpublished
 
         response = self.html_loader.load_page(ads.link)
