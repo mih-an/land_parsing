@@ -5,6 +5,11 @@ from html_readers.ads import Ads, AdsPriceHistoryItem
 
 class AdsDataBase:
     def __init__(self):
+        self.select_one_ads_to_call_query = """
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
+                last_parse_datetime, is_unpublished 
+            FROM ads_to_call WHERE ads_id = %s"""
         self.select_portion_to_call_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, electronic_trading, 
                 ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished
@@ -193,6 +198,21 @@ class AdsDataBase:
             ) as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(self.select_one_ads_by_id_query, [ads_id])
+                    for ads_from_db in cursor.fetchall():
+                        return self.get_ads_from_db_record(ads_from_db)
+        except Error as e:
+            print(f'Error getting ads from database: {e}')
+
+    def select_one_ads_to_call(self, ads_id):
+        try:
+            with connect(
+                    host=creds.db_host,
+                    user=creds.db_user,
+                    password=creds.db_password,
+                    database=creds.db_name,
+            ) as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(self.select_one_ads_to_call_query, [ads_id])
                     for ads_from_db in cursor.fetchall():
                         return self.get_ads_from_db_record(ads_from_db)
         except Error as e:

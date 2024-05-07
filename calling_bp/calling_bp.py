@@ -19,3 +19,6 @@ class CallBusinessProcess:
             ads_checker.check_ads(ads)
 
         self.ads_db.insert_portion_to_call()
+
+    def check_ads_to_call(self, ads_id):
+        return self.ads_db.select_one_ads_to_call(ads_id)
