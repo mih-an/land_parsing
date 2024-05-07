@@ -1,5 +1,6 @@
 import unittest
 import uuid
+from datetime import timedelta
 
 from db.ads_database import AdsDataBase
 from html_readers.cian_parser import CianParser
@@ -30,6 +31,8 @@ class TestCaseAdsIsPublished(unittest.TestCase):
         ads1_uuid = str(uuid.uuid4())
         ads1 = self.test_helper.create_test_ads1(ads1_uuid)
         ads1.link = 'https://www.cian.ru/sale/suburban/291001135/'
+        # need to age ads because we don't check fresh ads
+        ads1.last_parse_datetime = ads1.last_parse_datetime - timedelta(days=2)
         ads_list = [ads1]
         ads_db = AdsDataBase()
         ads_db.save(ads_list)

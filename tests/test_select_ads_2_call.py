@@ -181,6 +181,8 @@ class TestCaseSelectAds2Call(unittest.TestCase):
             ads_list.append(ads)
         # Real unpublished ads
         ads_list[0].link = 'https://www.cian.ru/sale/suburban/291001135/'
+        # need to age ads because we don't check fresh ads
+        ads_list[0].last_parse_datetime = ads_list[0].last_parse_datetime - timedelta(days=2)
         ads_db.save(ads_list)
 
         cbp = CallBusinessProcess()
