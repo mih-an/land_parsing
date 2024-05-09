@@ -5,34 +5,23 @@ from html_readers.ads import Ads, AdsPriceHistoryItem
 
 class AdsDataBase:
     def __init__(self):
+        self.select_n_ads_to_call_query = """
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, electronic_trading, 
+                ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished
+            FROM ads INNER JOIN sectors_priority ON ads.sector_number = sectors_priority.sector_number
+            WHERE ads.ads_id NOT IN (SELECT ads_id FROM ads_to_call) AND ads.is_unpublished = FALSE
+                AND ads.electronic_trading = ''
+            ORDER BY sector_order
+            LIMIT %s"""
         self.select_one_ads_to_call_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
                 last_parse_datetime, is_unpublished 
             FROM ads_to_call WHERE ads_id = %s"""
-        self.select_portion_to_call_query = """
-            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, electronic_trading, 
-                ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished
-            FROM ads INNER JOIN sectors_priority ON ads.sector_number = sectors_priority.sector_number
-            WHERE ads.ads_id NOT IN (SELECT ads_id FROM ads_to_call) AND ads.is_unpublished = FALSE
-                AND ads.electronic_trading = ''
-            ORDER BY sector_order
-            LIMIT 50"""
         self.insert_test_sector_priority_query = """
             INSERT INTO sectors_priority (sector_number, sector_order)
             VALUES (4110, 1), (5110, 2), (6110, 3);"""
         self.delete_test_sector_priority_query = """DELETE FROM sectors_priority"""
-        self.insert_portion_to_call_query = """
-            INSERT INTO ads_to_call (ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
-                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
-                is_unpublished)
-            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, electronic_trading, 
-                ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished
-            FROM ads INNER JOIN sectors_priority ON ads.sector_number = sectors_priority.sector_number
-            WHERE ads.ads_id NOT IN (SELECT ads_id FROM ads_to_call) AND ads.is_unpublished = FALSE
-                AND ads.electronic_trading = ''
-            ORDER BY sector_order
-            LIMIT 50"""
         self.select_new_ads_last_N_days_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
@@ -94,7 +83,7 @@ class AdsDataBase:
         self.kadastr_separator = ','
         self.update_ads_published_status = """
             UPDATE ads
-            SET is_unpublished = %s
+            SET is_unpublished = %s, last_parse_datetime = NOW()
             WHERE ads_id = %s 
         """
         self.insert_ads_to_call_query = """
@@ -188,7 +177,7 @@ class AdsDataBase:
             ads_records.append([ads.id])
         return ads_records
 
-    def select_ads_by_id(self, ads_id):
+    def select_one_ads_by_id(self, query, ads_id):
         try:
             with connect(
                     host=creds.db_host,
@@ -197,26 +186,17 @@ class AdsDataBase:
                     database=creds.db_name,
             ) as connection:
                 with connection.cursor() as cursor:
-                    cursor.execute(self.select_one_ads_by_id_query, [ads_id])
+                    cursor.execute(query, [ads_id])
                     for ads_from_db in cursor.fetchall():
                         return self.get_ads_from_db_record(ads_from_db)
         except Error as e:
             print(f'Error getting ads from database: {e}')
 
+    def select_ads_by_id(self, ads_id):
+        return self.select_one_ads_by_id(self.select_one_ads_by_id_query, ads_id)
+
     def select_one_ads_to_call(self, ads_id):
-        try:
-            with connect(
-                    host=creds.db_host,
-                    user=creds.db_user,
-                    password=creds.db_password,
-                    database=creds.db_name,
-            ) as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(self.select_one_ads_to_call_query, [ads_id])
-                    for ads_from_db in cursor.fetchall():
-                        return self.get_ads_from_db_record(ads_from_db)
-        except Error as e:
-            print(f'Error getting ads from database: {e}')
+        return self.select_one_ads_by_id(self.select_one_ads_to_call_query, ads_id)
 
     def get_ads_from_db_record(self, ads_record_from_db):
         ads = Ads()
@@ -298,6 +278,12 @@ class AdsDataBase:
         return self.select_new_ads_last_n_days(2)
 
     def select_new_ads_last_n_days(self, days):
+        return self.select_n_ads(self.select_new_ads_last_N_days_query, days)
+
+    def select_n_ads_to_call(self, count):
+        return self.select_n_ads(self.select_n_ads_to_call_query, count)
+
+    def select_n_ads(self, query, param):
         try:
             with connect(
                     host=creds.db_host,
@@ -306,14 +292,14 @@ class AdsDataBase:
                     database=creds.db_name,
             ) as connection:
                 with connection.cursor() as cursor:
-                    cursor.execute(self.select_new_ads_last_N_days_query, [days])
+                    cursor.execute(query, [param])
                     ads_list = []
                     for ads_from_db in cursor.fetchall():
                         ads = self.get_ads_from_db_record(ads_from_db)
                         ads_list.append(ads)
                     return ads_list
         except Error as e:
-            print(f'Error getting new ads for last ten days from database: {e}')
+            print(f'Error getting ads from database: {e}')
 
     def save_published_status(self, ads):
         try:
@@ -366,8 +352,3 @@ class AdsDataBase:
     def select_ads_to_call(self):
         return self.select_ads(self.select_ads_to_call_query)
 
-    def select_portion_to_call(self):
-        return self.select_ads(self.select_portion_to_call_query)
-
-    def insert_portion_to_call(self):
-        self.execute_query(self.insert_portion_to_call_query)

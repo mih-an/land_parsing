@@ -1,6 +1,6 @@
 import unittest
 import uuid
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from db.ads_database import AdsDataBase
 from html_readers.cian_parser import CianParser
@@ -44,6 +44,8 @@ class TestCaseAdsIsPublished(unittest.TestCase):
 
         ads1 = ads_db.select_ads_by_id(ads1_uuid)
         self.assertTrue(ads1.is_unpublished, 'Ads should be unpublished in database also')
+        delta = datetime.now() - ads1.last_parse_datetime
+        self.assertEqual(0, delta.days, "Last parse datetime should be updated")
 
     def test_saving_published_status(self):
         ads1_uuid = str(uuid.uuid4())

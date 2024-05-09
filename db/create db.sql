@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS ads_price_history(
 );
 
 ALTER TABLE ads ADD is_unpublished BIT DEFAULT(FALSE) NOT NULL;
+ALTER TABLE ads ADD to_call_datetime DATETIME;
 ALTER TABLE tmp_ads ADD is_unpublished BIT DEFAULT(FALSE) NOT NULL;
 
 CREATE TABLE IF NOT EXISTS ads_to_call(
@@ -73,7 +74,8 @@ CREATE TABLE IF NOT EXISTS ads_to_call(
 	first_parse_datetime DATETIME NOT NULL,
 	sector_number INT NOT NULL,
 	last_parse_datetime DATETIME NOT NULL,
-	is_unpublished BIT DEFAULT(FALSE) NOT NULL
+	is_unpublished BIT DEFAULT(FALSE) NOT NULL,
+	to_call_datetime DATETIME NOT NULL
 );
 
 DROP TABLE sectors_priority;
