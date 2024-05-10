@@ -433,7 +433,7 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         ads_db.save(ads_list)
 
         cbp = CallBusinessProcess()
-        cbp.insert_ads_to_call(50, None)
+        cbp.insert_ads_to_call(50, None, True)
 
         self.new_ads_url = "https://docs.google.com/spreadsheets/d/12o5TUNWyzWZRo3OHSDr8YIusQLTwUquFx_DwsczDDH8"
         self.sheets_id = self.new_ads_url[39:]
@@ -445,6 +445,9 @@ class TestCaseSelectAds2Call(unittest.TestCase):
 
         ads_list_from_gs = gs_ads_worker.load_ads_with_title(self.sheets_id, self.credentials_file, "ToCall")
         self.assertEqual(2, len(ads_list_from_gs))
+
+    def test_to_call_field_in_gs(self):
+        pass
 
 
 if __name__ == '__main__':
