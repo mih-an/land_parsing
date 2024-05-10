@@ -321,20 +321,19 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         ads_list_to_call = cbp.load_ads_list_to_call_by_date(today)
         self.assertEqual(10, len(ads_list_to_call))
 
-        # # check if ads has correct date to call
-        # ads_from_today = cbp.check_ads_to_call(ads_id_from_today)
-        # ads_from_two_days_ago = cbp.check_ads_to_call(ads_id_from_two_days_ago)
-        #
-        # delta1 = datetime.now() - ads_from_today.date_to_call
-        # delta2 = datetime.now() - ads_from_two_days_ago.date_to_call
-        # self.assertEqual(delta1.days, 0)
-        # self.assertEqual(delta2.days, 2)
+        # check if ads has correct date to call
+        ads_from_today = cbp.check_ads_to_call(ads_id_from_today)
+        ads_from_two_days_ago = cbp.check_ads_to_call(ads_id_from_two_days_ago)
+
+        delta1 = datetime.now() - ads_from_today.to_call_datetime
+        delta2 = datetime.now() - ads_from_two_days_ago.to_call_datetime
+        self.assertEqual(delta1.days, 0)
+        self.assertEqual(delta2.days, 2)
 
     # можно было отправить на прозвон неопубликованные
     # для этого нужно создать 51 объявление. Последние 2 снятые с публикации. И отправить на прозвоню
     # добавится 50 вместо 49.
     def test_maybe_bug(self):
-        # pass
         ads_db = AdsDataBase()
         ads_db.delete_test_ads()
 
@@ -398,6 +397,26 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         cbp.insert_ads_to_call(10, datetime.now())
         ads_to_call_list = cbp.load_ads_list_to_call()
         self.assertEqual(5, len(ads_to_call_list))
+
+    def test_ads_to_call_default_date_to_save(self):
+        ads_db = AdsDataBase()
+        ads_db.delete_test_ads()
+
+        ads_uuid = str(uuid.uuid4())
+        ads = self.test_helper.create_test_ads1(ads_uuid)
+        ads.sector_number = 4110
+        ads.link = 'dont_check'
+        ads.electronic_trading = ''
+        ads.is_electronic_trading = False
+        ads_list = [ads]
+        ads_db.save(ads_list)
+
+        cbp = CallBusinessProcess()
+        cbp.insert_ads_to_call(1, None)
+        ads_list_to_call = cbp.load_ads_list_to_call_by_date(datetime.now().date())
+        self.assertEqual(1, len(ads_list_to_call))
+        delta = datetime.now() - ads_list_to_call[0].to_call_datetime
+        self.assertEqual(delta.days, 0)
 
 
 if __name__ == '__main__':

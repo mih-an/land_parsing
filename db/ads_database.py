@@ -13,7 +13,8 @@ class AdsDataBase:
             WHERE DATE(to_call_datetime) = %s"""
         self.select_n_ads_to_call_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, electronic_trading, 
-                ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished
+                ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished,
+                to_call_datetime
             FROM ads INNER JOIN sectors_priority ON ads.sector_number = sectors_priority.sector_number
             WHERE ads.ads_id NOT IN (SELECT ads_id FROM ads_to_call) AND ads.is_unpublished = FALSE
                 AND ads.electronic_trading = ''
@@ -22,7 +23,7 @@ class AdsDataBase:
         self.select_one_ads_to_call_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
-                last_parse_datetime, is_unpublished 
+                last_parse_datetime, is_unpublished, to_call_datetime 
             FROM ads_to_call WHERE ads_id = %s"""
         self.insert_test_sector_priority_query = """
             INSERT INTO sectors_priority (sector_number, sector_order)
@@ -31,7 +32,7 @@ class AdsDataBase:
         self.select_new_ads_last_N_days_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
-                is_unpublished 
+                is_unpublished, to_call_datetime 
             FROM ads
             WHERE DATE(first_parse_datetime) > DATE(NOW()) - INTERVAL %s DAY 
                 AND ads_owner <> 'Застройщик' AND square >= 12
@@ -58,7 +59,7 @@ class AdsDataBase:
         self.select_one_ads_by_id_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
-                last_parse_datetime, is_unpublished 
+                last_parse_datetime, is_unpublished, to_call_datetime
             FROM ads WHERE ads_id = %s 
         """
         self.insert_tmp_ads_query = """
@@ -92,16 +93,6 @@ class AdsDataBase:
             SET is_unpublished = %s, last_parse_datetime = NOW()
             WHERE ads_id = %s 
         """
-        # self.insert_ads_to_call_query = """
-        #     INSERT INTO ads_to_call (ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
-        #         electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
-        #         is_unpublished)
-        #     SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
-        #         electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
-        #         is_unpublished
-        #     FROM ads
-        #     WHERE ads_id in (%s)
-        # """
         self.insert_ads_to_call_query = """
             INSERT INTO ads_to_call (ads_id, ads_title, square, price, vri, link, kp, address, description, 
                 kadastr, electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number,
@@ -111,7 +102,7 @@ class AdsDataBase:
         self.select_ads_to_call_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
                 electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
-                last_parse_datetime, is_unpublished 
+                last_parse_datetime, is_unpublished, to_call_datetime 
             FROM ads_to_call
         """
 
@@ -233,6 +224,7 @@ class AdsDataBase:
         ads.sector_number = ads_record_from_db[14]
         ads.last_parse_datetime = ads_record_from_db[15]
         ads.is_unpublished = ads_record_from_db[16]
+        ads.to_call_datetime = ads_record_from_db[17]
         return ads
 
     def select_price_history(self, ads_uuid):

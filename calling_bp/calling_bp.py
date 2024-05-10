@@ -1,3 +1,5 @@
+import datetime
+
 from db.ads_database import AdsDataBase
 from loaders.ads_checker import AdsChecker
 
@@ -21,6 +23,9 @@ class CallBusinessProcess:
         ads_list_to_call = []
         if ads_count_to_call > len(ads_list):
             ads_count_to_call = len(ads_list)
+
+        if date_to_call is None:
+            date_to_call = datetime.datetime.now().date()
 
         ads_checker = AdsChecker()
         i = 0
