@@ -34,11 +34,12 @@ from datetime import timedelta, datetime
 # 7. (done) Проверка снятия с публикации перед отправкой на прозвон
 # 8. (done) Не отправлять на проверку снятия с публикации те объявления, которые только сегодня были актуализированы
 # 10. (done) Не отправлять на прозвон электронные торги
-# 11. Сохранять и загружать дату отправки на прозвон
-# 13. Выгружать в гугл таблицу на прозвон
-# 14. Приоритет по секторам на проде сделать
-# 15. Исправить баг, когда можно добавить на прозвон снятое с публикации объявление
-# 16. Сделать параметр по количеству добавляемых на прозвон объявлений
+# 11. (done) Исправить баг, когда можно добавить на прозвон снятое с публикации объявление
+# 12. Сделать параметр по количеству добавляемых на прозвон объявлений
+# Сохранять и загружать дату отправки на прозвон
+# Выгружать в гугл таблицу на прозвон
+# Приоритет по секторам на проде сделать
+#
 
 # Позже:
 # Отправить конкретному менеджеру на прозвон
@@ -69,7 +70,6 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         ads_db.save(ads_list)
 
         cbp = CallBusinessProcess()
-        # cbp.insert_ads_to_call(50, datetime.now())
         cbp.save_to_call(ads_list)
 
         ads_list_to_call = cbp.load_ads_list_to_call()
@@ -265,7 +265,7 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         ads_db.save(ads_list)
         # move it to call
         cbp = CallBusinessProcess()
-        cbp.insert_ads_to_call(50, datetime.now())
+        cbp.insert_ads_to_call(50, datetime.now().date())
 
         # create and save new ads, but don't move it to call
         ads2_uuid = str(uuid.uuid4())
@@ -284,43 +284,43 @@ class TestCaseSelectAds2Call(unittest.TestCase):
     # Отправляем на прозвон на произвольную дату и проверяем загрузку этой даты
     # Это нужно, чтобы в будущем понимать, какие объявления и когда были отправлены на прозвон
     def test_save_mix_date_to_call(self):
-        pass
-        # ads_db = AdsDataBase()
-        # cbp = CallBusinessProcess()
-        # ads_db.delete_test_ads()
-        # two_days_ago = datetime.now() - timedelta(days=2)
-        #
-        # ads_list = []
-        # for i in range(10):
-        #     ads_uuid = str(uuid.uuid4())
-        #     ads = self.test_helper.create_test_ads1(ads_uuid)
-        #     ads.sector_number = 4110
-        #     ads.link = 'dont_check'
-        #     ads.electronic_trading = ''
-        #     ads.is_electronic_trading = False
-        #     ads_list.append(ads)
-        # ads_db.save(ads_list)
-        # ads_id_from_today = ads_list[0].id
-        # cbp.insert_portion_to_call()
-        #
-        # ads_list = []
-        # for i in range(7):
-        #     ads_uuid = str(uuid.uuid4())
-        #     ads = self.test_helper.create_test_ads1(ads_uuid)
-        #     ads.sector_number = 4110
-        #     ads.link = 'dont_check'
-        #     ads.electronic_trading = ''
-        #     ads.is_electronic_trading = False
-        #     ads_list.append(ads)
-        # ads_db.save(ads_list)
-        # ads_id_from_two_days_ago = ads_list[0].id
-        # cbp.insert_portion_to_call_with_date(two_days_ago)
-        #
-        # ads_list_to_call = cbp.load_ads_list_to_call_by_date(two_days_ago)
-        # self.assertEqual(7, len(ads_list_to_call))
-        # ads_list_to_call = cbp.load_ads_list_to_call_by_date(datetime.now())
-        # self.assertEqual(10, len(ads_list_to_call))
-        #
+        ads_db = AdsDataBase()
+        cbp = CallBusinessProcess()
+        ads_db.delete_test_ads()
+        two_days_ago = datetime.now().date() - timedelta(days=2)
+        today = datetime.now().date()
+
+        ads_list = []
+        for i in range(10):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads1(ads_uuid)
+            ads.sector_number = 4110
+            ads.link = 'dont_check'
+            ads.electronic_trading = ''
+            ads.is_electronic_trading = False
+            ads_list.append(ads)
+        ads_db.save(ads_list)
+        ads_id_from_today = ads_list[0].id
+        cbp.insert_ads_to_call(10, today)
+
+        ads_list = []
+        for i in range(7):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads1(ads_uuid)
+            ads.sector_number = 4110
+            ads.link = 'dont_check'
+            ads.electronic_trading = ''
+            ads.is_electronic_trading = False
+            ads_list.append(ads)
+        ads_db.save(ads_list)
+        ads_id_from_two_days_ago = ads_list[0].id
+        cbp.insert_ads_to_call(7, two_days_ago)
+
+        ads_list_to_call = cbp.load_ads_list_to_call_by_date(two_days_ago)
+        self.assertEqual(7, len(ads_list_to_call))
+        ads_list_to_call = cbp.load_ads_list_to_call_by_date(today)
+        self.assertEqual(10, len(ads_list_to_call))
+
         # # check if ads has correct date to call
         # ads_from_today = cbp.check_ads_to_call(ads_id_from_today)
         # ads_from_two_days_ago = cbp.check_ads_to_call(ads_id_from_two_days_ago)
@@ -330,7 +330,7 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         # self.assertEqual(delta1.days, 0)
         # self.assertEqual(delta2.days, 2)
 
-    # may be bug можно отправить на прозвон неопубликованные
+    # можно было отправить на прозвон неопубликованные
     # для этого нужно создать 51 объявление. Последние 2 снятые с публикации. И отправить на прозвоню
     # добавится 50 вместо 49.
     def test_maybe_bug(self):
@@ -398,9 +398,6 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         cbp.insert_ads_to_call(10, datetime.now())
         ads_to_call_list = cbp.load_ads_list_to_call()
         self.assertEqual(5, len(ads_to_call_list))
-
-    def test_unpublished_more_than_needed_to_call(self):
-        pass
 
 
 if __name__ == '__main__':

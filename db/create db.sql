@@ -1,9 +1,9 @@
 CREATE DATABASE IF NOT EXISTS ads_db;
 
+--DROP TABLE ads_to_call;
 --DROP TABLE ads_price_history;
 --DROP TABLE tmp_ads;
 --DROP TABLE ads;
-
 
 CREATE TABLE IF NOT EXISTS ads(
 	id INT AUTO_INCREMENT PRIMARY KEY,
@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS ads_price_history(
 ALTER TABLE ads ADD is_unpublished BIT DEFAULT(FALSE) NOT NULL;
 ALTER TABLE ads ADD to_call_datetime DATETIME;
 ALTER TABLE tmp_ads ADD is_unpublished BIT DEFAULT(FALSE) NOT NULL;
+ALTER TABLE tmp_ads ADD to_call_datetime DATETIME;
+
 
 CREATE TABLE IF NOT EXISTS ads_to_call(
 	id INT AUTO_INCREMENT PRIMARY KEY,

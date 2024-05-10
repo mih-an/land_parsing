@@ -30,6 +30,7 @@ class Ads:
     last_parse_datetime: datetime = None
     sector_number: int = None
     is_unpublished = False
+    to_call_datetime: datetime = None
 
     def get_price_sotka(self):
         if self.square == 0:

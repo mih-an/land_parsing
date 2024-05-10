@@ -5,6 +5,12 @@ from html_readers.ads import Ads, AdsPriceHistoryItem
 
 class AdsDataBase:
     def __init__(self):
+        self.select_ads_to_call_by_date_query = """
+            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
+                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, 
+                last_parse_datetime, is_unpublished, to_call_datetime 
+            FROM ads_to_call
+            WHERE DATE(to_call_datetime) = %s"""
         self.select_n_ads_to_call_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, electronic_trading, 
                 ads_owner, ads_owner_id, first_parse_datetime, ads.sector_number, last_parse_datetime, is_unpublished
@@ -58,8 +64,8 @@ class AdsDataBase:
         self.insert_tmp_ads_query = """
             INSERT INTO tmp_ads (ads_id, ads_title, square, price, vri, link, kp, address, description, 
                 kadastr, electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number,
-                last_parse_datetime, is_unpublished)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                last_parse_datetime, is_unpublished, to_call_datetime)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.insert_new_ads_to_main_table_query = """
             INSERT INTO ads(ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
@@ -81,20 +87,26 @@ class AdsDataBase:
             WHERE ads.ads_id = tmp_ads.ads_id;
         """
         self.kadastr_separator = ','
-        self.update_ads_published_status = """
+        self.update_ads_published_status_query = """
             UPDATE ads
             SET is_unpublished = %s, last_parse_datetime = NOW()
             WHERE ads_id = %s 
         """
+        # self.insert_ads_to_call_query = """
+        #     INSERT INTO ads_to_call (ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
+        #         electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
+        #         is_unpublished)
+        #     SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
+        #         electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
+        #         is_unpublished
+        #     FROM ads
+        #     WHERE ads_id in (%s)
+        # """
         self.insert_ads_to_call_query = """
-            INSERT INTO ads_to_call (ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
-                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
-                is_unpublished)
-            SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr,
-                electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number, last_parse_datetime,
-                is_unpublished
-            FROM ads
-            WHERE ads_id in (%s)
+            INSERT INTO ads_to_call (ads_id, ads_title, square, price, vri, link, kp, address, description, 
+                kadastr, electronic_trading, ads_owner, ads_owner_id, first_parse_datetime, sector_number,
+                last_parse_datetime, is_unpublished, to_call_datetime)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         self.select_ads_to_call_query = """
             SELECT ads_id, ads_title, square, price, vri, link, kp, address, description, kadastr, 
@@ -167,7 +179,7 @@ class AdsDataBase:
             ads_records.append([ads.id, ads.title, ads.square, ads.price, ads.vri, ads.link, ads.kp, ads.address,
                                 ads.description, self.kadastr_separator.join(ads.kadastr_list),
                                 ads.electronic_trading, ads.ads_owner, ads.ads_owner_id, ads.first_parse_datetime,
-                                ads.sector_number, ads.last_parse_datetime, ads.is_unpublished])
+                                ads.sector_number, ads.last_parse_datetime, ads.is_unpublished, ads.to_call_datetime])
         return ads_records
 
     @staticmethod
@@ -310,14 +322,15 @@ class AdsDataBase:
                     database=creds.db_name,
             ) as connection:
                 with connection.cursor() as cursor:
-                    cursor.execute(self.update_ads_published_status, [ads.is_unpublished, ads.id])
+                    cursor.execute(self.update_ads_published_status_query, [ads.is_unpublished, ads.id])
                     connection.commit()
 
         except Error as e:
             print(f'Error updating ads is_published in database: {e}')
 
     def save_to_call(self, ads_list):
-        ads_records = self.get_records_from_ads_id(ads_list)
+        # ads_records = self.get_records_from_ads_id(ads_list)
+        ads_records = self.get_records_from_ads(ads_list)
         self.insert_records(self.insert_ads_to_call_query, ads_records)
 
     @staticmethod
@@ -351,4 +364,21 @@ class AdsDataBase:
 
     def select_ads_to_call(self):
         return self.select_ads(self.select_ads_to_call_query)
+
+    def select_ads_to_call_by_date(self, date):
+        try:
+            with connect(
+                    host=creds.db_host,
+                    user=creds.db_user,
+                    password=creds.db_password,
+                    database=creds.db_name,
+            ) as connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(self.select_ads_to_call_by_date_query, [date])
+                    ads_list = []
+                    for ads_from_db in cursor.fetchall():
+                        ads_list.append(self.get_ads_from_db_record(ads_from_db))
+                    return ads_list
+        except Error as e:
+            print(f'Error getting ads from database: {e}')
 

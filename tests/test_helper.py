@@ -23,6 +23,7 @@ class TestHelper(unittest.TestCase):
         ads.ads_owner_id = 'ID 70642111'
         ads.first_parse_datetime = datetime.now().replace(microsecond=0)
         ads.last_parse_datetime = ads.first_parse_datetime
+        ads.to_call_datetime = ads.first_parse_datetime
         ads.sector_number = 1
         return ads
 
@@ -43,6 +44,7 @@ class TestHelper(unittest.TestCase):
         ads.ads_owner_id = 'ID 23674176'
         ads.first_parse_datetime = datetime.now().replace(microsecond=0)
         ads.last_parse_datetime = ads.first_parse_datetime
+        ads.to_call_datetime = ads.first_parse_datetime
         ads.sector_number = 2
         return ads
 
