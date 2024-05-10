@@ -3,6 +3,7 @@ import uuid
 
 from calling_bp.calling_bp import CallBusinessProcess
 from db.ads_database import AdsDataBase
+from google_sheets.google_sheets_saver import GoogleSheetsWorker
 from tests.test_helper import TestHelper
 from datetime import timedelta, datetime
 
@@ -35,8 +36,8 @@ from datetime import timedelta, datetime
 # 8. (done) Не отправлять на проверку снятия с публикации те объявления, которые только сегодня были актуализированы
 # 10. (done) Не отправлять на прозвон электронные торги
 # 11. (done) Исправить баг, когда можно добавить на прозвон снятое с публикации объявление
-# 12. Сделать параметр по количеству добавляемых на прозвон объявлений
-# Сохранять и загружать дату отправки на прозвон
+# 12. (done) Сделать параметр по количеству добавляемых на прозвон объявлений
+# (done) Сохранять и загружать дату отправки на прозвон
 # Выгружать в гугл таблицу на прозвон
 # Приоритет по секторам на проде сделать
 #
@@ -412,11 +413,38 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         ads_db.save(ads_list)
 
         cbp = CallBusinessProcess()
-        cbp.insert_ads_to_call(1, None)
+        cbp.insert_ads_to_call(50, None)
         ads_list_to_call = cbp.load_ads_list_to_call_by_date(datetime.now().date())
         self.assertEqual(1, len(ads_list_to_call))
         delta = datetime.now() - ads_list_to_call[0].to_call_datetime
         self.assertEqual(delta.days, 0)
+
+    def test_save_ads_to_call_in_google_sheets(self):
+        ads_db = AdsDataBase()
+        ads_db.delete_test_ads()
+
+        ads_uuid = str(uuid.uuid4())
+        ads = self.test_helper.create_test_ads1(ads_uuid)
+        ads.sector_number = 4110
+        ads.link = 'dont_check'
+        ads.electronic_trading = ''
+        ads.is_electronic_trading = False
+        ads_list = [ads]
+        ads_db.save(ads_list)
+
+        cbp = CallBusinessProcess()
+        cbp.insert_ads_to_call(50, None)
+
+        self.new_ads_url = "https://docs.google.com/spreadsheets/d/12o5TUNWyzWZRo3OHSDr8YIusQLTwUquFx_DwsczDDH8"
+        self.sheets_id = self.new_ads_url[39:]
+        self.credentials_file = '../creds/google_creds.json'
+
+        gs_ads_worker = GoogleSheetsWorker()
+        ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "ToCall")
+        self.assertEqual(1, len(ads_list_from_gs))
+
+        ads_list_from_gs = gs_ads_worker.load_ads_with_title(self.sheets_id, self.credentials_file, "ToCall")
+        self.assertEqual(2, len(ads_list_from_gs))
 
 
 if __name__ == '__main__':
