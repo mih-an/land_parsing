@@ -8,6 +8,17 @@ class GoogleSheetsWorker:
         self.scopes = ["https://www.googleapis.com/auth/spreadsheets"]
         self.credentials_file = 'creds/google_creds.json'
 
+    # todo remove code duplication
+    def clear_sheet(self, sheet_id, credentials_file, sheet_name):
+        creds = Credentials.from_service_account_file(credentials_file, scopes=self.scopes)
+        client = gspread.authorize(creds)
+        workbook = client.open_by_key(sheet_id)
+
+        worksheet_list = map(lambda x: x.title, workbook.worksheets())
+        if sheet_name in worksheet_list:
+            sheet = workbook.worksheet(sheet_name)
+            sheet.clear()
+
     def save_ads(self, ads_list, sheet_id, credentials_file, sheet_name):
         creds = Credentials.from_service_account_file(credentials_file, scopes=self.scopes)
         client = gspread.authorize(creds)
@@ -57,3 +68,5 @@ class GoogleSheetsWorker:
         ads_records.append(['id', 'sector_number', 'title', 'square', 'price', 'price_sotka', 'vri', 'link', 'kp',
                             'address', 'kadastr_list', 'ads_owner', 'ads_owner_id', 'first_parse_datetime',
                             'description'])
+
+

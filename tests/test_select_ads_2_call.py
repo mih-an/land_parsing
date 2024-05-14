@@ -435,12 +435,14 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         ads_list = [ads]
         ads_db.save(ads_list)
 
+        gs_ads_worker = GoogleSheetsWorker()
+        gs_ads_worker.clear_sheet(self.sheets_id, self.credentials_file, "ToCall")
+
         cbp = CallBusinessProcess()
         cbp.new_ads_url = self.new_ads_url
         cbp.sheets_id = self.sheets_id
         cbp.insert_ads_to_call(50, None, True)
 
-        gs_ads_worker = GoogleSheetsWorker()
         ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "ToCall")
         self.assertEqual(1, len(ads_list_from_gs))
 
@@ -462,12 +464,14 @@ class TestCaseSelectAds2Call(unittest.TestCase):
             ads_list.append(ads)
         ads_db.save(ads_list)
 
+        gs_ads_worker = GoogleSheetsWorker()
+        gs_ads_worker.clear_sheet(self.sheets_id, self.credentials_file, "ToCall")
+
         cbp = CallBusinessProcess()
         cbp.new_ads_url = self.new_ads_url
         cbp.sheets_id = self.sheets_id
         cbp.insert_ads_to_call(50, None, True)
 
-        gs_ads_worker = GoogleSheetsWorker()
         ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "ToCall")
         self.assertEqual(5, len(ads_list_from_gs))
 
