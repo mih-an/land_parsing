@@ -50,6 +50,9 @@ from datetime import timedelta, datetime
 class TestCaseSelectAds2Call(unittest.TestCase):
     def setUp(self):
         self.test_helper = TestHelper()
+        self.new_ads_url = "https://docs.google.com/spreadsheets/d/12o5TUNWyzWZRo3OHSDr8YIusQLTwUquFx_DwsczDDH8"
+        self.sheets_id = self.new_ads_url[39:]
+        self.credentials_file = '../creds/google_creds.json'
 
     # Отправить на прозвон одно объявление + проверить статус
     # Отправить на прозвон группу объявлений + проверить статус, что было отправлено
@@ -433,11 +436,9 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         ads_db.save(ads_list)
 
         cbp = CallBusinessProcess()
+        cbp.new_ads_url = self.new_ads_url
+        cbp.sheets_id = self.sheets_id
         cbp.insert_ads_to_call(50, None, True)
-
-        self.new_ads_url = "https://docs.google.com/spreadsheets/d/12o5TUNWyzWZRo3OHSDr8YIusQLTwUquFx_DwsczDDH8"
-        self.sheets_id = self.new_ads_url[39:]
-        self.credentials_file = '../creds/google_creds.json'
 
         gs_ads_worker = GoogleSheetsWorker()
         ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "ToCall")
@@ -446,8 +447,43 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         ads_list_from_gs = gs_ads_worker.load_ads_with_title(self.sheets_id, self.credentials_file, "ToCall")
         self.assertEqual(2, len(ads_list_from_gs))
 
-    def test_to_call_field_in_gs(self):
-        pass
+    def test_adding_new_ads_in_gs(self):
+        ads_db = AdsDataBase()
+        ads_db.delete_test_ads()
+
+        ads_list = []
+        for i in range(5):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads1(ads_uuid)
+            ads.sector_number = 4110
+            ads.link = 'dont_check'
+            ads.electronic_trading = ''
+            ads.is_electronic_trading = False
+            ads_list.append(ads)
+        ads_db.save(ads_list)
+
+        cbp = CallBusinessProcess()
+        cbp.new_ads_url = self.new_ads_url
+        cbp.sheets_id = self.sheets_id
+        cbp.insert_ads_to_call(50, None, True)
+
+        gs_ads_worker = GoogleSheetsWorker()
+        ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "ToCall")
+        self.assertEqual(5, len(ads_list_from_gs))
+
+        for i in range(7):
+            ads_uuid = str(uuid.uuid4())
+            ads = self.test_helper.create_test_ads1(ads_uuid)
+            ads.sector_number = 4110
+            ads.link = 'dont_check'
+            ads.electronic_trading = ''
+            ads.is_electronic_trading = False
+            ads_list.append(ads)
+        ads_db.save(ads_list)
+        cbp.insert_ads_to_call(50, None, True)
+
+        ads_list_from_gs = gs_ads_worker.load_ads(self.sheets_id, self.credentials_file, "ToCall")
+        self.assertEqual(12, len(ads_list_from_gs))
 
 
 if __name__ == '__main__':

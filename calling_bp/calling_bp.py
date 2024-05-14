@@ -9,6 +9,7 @@ class CallBusinessProcess:
     def __init__(self):
         self.sheet_name = "ToCall"
         self.ads_db = AdsDataBase()
+        # todo change to production file link
         self.new_ads_url = "https://docs.google.com/spreadsheets/d/12o5TUNWyzWZRo3OHSDr8YIusQLTwUquFx_DwsczDDH8"
         self.sheets_id = self.new_ads_url[39:]
         self.credentials_file = '../creds/google_creds.json'
