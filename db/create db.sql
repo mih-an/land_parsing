@@ -53,8 +53,8 @@ CREATE TABLE IF NOT EXISTS ads_price_history(
 );
 
 ALTER TABLE ads ADD is_unpublished BIT DEFAULT(FALSE) NOT NULL;
-ALTER TABLE ads ADD to_call_datetime DATETIME;
 ALTER TABLE tmp_ads ADD is_unpublished BIT DEFAULT(FALSE) NOT NULL;
+ALTER TABLE ads ADD to_call_datetime DATETIME;
 ALTER TABLE tmp_ads ADD to_call_datetime DATETIME;
 
 
@@ -89,3 +89,13 @@ CREATE TABLE IF NOT EXISTS sectors_priority(
 	UNIQUE (sector_number),
 	UNIQUE (sector_order)
 );
+
+INSERT INTO sectors_priority (sector_number, sector_order)
+VALUES (51, 1), (52, 2),
+	(41, 3),
+	(72, 4), (73, 5), (74, 6),
+	(62, 7), (65, 8), (66, 9), (67, 10), (68, 11),
+	(42, 12), (43, 13), (44, 14), (45, 15),
+	(53, 16), (54, 17), (55, 18), (56, 19),
+	(61, 20), (63, 21), (64, 22), (69, 23),
+	(71, 24)
