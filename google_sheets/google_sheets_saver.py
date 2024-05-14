@@ -37,6 +37,31 @@ class GoogleSheetsWorker:
         sheet.update(range_name=f"A1:O{len(ads_records)}", values=ads_records)
         sheet.format('A1:O1', {'textFormat': {'bold': True}})
 
+    def append_ads(self, ads_list, sheet_id, credentials_file, sheet_name):
+        creds = Credentials.from_service_account_file(credentials_file, scopes=self.scopes)
+        client = gspread.authorize(creds)
+        workbook = client.open_by_key(sheet_id)
+
+        worksheet_list = map(lambda x: x.title, workbook.worksheets())
+        if sheet_name in worksheet_list:
+            sheet = workbook.worksheet(sheet_name)
+            ads_records = []
+
+            values = sheet.row_values(1)
+            rows_count = len(values)
+            if rows_count == 0:
+                self.add_headers(ads_records)
+
+            self.get_records_from_ads_to_gs(ads_list, ads_records)
+            sheet.append_rows(ads_records)
+        else:
+            sheet = workbook.add_worksheet(sheet_name, rows=len(ads_list) + 1, cols=15)
+            ads_records = []
+            self.add_headers(ads_records)
+            self.get_records_from_ads_to_gs(ads_list, ads_records)
+            sheet.update(range_name=f"A1:O{len(ads_records)}", values=ads_records)
+            sheet.format('A1:O1', {'textFormat': {'bold': True}})
+
     def get_records_from_ads_to_gs(self, ads_list, ads_records):
         for ads in ads_list:
             ads_records.append([ads.id, ads.sector_number, ads.title, ads.square, str(ads.price),
@@ -68,5 +93,3 @@ class GoogleSheetsWorker:
         ads_records.append(['id', 'sector_number', 'title', 'square', 'price', 'price_sotka', 'vri', 'link', 'kp',
                             'address', 'kadastr_list', 'ads_owner', 'ads_owner_id', 'first_parse_datetime',
                             'description'])
-
-

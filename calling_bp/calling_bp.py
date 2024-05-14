@@ -52,7 +52,7 @@ class CallBusinessProcess:
 
         self.ads_db.save_to_call(ads_list_to_call)
         if save_to_gs:
-            self.gs_ads_worker.save_ads(ads_list, self.sheets_id, self.credentials_file, self.sheet_name)
+            self.gs_ads_worker.append_ads(ads_list, self.sheets_id, self.credentials_file, self.sheet_name)
 
     def load_ads_list_to_call(self):
         return self.ads_db.select_ads_to_call()
