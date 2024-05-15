@@ -11,7 +11,7 @@ deactivate
 chmod +x launch_randomly.sh
 chmod +x launch.sh
 crontab -e
-0 10 * * * $HOME/land_parsing/launch_randomly.sh
+0 7 * * * $HOME/land_parsing/launch.sh
 
 ./launch.sh &
 tail -f parsing_log.log

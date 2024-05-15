@@ -1,5 +1,7 @@
 import datetime
+import logging
 
+from logging.handlers import RotatingFileHandler
 from db.ads_database import AdsDataBase
 from google_sheets.google_sheets_saver import GoogleSheetsWorker
 from loaders.ads_checker import AdsChecker
@@ -9,11 +11,19 @@ class CallBusinessProcess:
     def __init__(self):
         self.sheet_name = "ToCall"
         self.ads_db = AdsDataBase()
-        # todo change to production file link
-        self.new_ads_url = "https://docs.google.com/spreadsheets/d/12o5TUNWyzWZRo3OHSDr8YIusQLTwUquFx_DwsczDDH8"
+        self.new_ads_url = "https://docs.google.com/spreadsheets/d/1yGezEPbzYSGHnSJeLwuteI7zLUaM6g5CSWDiFNhstZQ"
         self.sheets_id = self.new_ads_url[39:]
         self.credentials_file = '../creds/google_creds.json'
         self.gs_ads_worker = GoogleSheetsWorker()
+
+        logger_name = "parsing_log"
+        self.logger = logging.getLogger(logger_name)
+        self.logger.setLevel(logging.INFO)
+        file_name = f'{logger_name}.log'
+        handler = RotatingFileHandler(file_name, maxBytes=104857600, backupCount=5)
+        formatter = logging.Formatter("%(name)s %(asctime)s %(levelname)s %(message)s", datefmt='%d-%b-%y %H:%M:%S')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
 
     def save_to_call(self, ads_list):
         self.ads_db.save_to_call(ads_list)
@@ -35,6 +45,7 @@ class CallBusinessProcess:
             date_to_call = datetime.datetime.now().date()
 
         ads_checker = AdsChecker()
+        ads_checker.set_logger(self.logger)
         i = 0
         while i < ads_count_to_call:
             ads_to_call = ads_list[i]
