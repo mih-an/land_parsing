@@ -6,11 +6,11 @@ from parsing_worker import ParsingWorker
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "insert_ads_to_call":
-        cbp = CallBusinessProcess()
         count_to_add = 50
         if len(sys.argv) == 3:
             count_to_add = int(sys.argv[2])
-        cbp.insert_ads_to_call(count_to_add, datetime.now())
+        cbp = CallBusinessProcess()
+        cbp.insert_ads_to_call(count_to_add, datetime.now(), True)
         exit()
 
     parsing_worker = ParsingWorker()

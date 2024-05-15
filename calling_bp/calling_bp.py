@@ -36,6 +36,7 @@ class CallBusinessProcess:
         # Берем с запасом, так как часть окажется уже снятой с публикации
         count = ads_count_to_call * 2
         ads_list = self.ads_db.select_n_ads_to_call(count)
+        self.logger.info(f"Start inserting to call. Selected ads to check before calling  - {len(ads_list)}")
 
         ads_list_to_call = []
         if ads_count_to_call > len(ads_list):
@@ -52,9 +53,11 @@ class CallBusinessProcess:
         i = 0
         while i < ads_count_to_call:
             ads_to_call = ads_list[i]
+            self.logger.info(f"Ads {i} id {ads_to_call.id} - checking {ads_to_call.link}")
             is_unpublished = ads_checker.check_ads(ads_to_call)
 
             if is_unpublished:
+                self.logger.info(f"{ads_to_call.link} is unpublished already")
                 del ads_list[i]
                 if ads_count_to_call > len(ads_list):
                     ads_count_to_call = len(ads_list)
@@ -62,11 +65,14 @@ class CallBusinessProcess:
 
             ads_to_call.to_call_datetime = date_to_call
             ads_list_to_call.append(ads_to_call)
+            self.logger.info(f"{ads_to_call.link} checked and added to call")
             i += 1
 
+        self.logger.info(f"Saving ads to call - {len(ads_list_to_call)}")
         self.ads_db.save_to_call(ads_list_to_call)
         if save_to_gs:
-            self.gs_ads_worker.append_ads(ads_list, self.sheets_id, self.credentials_file, self.sheet_name)
+            self.logger.info(f"Saving ads to call to google sheets - {len(ads_list_to_call)}")
+            self.gs_ads_worker.append_ads(ads_list_to_call, self.sheets_id, self.credentials_file, self.sheet_name)
 
     def load_ads_list_to_call(self):
         return self.ads_db.select_ads_to_call()
