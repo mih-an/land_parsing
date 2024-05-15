@@ -9,7 +9,7 @@ if __name__ == "__main__":
         cbp = CallBusinessProcess()
         count_to_add = 50
         if len(sys.argv) == 3:
-            count_to_add = sys.argv[2]
+            count_to_add = int(sys.argv[2])
         cbp.insert_ads_to_call(count_to_add, datetime.now())
         exit()
 

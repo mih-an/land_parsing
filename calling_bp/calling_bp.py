@@ -44,6 +44,9 @@ class CallBusinessProcess:
         if date_to_call is None:
             date_to_call = datetime.datetime.now().date()
 
+        if ads_count_to_call == 0:
+            self.logger.info("Nothing add to call...")
+
         ads_checker = AdsChecker()
         ads_checker.set_logger(self.logger)
         i = 0
