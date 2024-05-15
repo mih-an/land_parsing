@@ -18,3 +18,4 @@ tail -f parsing_log.log
 
 source venv/bin/activate
 python copy_new_ads_to_gs.py
+python main.py insert_ads_to_call 50
