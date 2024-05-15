@@ -10,6 +10,7 @@ if __name__ == "__main__":
         if len(sys.argv) == 3:
             count_to_add = int(sys.argv[2])
         cbp = CallBusinessProcess()
+        cbp.credentials_file = 'creds/google_creds.json'
         cbp.insert_ads_to_call(count_to_add, datetime.now(), True)
         exit()
 
