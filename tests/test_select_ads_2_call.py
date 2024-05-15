@@ -50,8 +50,8 @@ from datetime import timedelta, datetime
 class TestCaseSelectAds2Call(unittest.TestCase):
     def setUp(self):
         self.test_helper = TestHelper()
-        self.new_ads_url = "https://docs.google.com/spreadsheets/d/12o5TUNWyzWZRo3OHSDr8YIusQLTwUquFx_DwsczDDH8"
-        self.sheets_id = self.new_ads_url[39:]
+        self.ads_to_call_url = "https://docs.google.com/spreadsheets/d/12o5TUNWyzWZRo3OHSDr8YIusQLTwUquFx_DwsczDDH8"
+        self.sheets_id = self.ads_to_call_url[39:]
         self.credentials_file = '../creds/google_creds.json'
 
     # Отправить на прозвон одно объявление + проверить статус
@@ -439,7 +439,7 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         gs_ads_worker.clear_sheet(self.sheets_id, self.credentials_file, "ToCall")
 
         cbp = CallBusinessProcess()
-        cbp.new_ads_url = self.new_ads_url
+        cbp.new_ads_url = self.ads_to_call_url
         cbp.sheets_id = self.sheets_id
         cbp.insert_ads_to_call(50, None, True)
 
@@ -468,7 +468,7 @@ class TestCaseSelectAds2Call(unittest.TestCase):
         gs_ads_worker.clear_sheet(self.sheets_id, self.credentials_file, "ToCall")
 
         cbp = CallBusinessProcess()
-        cbp.new_ads_url = self.new_ads_url
+        cbp.new_ads_url = self.ads_to_call_url
         cbp.sheets_id = self.sheets_id
         cbp.insert_ads_to_call(50, None, True)
 
