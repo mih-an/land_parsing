@@ -28,6 +28,8 @@ class AdsChecker:
         now = datetime.now().replace(microsecond=0)
         delta = now - ads.last_parse_datetime
         if delta.days <= 1:
+            if self.logger is not None:
+                self.logger.info(f"Ads with id {ads.id} is fresh. No need to check for unpublished status ")
             return ads.is_unpublished
 
         html = self.try_few_attempts_downloading_page(ads.link)
