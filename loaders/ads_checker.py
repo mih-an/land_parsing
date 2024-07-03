@@ -42,12 +42,18 @@ class AdsChecker:
 
         while attempt_number < self.max_attempt:
             try:
+                if self.logger is not None:
+                    self.logger.info(f"Trying to load ads link {link}")
                 response = self.html_loader.load_page(link)
                 html = response.text
                 if self.cian_parser.has_captcha(html):
+                    if self.logger is not None:
+                        self.logger.info(f"Response has a captcha! Trying to solve it...")
                     session = self.html_loader.get_session()
                     cs = CaptchaSolver()
                     cs.solve(link, session)
+                    if self.logger is not None:
+                        self.logger.info(f"Captcha successfully solved!")
                     response = self.html_loader.load_page(link)
                     html = response.text
                 attempt_number = self.max_attempt
